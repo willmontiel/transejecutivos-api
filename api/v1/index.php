@@ -143,141 +143,50 @@ $app->put('/apikey', 'authenticate', function() use($app) {
  * url /services          
  */
 $app->get('/services', 'authenticate', function() {
-            global $user;
-            $response = array();
-            $db = new DbHandler();
+    global $user;
+    $response = array();
+    $db = new DbHandler();
 
-            // fetching all user tasks
-            $result = $db->getAllUserTasks($user_id);
+    // fetching all user tasks
+    $result = $db->getServices($user['company']);
 
-            $response["error"] = false;
-            $response["services"] = array();
+    $response["error"] = false;
+    $response["services"] = array();
 
-            // looping through result and preparing tasks array
-            while ($task = $result->fetch_assoc()) {
-                $tmp = array();
-                $tmp["id"] = $task["id"];
-                $tmp["task"] = $task["task"];
-                $tmp["status"] = $task["status"];
-                $tmp["createdAt"] = $task["created_at"];
-                array_push($response["services"], $tmp);
-            }
+    // looping through result and preparing tasks array
+    while ($service = $result->fetch_assoc()) {
+        $tmp = array();
+        //Service information
+        $tmp["service_id"] = $service["orden_id"];
+        $tmp["ref"] = $service["referencia"];
+        $tmp["date"] = $service["fecha_e"] . " " . $service["hora_e"];
+        $tmp["start_date"] = $service["fecha_s"] . " " . $service['hora_s1'] . ":" . $service['hora_s2'] . ":" . $service['hora_s3'];
+        $tmp["end_date"] = null;
+        $tmp["fly"] = $service["vuelo"];
+        $tmp["aeroline"] = $service["aerolinea"];
+        $tmp["company"] = $service["empresa"];
+        $tmp["passenger_type"] = $service["tipo_s"];
+        $tmp["pax_cant"] = $service["cant_pax"];
+        $tmp["represent"] = $service["representando"];
+        $tmp["source"] = $service["ciudad_inicio"] . ", " . $service['dir_origen'];
+        $tmp["destiny"] = $service["ciudad_destino"] . ", " . $service['dir_destino'];
+        $tmp["service_observations"] = $service["obaservaciones"];
+        //Driver information
 
-            echoRespnse(200, $response);
-        });
+        //array_push($response["services"], $tmp);
+        $response["services"][] = $tmp;
+    }
 
-/**
- * Listing single task of particual user
- * method GET
- * url /tasks/:id
- * Will return 404 if the task doesn't belongs to user
- */
-$app->get('/tasks/:id', 'authenticate', function($task_id) {
-            global $user_id;
-            $response = array();
-            $db = new DbHandler();
-
-            // fetch task
-            $result = $db->getTask($task_id, $user_id);
-
-            if ($result != NULL) {
-                $response["error"] = false;
-                $response["id"] = $result["id"];
-                $response["task"] = $result["task"];
-                $response["status"] = $result["status"];
-                $response["createdAt"] = $result["created_at"];
-                echoRespnse(200, $response);
-            } else {
-                $response["error"] = true;
-                $response["message"] = "The requested resource doesn't exists";
-                echoRespnse(404, $response);
-            }
-        });
-
-/**
- * Creating new task in db
- * method POST
- * params - name
- * url - /tasks/
- */
-$app->post('/tasks', 'authenticate', function() use ($app) {
-            // check for required params
-            verifyRequiredParams(array('task'));
-
-            $response = array();
-            $task = $app->request->post('task');
-
-            global $user_id;
-            $db = new DbHandler();
-
-            // creating new task
-            $task_id = $db->createTask($user_id, $task);
-
-            if ($task_id != NULL) {
-                $response["error"] = false;
-                $response["message"] = "Task created successfully";
-                $response["task_id"] = $task_id;
-                echoRespnse(201, $response);
-            } else {
-                $response["error"] = true;
-                $response["message"] = "Failed to create task. Please try again";
-                echoRespnse(200, $response);
-            }            
-        });
-
-/**
- * Updating existing task
- * method PUT
- * params task, status
- * url - /tasks/:id
- */
-$app->put('/tasks/:id', 'authenticate', function($task_id) use($app) {
-            // check for required params
-            verifyRequiredParams(array('task', 'status'));
-
-            global $user_id;            
-            $task = $app->request->put('task');
-            $status = $app->request->put('status');
-
-            $db = new DbHandler();
-            $response = array();
-
-            // updating task
-            $result = $db->updateTask($user_id, $task_id, $task, $status);
-            if ($result) {
-                // task updated successfully
-                $response["error"] = false;
-                $response["message"] = "Task updated successfully";
-            } else {
-                // task failed to update
-                $response["error"] = true;
-                $response["message"] = "Task failed to update. Please try again!";
-            }
-            echoRespnse(200, $response);
-        });
-
-/**
- * Deleting task. Users can delete only their tasks
- * method DELETE
- * url /tasks
- */
-$app->delete('/tasks/:id', 'authenticate', function($task_id) use($app) {
-            global $user_id;
-
-            $db = new DbHandler();
-            $response = array();
-            $result = $db->deleteTask($user_id, $task_id);
-            if ($result) {
-                // task deleted successfully
-                $response["error"] = false;
-                $response["message"] = "Task deleted succesfully";
-            } else {
-                // task failed to delete
-                $response["error"] = true;
-                $response["message"] = "Task failed to delete. Please try again!";
-            }
-            echoRespnse(200, $response);
-        });
+$fichero = 'error.log';
+                // Abre el fichero para obtener el contenido existente
+                $actual = file_get_contents($fichero);
+                // Añade una nueva persona al fichero
+                $actual .= print_r($response);
+                // Escribe el contenido al fichero
+                file_put_contents($fichero, $actual);
+                
+    echoRespnse(200, $response);
+});
 
 /**
  * Verifying required params posted or not

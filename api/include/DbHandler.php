@@ -93,7 +93,7 @@ class DbHandler {
 
     /**
      * Fetching user api key
-     * @param String $user_id user id primary key in user table
+     * @param String $user_id user id primary key in admin table
      */
     public function getApiKeyById($user_id) {
         $stmt = $this->conn->prepare("SELECT api_key FROM users WHERE id = ?");
@@ -114,15 +114,16 @@ class DbHandler {
      * @param String $api_key user api key
      */
     public function getUser($api_key) {
-        $stmt = $this->conn->prepare("SELECT id, usuario, nivel_clte FROM admin WHERE api_key = ?");
+        $stmt = $this->conn->prepare("SELECT id, usuario, nivel_clte, empresa FROM admin WHERE api_key = ?");
         $stmt->bind_param("s", $api_key);
         if ($stmt->execute()) {
-            $stmt->bind_result($user_id, $username, $type);
+            $stmt->bind_result($user_id, $username, $type, $empresa);
             $stmt->fetch();
             $user = array();
             $user["user_id"] = $user_id;
             $user["username"] = $username;
             $user["type"] = $type;
+            $user["company"] = $empresa;
             // TODO
             // $user_id = $stmt->get_result()->fetch_assoc();
             $stmt->close();
@@ -156,28 +157,41 @@ class DbHandler {
     }
 
 
-    /**
-     * Fetching single task
-     * @param String $task_id id of the task
+     /**
+     * Fetching all user services
+     * @param String $company company of the user
      */
-    public function getTask($task_id, $user_id) {
-        $stmt = $this->conn->prepare("SELECT t.id, t.task, t.status, t.created_at from tasks t, user_tasks ut WHERE t.id = ? AND ut.task_id = t.id AND ut.user_id = ?");
-        $stmt->bind_param("ii", $task_id, $user_id);
-        if ($stmt->execute()) {
-            $res = array();
-            $stmt->bind_result($id, $task, $status, $created_at);
-            // TODO
-            // $task = $stmt->get_result()->fetch_assoc();
-            $stmt->fetch();
-            $res["id"] = $id;
-            $res["task"] = $task;
-            $res["status"] = $status;
-            $res["created_at"] = $created_at;
-            $stmt->close();
-            return $res;
-        } else {
-            return NULL;
-        }
+    public function getServices($company) {
+        $stmt = $this->conn->prepare("SELECT o.id AS orden_id, 
+                                            o.*, 
+                                            p.id AS pasajeros_id, 
+                                            p.codigo AS pasajeros_codigo, 
+                                            p.nombre AS pasajeros_name, 
+                                            p.apellido AS pasajeros_apellido, 
+                                            p.telefono1 AS pasajeros_telefono1, 
+                                            p.telefono2 AS pasajeros_telefono2, 
+                                            p.*, 
+                                            c.id AS conductor_id, 
+                                            c.nombre AS conductor_nombre, 
+                                            c.apellido AS conductor_apellido, 
+                                            c.telefono1 AS conductor_telefono1, 
+                                            c.telefono2 AS conductor_telefono2, 
+                                            c.codigo AS conductor_codigo, 
+                                            c.* 
+                                            FROM orden AS o
+                                                LEFT JOIN conductor AS c ON (c.codigo = o.conductor) 
+                                                LEFT JOIN pasajeros AS p ON (p.codigo = o.persona_origen)
+                                            WHERE o.fecha_s = ? 
+                                            AND o.empresa = ? 
+                                            ORDER BY o.hora_s1 ASC, o.hora_s2 ASC");
+
+        //$currentDate =  date('m/d/Y');
+        $currentDate =  "11/28/2012";
+        $stmt->bind_param("ss", $currentDate, $company);
+        $stmt->execute();
+        $services = $stmt->get_result();
+        $stmt->close();
+        return $services;
     }
 
 
