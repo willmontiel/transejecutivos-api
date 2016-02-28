@@ -1,5 +1,9 @@
 <?php
-
+/**
+ * Validate the password hash
+ *
+ * @author Will Montiel
+ */
 class PassHash {
 
     // blowfish

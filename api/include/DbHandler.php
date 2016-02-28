@@ -4,8 +4,7 @@
  * Class to handle all db operations
  * This class will have CRUD methods for database tables
  *
- * @author Ravi Tamada
- * @link URL Tutorial link
+ * @author Will Montiel
  */
 class DbHandler {
 
@@ -166,16 +165,23 @@ class DbHandler {
                                             o.*, 
                                             p.id AS pasajeros_id, 
                                             p.codigo AS pasajeros_codigo, 
-                                            p.nombre AS pasajeros_name, 
+                                            p.nombre AS pasajeros_nombre, 
                                             p.apellido AS pasajeros_apellido, 
                                             p.telefono1 AS pasajeros_telefono1, 
                                             p.telefono2 AS pasajeros_telefono2, 
+                                            p.empresa AS pasajeros_empresa,
+                                            p.correo1 AS pasajeros_correo1,
+                                            p.direccion AS pasajeros_direccion,
+                                            p.ciudad AS pasajeros_ciudad,
                                             p.*, 
                                             c.id AS conductor_id, 
                                             c.nombre AS conductor_nombre, 
                                             c.apellido AS conductor_apellido, 
                                             c.telefono1 AS conductor_telefono1, 
                                             c.telefono2 AS conductor_telefono2, 
+                                            c.direccion AS conductor_direccion,
+                                            c.ciudad AS conductor_ciudad,
+                                            c.email1 AS conductor_email,
                                             c.codigo AS conductor_codigo, 
                                             c.* 
                                             FROM orden AS o

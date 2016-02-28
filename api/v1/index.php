@@ -1,7 +1,8 @@
 <?php
 
 require_once '../include/DbHandler.php';
-require_once '../include/PassHash.php';
+//require_once '../include/PassHash.php';
+require_once '../include/LoggerHandler.php';
 require '.././libs/Slim/Slim.php';
 
 \Slim\Slim::registerAutoloader();
@@ -156,6 +157,7 @@ $app->get('/services', 'authenticate', function() {
     // looping through result and preparing tasks array
     while ($service = $result->fetch_assoc()) {
         $tmp = array();
+
         //Service information
         $tmp["service_id"] = $service["orden_id"];
         $tmp["ref"] = $service["referencia"];
@@ -168,23 +170,48 @@ $app->get('/services', 'authenticate', function() {
         $tmp["passenger_type"] = $service["tipo_s"];
         $tmp["pax_cant"] = $service["cant_pax"];
         $tmp["represent"] = $service["representando"];
-        $tmp["source"] = $service["ciudad_inicio"] . ", " . $service['dir_origen'];
-        $tmp["destiny"] = $service["ciudad_destino"] . ", " . $service['dir_destino'];
+        //$tmp["source"] = $service["ciudad_inicio"] . ", " . $service['dir_origen'];
+        //$tmp["destiny"] = $service["ciudad_destino"] . ", " . $service['dir_destino'];
+        $tmp["source"] = $service["ciudad_inicio"];
+        $tmp["destiny"] = $service["ciudad_destino"];
         $tmp["service_observations"] = $service["obaservaciones"];
         //Driver information
+        $tmp["driver_id"] = $service["conductor_id"];
+        $tmp["driver_code"] = $service["conductor_codigo"];
+        $tmp["driver_name"] = $service["conductor_nombre"];
+        $tmp["driver_lastname"] = $service["conductor_apellido"];
+        $tmp["driver_phone1"] = $service["conductor_telefono1"];
+        $tmp["driver_phone1"] = $service["conductor_telefono2"];
+        $tmp["driver_address"] = $service["conductor_direccion"];
+        $tmp["driver_city"] = $service["conductor_ciudad"];
+        $tmp["driver_email"] = $service["conductor_email"];
+        $tmp["car_type"] = $service["carro_tipo"];
+        $tmp["car_brand"] = $service["marca"];
+        $tmp["car_model"] = $service["modelo"];
+        $tmp["car_color"] = $service["color"];
+        $tmp["car_license_plate"] = $service["placa"];
+        $tmp["driver_status"] = $service["estado"];
+        //Passenger information
+        $tmp["passenger_id"] = $service["pasajeros_id"];
+        $tmp["passenger_code"] = $service["pasajeros_codigo"];
+        $tmp["passenger_name"] = $service["pasajeros_nombre"];
+        $tmp["passenger_lastname"] = $service["pasajeros_apellido"];
+        $tmp["passenger_company"] = $service["pasajeros_empresa"];
+        $tmp["passenger_phone1"] = $service["pasajeros_telefono1"];
+        $tmp["passenger_phone2"] = $service["pasajeros_telefono2"];
+        $tmp["passenger_email"] = $service["pasajeros_correo1"];
+        $tmp["passenger_address"] = $service["pasajeros_direccion"];
+        $tmp["passenger_city"] = $service["pasajeros_ciudad"];
 
-        //array_push($response["services"], $tmp);
-        $response["services"][] = $tmp;
+        
+
+        //$log = new LoggerHandler();
+        //$log->writeArray($tmp);
+
+        array_push($response["services"], $tmp);
+        //$response["services"][] = $tmp;
     }
 
-$fichero = 'error.log';
-                // Abre el fichero para obtener el contenido existente
-                $actual = file_get_contents($fichero);
-                // Añade una nueva persona al fichero
-                $actual .= print_r($response);
-                // Escribe el contenido al fichero
-                file_put_contents($fichero, $actual);
-                
     echoRespnse(200, $response);
 });
 
@@ -221,8 +248,11 @@ function verifyRequiredParams($required_fields) {
     }
 }
 
+
+/**
+* Validate if is an administrador
+*/
 function validateUserAdmin($user) {
-    //Validate if is an administrador
     $app = \Slim\Slim::getInstance();
     if ($user['type'] != "superadministrador") {
         $response["error"] = true;
