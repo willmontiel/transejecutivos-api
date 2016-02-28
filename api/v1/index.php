@@ -9,7 +9,7 @@ require '.././libs/Slim/Slim.php';
 $app = new \Slim\Slim();
 
 // User id from db - Global Variable
-$user_id = NULL;
+$user = NULL;
 
 /**
  * Adding Middle Layer to authenticate every request
@@ -35,9 +35,9 @@ function authenticate(\Slim\Route $route) {
             echoRespnse(401, $response);
             $app->stop();
         } else {
-            global $user_id;
+            global $user;
             // get user primary key id
-            $user_id = $db->getUserId($api_key);
+            $user = $db->getUser($api_key);
         }
     } else {
         // api key is missing in header
@@ -51,42 +51,6 @@ function authenticate(\Slim\Route $route) {
 /**
  * ----------- METHODS WITHOUT AUTHENTICATION ---------------------------------
  */
-/**
- * User Registration
- * url - /register
- * method - POST
- * params - name, email, password
- */
-$app->post('/register', function() use ($app) {
-            // check for required params
-            verifyRequiredParams(array('name', 'email', 'password'));
-
-            $response = array();
-
-            // reading post params
-            $name = $app->request->post('name');
-            $email = $app->request->post('email');
-            $password = $app->request->post('password');
-
-            // validating email address
-            validateEmail($email);
-
-            $db = new DbHandler();
-            $res = $db->createUser($name, $email, $password);
-
-            if ($res == USER_CREATED_SUCCESSFULLY) {
-                $response["error"] = false;
-                $response["message"] = "You are successfully registered";
-            } else if ($res == USER_CREATE_FAILED) {
-                $response["error"] = true;
-                $response["message"] = "Oops! An error occurred while registereing";
-            } else if ($res == USER_ALREADY_EXISTED) {
-                $response["error"] = true;
-                $response["message"] = "Sorry, this email already existed";
-            }
-            // echo json response
-            echoRespnse(201, $response);
-        });
 
 /**
  * User Login
@@ -95,51 +59,91 @@ $app->post('/register', function() use ($app) {
  * params - email, password
  */
 $app->post('/login', function() use ($app) {
-            // check for required params
-            verifyRequiredParams(array('email', 'password'));
+    // check for required params
+    verifyRequiredParams(array('username', 'password'));
 
-            // reading post params
-            $email = $app->request()->post('email');
-            $password = $app->request()->post('password');
-            $response = array();
+    // reading post params
+    $username = $app->request()->post('username');
+    $password = $app->request()->post('password');
+    $response = array();
 
-            $db = new DbHandler();
-            // check for correct email and password
-            if ($db->checkLogin($email, $password)) {
-                // get the user by email
-                $user = $db->getUserByEmail($email);
+    $db = new DbHandler();
+    // check for correct email and password
+    if ($db->checkLogin($username, $password)) {
+        // get the user by email
+        $user = $db->getUserByUsername($username);
 
-                if ($user != NULL) {
-                    $response["error"] = false;
-                    $response['name'] = $user['name'];
-                    $response['email'] = $user['email'];
-                    $response['apiKey'] = $user['api_key'];
-                    $response['createdAt'] = $user['created_at'];
-                } else {
-                    // unknown error occurred
-                    $response['error'] = true;
-                    $response['message'] = "An error occurred. Please try again";
-                }
-            } else {
-                // user credentials are wrong
-                $response['error'] = true;
-                $response['message'] = 'Login failed. Incorrect credentials';
-            }
+        if ($user != NULL) {
+            $response["error"] = false;
+            $response["id"] = $user['name'];
+            $response["username"] = $user['username'];
+            $response['name'] = $user['name'];
+            $response["lastname"] = $user['lastname'];
+            $response["mail1"] = $user['mail1'];
+            $response["mail2"] = $user['mail2'];
+            $response["company"] = $user['company'];
+            $response["api_key"] = $user['api_key'];
+            $response["type"] = $user['type'];
+        } else {
+            // unknown error occurred
+            $response['error'] = true;
+            $response['message'] = "An error occurred. Please try again";
+        }
+    } else {
+        // user credentials are wrong
+        $response['error'] = true;
+        $response['message'] = 'Login failed. Incorrect credentials';
+    }
 
-            echoRespnse(200, $response);
-        });
+    echoRespnse(200, $response);
+});
 
 /*
  * ------------------------ METHODS WITH AUTHENTICATION ------------------------
  */
+/**
+ * Generating apikey for user
+ * method PUT
+ * params username
+ * url - /apikey
+ */
+$app->put('/apikey', 'authenticate', function() use($app) {
+    // check for required params
+    verifyRequiredParams(array('username'));
+
+    global $user;    
+
+    validateUserAdmin($user);
+
+    $username = $app->request->put('username');
+
+    $db = new DbHandler();
+    $response = array();
+
+    //Generating Api Key
+    $result = $db->updateApiKey($username);
+
+    if ($result) {
+        // Apikey generated successfully
+        $response["error"] = false;
+        $response["message"] = "Apikey generated successfully for user: {$username}";
+    } else {
+        // Apikey failed to generate
+        $response["error"] = true;
+        $response["message"] = "Apikey failed to generate. Please try again!";
+    }
+    echoRespnse(200, $response);
+});
+
+
 
 /**
- * Listing all tasks of particual user
+ * Listing all user services since today until next days
  * method GET
- * url /tasks          
+ * url /services          
  */
-$app->get('/tasks', 'authenticate', function() {
-            global $user_id;
+$app->get('/services', 'authenticate', function() {
+            global $user;
             $response = array();
             $db = new DbHandler();
 
@@ -147,7 +151,7 @@ $app->get('/tasks', 'authenticate', function() {
             $result = $db->getAllUserTasks($user_id);
 
             $response["error"] = false;
-            $response["tasks"] = array();
+            $response["services"] = array();
 
             // looping through result and preparing tasks array
             while ($task = $result->fetch_assoc()) {
@@ -156,7 +160,7 @@ $app->get('/tasks', 'authenticate', function() {
                 $tmp["task"] = $task["task"];
                 $tmp["status"] = $task["status"];
                 $tmp["createdAt"] = $task["created_at"];
-                array_push($response["tasks"], $tmp);
+                array_push($response["services"], $tmp);
             }
 
             echoRespnse(200, $response);
@@ -288,6 +292,7 @@ function verifyRequiredParams($required_fields) {
         $app = \Slim\Slim::getInstance();
         parse_str($app->request()->getBody(), $request_params);
     }
+
     foreach ($required_fields as $field) {
         if (!isset($request_params[$field]) || strlen(trim($request_params[$field])) <= 0) {
             $error = true;
@@ -303,6 +308,17 @@ function verifyRequiredParams($required_fields) {
         $response["error"] = true;
         $response["message"] = 'Required field(s) ' . substr($error_fields, 0, -2) . ' is missing or empty';
         echoRespnse(400, $response);
+        $app->stop();
+    }
+}
+
+function validateUserAdmin($user) {
+    //Validate if is an administrador
+    $app = \Slim\Slim::getInstance();
+    if ($user['type'] != "superadministrador") {
+        $response["error"] = true;
+        $response["message"] = "Access denied, you have not permission for to do this action";
+        echoRespnse(401, $response);
         $app->stop();
     }
 }
