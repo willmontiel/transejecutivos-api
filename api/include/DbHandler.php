@@ -1,5 +1,6 @@
 <?php
 
+require_once 'LoggerHandler.php';
 /**
  * Class to handle all db operations
  * This class will have CRUD methods for database tables
@@ -161,6 +162,10 @@ class DbHandler {
      * @param String $company company of the user
      */
     public function getServices($company) {
+        $log = new LoggerHandler();
+    
+    
+        $log->writeString("Prepare SQL");
         $stmt = $this->conn->prepare("SELECT o.id AS orden_id, 
                                             o.*, 
                                             p.id AS pasajeros_id, 
@@ -193,9 +198,17 @@ class DbHandler {
 
         //$currentDate =  date('m/d/Y');
         $currentDate =  "11/28/2012";
+        
+        $log->writeString("1");
+        
         $stmt->bind_param("ss", $currentDate, $company);
+        
+        $log->writeString("2");
         $stmt->execute();
+        
+        $log->writeString("3");
         $services = $stmt->get_result();
+        $log->writeString("4");
         $stmt->close();
         return $services;
     }
