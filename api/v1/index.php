@@ -55,6 +55,33 @@ function authenticate(\Slim\Route $route) {
 
 /**
  * User Login
+ * url - /recoverpassword
+ * method - POST
+ * params - username
+ */
+$app->post('/recoverpassword', function() use ($app) {
+    verifyRequiredParams(array('username'));
+
+    $username = $app->request()->post('username');    
+    $response = array();
+    $db = new DbHandler();
+    
+    $res = $db->recoverPassword($username);
+    
+    if ($res) {
+        $response["error"] = false;
+        $response['message'] = 'We send you a mail with instructions for to reset your password';
+    } 
+    else {
+        $response['error'] = true;
+        $response['message'] = "An error occurred. Please try again";
+    }
+    
+    echoRespnse(200, $response);
+});
+
+/**
+ * User Login
  * url - /login
  * method - POST
  * params - email, password

@@ -87,7 +87,8 @@ class DbHandler {
             $user["code"] = $code;
             $stmt->close();
             return $user;
-        } else {
+        } 
+        else {
             return NULL;
         }
     }
@@ -427,6 +428,11 @@ class DbHandler {
         return false;
     }
 
+    /**
+     * Validate is a link is correct and hava a time
+     * @param string $idLink
+     * @return boolean
+     */
     public function validateLink($idLink) {
         $time = strtotime("-30 minutes");
 
@@ -439,7 +445,7 @@ class DbHandler {
 
             $time = strtotime("-30 minutes");
         
-            if ($date <= $time || $date >= $time)) {
+            if ($date <= $time || $date >= $time) {
                 $user = array();
                 $user["username"] = $username;
                 $stmt->close();
@@ -448,6 +454,44 @@ class DbHandler {
         } 
         
         return false;
+    }
+    
+    
+    public function recoverPassword($username) {
+        $user = $this->getUserByUsername($username);
+        
+        if ($user == NULL) {
+            return false;
+        }
+        
+        $cod = uniqid();
+        $time = time();
+        $stmt = $this->conn->prepare("INSERT INTO recoverpassword(idLink, username, date) VALUES (?,?,?)");
+        $stmt->bind_param("ssi", $cod, $username, $time);
+        $result = $stmt->execute();
+        $stmt->close();
+ 
+        if ($result) {
+            if ($this->sendMail($cod, $user['mail1'])) {
+                return true;
+            }
+        } 
+            
+        return false;
+    }
+    
+    private function sendMail($code, $email){
+        $link = '<a href="http://localhost/transejecutivos/recoverpass/index.php?code=' . $code . '">Reestablecer contrase&ntilde;a</a>';
+        $html = '<html> <head></head> <body> <h2> <span style="font-family: Helvetica;"> <strong>Estimado usuario:</strong> </span> </h2> <br><table> <tbody> <tr> <td> <span style="font-family: Helvetica;"> Ha olvidado su contrase&ntilde;a, para reestablecerla por favor haga clic en el siguiente enlace, </span> <br><br></td></tr><tr> <td> <span style="font-family: Helvetica;"> %tmpurl% </span> </td></tr><tr> <td> <br><span style="font-family: Helvetica;"> Si no ha solicitado reestablecer su contrase&ntilde;a, simplemente ignore este mensaje. Si tiene cualquier otra pregunta acerca de su cuenta, por favor, cont&aacute;ctenos a trav&eacute;s de este correo <a href="mailto:info@transportesejecutivos.com">info@transportesejecutivos.com.</a> </span> </td></tr><tr> <td> <br><img src="images/complete-logo.png" alt="Transportes Ejecutivos"/> </td></tr></tbody> </table> </body></html>';
+        
+        $para      = $email;
+        $titulo    = 'Instrucciones para recuperar la contraseña de acceso a Transportes Ejecutivos';
+        $mensaje   = str_replace($html, "%tmpurl%", $link);
+        $cabeceras = 'From: info@transportesejecutivos.com' . "\r\n" .
+            'Reply-To: noreply@transportesejecutivos.com' . "\r\n" .
+            'X-Mailer: PHP/' . phpversion();
+
+        return mail($para, $titulo, $mensaje, $cabeceras);
     }
 }
 
