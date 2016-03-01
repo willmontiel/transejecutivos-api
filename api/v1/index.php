@@ -54,7 +54,7 @@ function authenticate(\Slim\Route $route) {
  */
 
 /**
- * User Login
+ * User recover password
  * url - /recoverpassword
  * method - POST
  * params - username
@@ -279,7 +279,7 @@ function verifyRequiredParams($required_fields) {
 
 
 /**
-* Validate if is an administrador
+* Validate if is a user administrador
 */
 function validateUserAdmin($user) {
     $app = \Slim\Slim::getInstance();
@@ -291,6 +291,10 @@ function validateUserAdmin($user) {
     }
 }
 
+/**
+ * This function replace the original php function apache_request_headers
+ * @return array
+ */
 function apache_request_headers2() {
     $arh = array();
     $rx_http = '/\AHTTP_/';

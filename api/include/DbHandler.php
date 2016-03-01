@@ -112,7 +112,7 @@ class DbHandler {
     }
 
     /**
-     * Fetching user id by api key
+     * Fetching user data by api key
      * @param String $api_key user api key
      */
     public function getUser($api_key) {
@@ -214,8 +214,8 @@ class DbHandler {
                                     AND a.codigo = ? 
                                     ORDER BY o.hora_s1 ASC, o.hora_s2 ASC");
 
-        //$currentDate =  date('m/d/Y');
-        $currentDate =  "11/28/2012";
+        $currentDate =  date('m/d/Y');
+//        $currentDate =  "11/28/2012";
         
         $stmt->bind_param("ss", $currentDate, $code);
         $stmt->execute();
@@ -429,7 +429,7 @@ class DbHandler {
     }
 
     /**
-     * Validate is a link is correct and hava a time
+     * Validate if is a valid link
      * @param string $idLink
      * @return boolean
      */
@@ -456,7 +456,11 @@ class DbHandler {
         return false;
     }
     
-    
+    /**
+     * Generate a link for recover password
+     * @param string $username
+     * @return boolean
+     */
     public function recoverPassword($username) {
         $user = $this->getUserByUsername($username);
         
@@ -480,6 +484,12 @@ class DbHandler {
         return false;
     }
     
+    /**
+     * Send a mail with instructions for to recover password
+     * @param string $code
+     * @param string $email
+     * @return boolean
+     */
     private function sendMail($code, $email){
         $link = '<a href="http://www.transportesejecutivos.com/recoverpass/index.php?code=' . $code . '">Reestablecer contrase&ntilde;a</a>';
         $html = '<html> <head></head> <body> <h2> <span style="font-family: Helvetica;"> <strong>Estimado usuario:</strong> </span> </h2> <br><table> <tbody> <tr> <td> <span style="font-family: Helvetica;"> Ha olvidado su contrase&ntilde;a, para reestablecerla por favor haga clic en el siguiente enlace, </span> <br><br></td></tr><tr> <td> <span style="font-family: Helvetica;"> %tmpurl% </span> </td></tr><tr> <td> <br><span style="font-family: Helvetica;"> Si no ha solicitado reestablecer su contrase&ntilde;a, simplemente ignore este mensaje. Si tiene cualquier otra pregunta acerca de su cuenta, por favor, cont&aacute;ctenos a trav&eacute;s de este correo <a href="mailto:info@transportesejecutivos.com">info@transportesejecutivos.com.</a> </span> </td></tr><tr> <td> <br><img src="http://www.transportesejecutivos.com/recoverpass/images/complete-logo.png" alt="Transportes Ejecutivos"/> </td></tr></tbody> </table> </body></html>';
