@@ -402,6 +402,53 @@ class DbHandler {
         $stmt->close();
         return $num_affected_rows > 0;
     }
+
+
+    /**
+     * This function resets the user password 
+     * @param String $username user username
+     * @param String $password new user password
+     */
+    public function resetPassword($username, $password, $idLink) {
+        $stmt = $this->conn->prepare("UPDATE admin SET clave = ? WHERE usuario = ?");
+        $stmt->bind_param("ss", $password, $username);
+        $stmt->execute();
+        $num_affected_rows = $stmt->affected_rows;
+        $stmt->close();
+        if ($num_affected_rows > 0) {
+            $stmt = $this->conn->prepare("DELETE FROM recoverpassword WHERE idLink = ?");
+            $stmt->bind_param("s", $idLink);
+            $stmt->execute();
+            $num_affected_rows = $stmt->affected_rows;
+            $stmt->close();
+            return $num_affected_rows > 0;
+        }
+
+        return false;
+    }
+
+    public function validateLink($idLink) {
+        $time = strtotime("-30 minutes");
+
+        $stmt = $this->conn->prepare("SELECT username, date from recoverpassword WHERE idLink = ?");
+        $stmt->bind_param("s", $idLink);
+        
+        if ($stmt->execute()) {
+            $stmt->bind_result($username, $date);
+            $stmt->fetch();
+
+            $time = strtotime("-30 minutes");
+        
+            if ($date <= $time || $date >= $time)) {
+                $user = array();
+                $user["username"] = $username;
+                $stmt->close();
+                return $user;
+            }
+        } 
+        
+        return false;
+    }
 }
 
 ?>
