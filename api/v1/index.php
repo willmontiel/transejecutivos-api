@@ -72,19 +72,10 @@ $app->post('/login', function() use ($app) {
     // check for correct email and password
     if ($db->checkLogin($username, $password)) {
         // get the user by email
-        $user = $db->getUserByUsername($username);
+        $response = $db->getUserByUsername($username);
 
-        if ($user != NULL) {
+        if ($response != NULL) {
             $response["error"] = false;
-            $response["id"] = $user['name'];
-            $response["username"] = $user['username'];
-            $response['name'] = $user['name'];
-            $response["lastname"] = $user['lastname'];
-            $response["mail1"] = $user['mail1'];
-            $response["mail2"] = $user['mail2'];
-            $response["company"] = $user['company'];
-            $response["api_key"] = $user['api_key'];
-            $response["type"] = $user['type'];
         } else {
             // unknown error occurred
             $response['error'] = true;
@@ -153,7 +144,7 @@ $app->get('/services', 'authenticate', function() {
     try {
         global $user;
         $db = new DbHandler();
-        $response["services"] = $db->getServices($user['company']);
+        $response["services"] = $db->getServices($user['code']);
 
         $log->writeArray($response);
         echoRespnse(200, $response);
@@ -189,7 +180,7 @@ $app->post('/service', 'authenticate', function() use ($app) {
     try {
         global $user;
         $db = new DbHandler();
-        $response["services"] = $db->getServicesByDate($user['company'], $date);
+        $response["services"] = $db->getServicesByDate($user['code'], $date);
 
         $log->writeArray($response);
         echoRespnse(200, $response);

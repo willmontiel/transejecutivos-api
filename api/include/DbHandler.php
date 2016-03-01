@@ -67,12 +67,12 @@ class DbHandler {
      * @param String $username User username
      */
     public function getUserByUsername($username) {
-        $stmt = $this->conn->prepare("SELECT id, usuario, nombre, apellido, correo1, correo2, empresa, api_key, nivel_clte FROM admin WHERE usuario = ? AND estado = ?");
+        $stmt = $this->conn->prepare("SELECT id, usuario, nombre, apellido, correo1, correo2, empresa, api_key, nivel_clte, codigo FROM admin WHERE usuario = ? AND estado = ?");
 
         $status = "activo";
         $stmt->bind_param("ss", $username, $status);
         if ($stmt->execute()) {
-            $stmt->bind_result($id, $username, $name, $lastname, $mail1, $mail2, $company, $api_key, $type);
+            $stmt->bind_result($id, $username, $name, $lastname, $mail1, $mail2, $company, $api_key, $type, $code);
             $stmt->fetch();
             $user = array();
             $user["id"] = $id;
@@ -84,6 +84,7 @@ class DbHandler {
             $user["type"] = $type;
             $user["company"] = $company;
             $user["api_key"] = $api_key;
+            $user["code"] = $code;
             $stmt->close();
             return $user;
         } else {
@@ -114,16 +115,16 @@ class DbHandler {
      * @param String $api_key user api key
      */
     public function getUser($api_key) {
-        $stmt = $this->conn->prepare("SELECT id, usuario, nivel_clte, empresa FROM admin WHERE api_key = ?");
+        $stmt = $this->conn->prepare("SELECT id, usuario, nivel_clte, codigo FROM admin WHERE api_key = ?");
         $stmt->bind_param("s", $api_key);
         if ($stmt->execute()) {
-            $stmt->bind_result($user_id, $username, $type, $empresa);
+            $stmt->bind_result($user_id, $username, $type, $codigo);
             $stmt->fetch();
             $user = array();
             $user["user_id"] = $user_id;
             $user["username"] = $username;
             $user["type"] = $type;
-            $user["company"] = $empresa;
+            $user["codigo"] = $codigo;
             // TODO
             // $user_id = $stmt->get_result()->fetch_assoc();
             $stmt->close();
@@ -159,72 +160,68 @@ class DbHandler {
 
     /**
     * Fetching all user services
-    * @param String $company company of the user
+    * @param String $code user code
     */
-    public function getServices($company) {
+    public function getServices($code) {
         $log = new LoggerHandler();
         $services = array();
         
         $stmt = $this->conn->prepare("SELECT o.id AS orden_id, 
-                                            o.referencia,
-                                            o.fecha_e,
-                                            o.hora_e,
-                                            o.fecha_s,
-                                            o.hora_s1,
-                                            o.hora_s2,
-                                            o.hora_s3,
-                                            o.vuelo,
-                                            o.aerolinea,
-                                            o.empresa,
-                                            o.tipo_s,
-                                            o.cant_pax,
-                                            o.representando,
-                                            o.ciudad_inicio,
-                                            o.dir_origen,
-                                            o.ciudad_destino,
-                                            o.dir_destino,                                            
-                                            o.obaservaciones,
-                                            c.id AS conductor_id, 
-                                            c.nombre AS conductor_nombre, 
-                                            c.apellido AS conductor_apellido, 
-                                            c.telefono1 AS conductor_telefono1, 
-                                            c.telefono2 AS conductor_telefono2, 
-                                            c.direccion AS conductor_direccion,
-                                            c.ciudad AS conductor_ciudad,
-                                            c.email1 AS conductor_email,
-                                            c.codigo AS conductor_codigo, 
-                                            c.carro_tipo,
-                                            c.marca,
-                                            c.modelo,
-                                            c.color,
-                                            c.placa,
-                                            c.estado,
-                                            p.id AS pasajeros_id, 
-                                            p.codigo AS pasajeros_codigo, 
-                                            p.nombre AS pasajeros_nombre, 
-                                            p.apellido AS pasajeros_apellido, 
-                                            p.telefono1 AS pasajeros_telefono1, 
-                                            p.telefono2 AS pasajeros_telefono2, 
-                                            p.empresa AS pasajeros_empresa,
-                                            p.correo1 AS pasajeros_correo1,
-                                            p.direccion AS pasajeros_direccion,
-                                            p.ciudad AS pasajeros_ciudad
-                                            
-                                            FROM orden AS o
-                                                LEFT JOIN conductor AS c ON (c.codigo = o.conductor) 
-                                                LEFT JOIN pasajeros AS p ON (p.codigo = o.persona_origen)
-                                            WHERE o.fecha_s = ? 
-                                            AND o.empresa = ? 
-                                            ORDER BY o.hora_s1 ASC, o.hora_s2 ASC");
+                                                    o.referencia,
+                                                    o.fecha_e,
+                                                    o.hora_e,
+                                                    o.fecha_s,
+                                                    o.hora_s1,
+                                                    o.hora_s2,
+                                                    o.hora_s3,
+                                                    o.vuelo,
+                                                    o.aerolinea,
+                                                    o.empresa,
+                                                    o.tipo_s,
+                                                    o.cant_pax,
+                                                    o.representando,
+                                                    o.ciudad_inicio,
+                                                    o.dir_origen,
+                                                    o.ciudad_destino,
+                                                    o.dir_destino,                                            
+                                                    o.obaservaciones,
+                                                    c.id AS conductor_id, 
+                                                    c.nombre AS conductor_nombre, 
+                                                    c.apellido AS conductor_apellido, 
+                                                    c.telefono1 AS conductor_telefono1, 
+                                                    c.telefono2 AS conductor_telefono2, 
+                                                    c.direccion AS conductor_direccion,
+                                                    c.ciudad AS conductor_ciudad,
+                                                    c.email1 AS conductor_email,
+                                                    c.codigo AS conductor_codigo, 
+                                                    c.carro_tipo,
+                                                    c.marca,
+                                                    c.modelo,
+                                                    c.color,
+                                                    c.placa,
+                                                    c.estado,	
+                                                    a.id AS admin_id,
+                                                    a.nombre AS admin_name,
+                                                    a.apellido AS admin_apellido,
+                                                    a.correo1 AS admin_correo1,
+                                                    a.telefono1 AS admin_telefono1,
+                                                    a.telefono2 AS admin_telefono2
+                                    FROM admin AS a
+                                            LEFT JOIN orden AS o ON (o.persona_origen = a.codigo)
+                                            LEFT JOIN conductor AS c ON (c.codigo = o.conductor) 
+                                    WHERE o.fecha_s = ? 
+                                    AND a.codigo = ? 
+                                    ORDER BY o.hora_s1 ASC, o.hora_s2 ASC");
 
         //$currentDate =  date('m/d/Y');
         $currentDate =  "11/28/2012";
         
-        $stmt->bind_param("ss", $currentDate, $company);
+        $stmt->bind_param("ss", $currentDate, $code);
         $stmt->execute();
 
         $stmt->bind_result($orden_id, $referencia, $fecha_e, $hora_e, $fecha_s, $hora_s1, $hora_s2, $hora_s3, $vuelo, $aerolinea, $empresa, $tipo_s, $cant_pax, $representando, $ciudad_inicio, $dir_origen, $ciudad_destino, $dir_destino, $obaservaciones,
- $conductor_id, $conductor_nombre, $conductor_apellido, $conductor_telefono1, $conductor_telefono2, $conductor_direccion, $conductor_ciudad, $conductor_email, $conductor_codigo, $carro_tipo, $marca, $modelo, $color, $placa, $estado, $pasajeros_id, $pasajeros_codigo, $pasajeros_nombre, $pasajeros_apellido, $pasajeros_telefono1, $pasajeros_telefono2, $pasajeros_empresa, $pasajeros_correo1, $pasajeros_direccion, $pasajeros_ciudad);
+                           $conductor_id, $conductor_nombre, $conductor_apellido, $conductor_telefono1, $conductor_telefono2, $conductor_direccion, $conductor_ciudad, $conductor_email, $conductor_codigo, $carro_tipo, $marca, $modelo, $color, $placa, $estado, 
+                            $admin_id, $admin_nombre, $admin_apellido, $admin_correo, $admin_telefono1, $admin_telefono2);
 
         while ($stmt->fetch()) {
             $tmp = array();
@@ -262,16 +259,12 @@ class DbHandler {
             $tmp["car_license_plate"] = $placa;
             $tmp["driver_status"] = $estado;
             //Passenger information
-            $tmp["passenger_id"] = $pasajeros_id;
-            $tmp["passenger_code"] = $pasajeros_codigo;
-            $tmp["passenger_name"] = $pasajeros_nombre;
-            $tmp["passenger_lastname"] = $pasajeros_apellido;
-            $tmp["passenger_company"] = $pasajeros_empresa;
-            $tmp["passenger_phone1"] = $pasajeros_telefono1;
-            $tmp["passenger_phone2"] = $pasajeros_telefono2;
-            $tmp["passenger_email"] = $pasajeros_correo1;
-            $tmp["passenger_address"] = $pasajeros_direccion;
-            $tmp["passenger_city"] = $pasajeros_ciudad;
+            $tmp["admin_id"] = $admin_id;
+            $tmp["admin_name"] = $admin_nombre;
+            $tmp["admin_lastname"] = $admin_apellido;
+            $tmp["admin_phone1"] = $admin_telefono1;
+            $tmp["admin_phone2"] = $admin_telefono2;
+            $tmp["admin_email"] = $admin_correo;
 
             $services[] = $tmp;
         }
@@ -284,70 +277,66 @@ class DbHandler {
 
     /**
     * Fetching all user services by date
-    * @param String $company company of the user
+    * @param String $code user code
     * @param String $date service date
     */
-    public function getServicesByDate($company, $date) {
+    public function getServicesByDate($code, $date) {
         $log = new LoggerHandler();
         $services = array();
         
         $stmt = $this->conn->prepare("SELECT o.id AS orden_id, 
-                                            o.referencia,
-                                            o.fecha_e,
-                                            o.hora_e,
-                                            o.fecha_s,
-                                            o.hora_s1,
-                                            o.hora_s2,
-                                            o.hora_s3,
-                                            o.vuelo,
-                                            o.aerolinea,
-                                            o.empresa,
-                                            o.tipo_s,
-                                            o.cant_pax,
-                                            o.representando,
-                                            o.ciudad_inicio,
-                                            o.dir_origen,
-                                            o.ciudad_destino,
-                                            o.dir_destino,                                            
-                                            o.obaservaciones,
-                                            c.id AS conductor_id, 
-                                            c.nombre AS conductor_nombre, 
-                                            c.apellido AS conductor_apellido, 
-                                            c.telefono1 AS conductor_telefono1, 
-                                            c.telefono2 AS conductor_telefono2, 
-                                            c.direccion AS conductor_direccion,
-                                            c.ciudad AS conductor_ciudad,
-                                            c.email1 AS conductor_email,
-                                            c.codigo AS conductor_codigo, 
-                                            c.carro_tipo,
-                                            c.marca,
-                                            c.modelo,
-                                            c.color,
-                                            c.placa,
-                                            c.estado,
-                                            p.id AS pasajeros_id, 
-                                            p.codigo AS pasajeros_codigo, 
-                                            p.nombre AS pasajeros_nombre, 
-                                            p.apellido AS pasajeros_apellido, 
-                                            p.telefono1 AS pasajeros_telefono1, 
-                                            p.telefono2 AS pasajeros_telefono2, 
-                                            p.empresa AS pasajeros_empresa,
-                                            p.correo1 AS pasajeros_correo1,
-                                            p.direccion AS pasajeros_direccion,
-                                            p.ciudad AS pasajeros_ciudad
-                                            
-                                            FROM orden AS o
-                                                LEFT JOIN conductor AS c ON (c.codigo = o.conductor) 
-                                                LEFT JOIN pasajeros AS p ON (p.codigo = o.persona_origen)
-                                            WHERE o.fecha_s = ? 
-                                            AND o.empresa = ? 
-                                            ORDER BY o.hora_s1 ASC, o.hora_s2 ASC");
-        
-        $stmt->bind_param("ss", $date, $company);
+                                                    o.referencia,
+                                                    o.fecha_e,
+                                                    o.hora_e,
+                                                    o.fecha_s,
+                                                    o.hora_s1,
+                                                    o.hora_s2,
+                                                    o.hora_s3,
+                                                    o.vuelo,
+                                                    o.aerolinea,
+                                                    o.empresa,
+                                                    o.tipo_s,
+                                                    o.cant_pax,
+                                                    o.representando,
+                                                    o.ciudad_inicio,
+                                                    o.dir_origen,
+                                                    o.ciudad_destino,
+                                                    o.dir_destino,                                            
+                                                    o.obaservaciones,
+                                                    c.id AS conductor_id, 
+                                                    c.nombre AS conductor_nombre, 
+                                                    c.apellido AS conductor_apellido, 
+                                                    c.telefono1 AS conductor_telefono1, 
+                                                    c.telefono2 AS conductor_telefono2, 
+                                                    c.direccion AS conductor_direccion,
+                                                    c.ciudad AS conductor_ciudad,
+                                                    c.email1 AS conductor_email,
+                                                    c.codigo AS conductor_codigo, 
+                                                    c.carro_tipo,
+                                                    c.marca,
+                                                    c.modelo,
+                                                    c.color,
+                                                    c.placa,
+                                                    c.estado,	
+                                                    a.id AS admin_id,
+                                                    a.nombre AS admin_name,
+                                                    a.apellido AS admin_apellido,
+                                                    a.correo1 AS admin_correo1,
+                                                    a.telefono1 AS admin_telefono1,
+                                                    a.telefono2 AS admin_telefono2
+                                    FROM admin AS a
+                                            LEFT JOIN orden AS o ON (o.persona_origen = a.codigo)
+                                            LEFT JOIN conductor AS c ON (c.codigo = o.conductor) 
+                                    WHERE o.fecha_s = ? 
+                                    AND a.codigo = ? 
+                                    ORDER BY o.hora_s1 ASC, o.hora_s2 ASC");
+
+        $stmt->bind_param("ss", $date, $code);
         $stmt->execute();
 
         $stmt->bind_result($orden_id, $referencia, $fecha_e, $hora_e, $fecha_s, $hora_s1, $hora_s2, $hora_s3, $vuelo, $aerolinea, $empresa, $tipo_s, $cant_pax, $representando, $ciudad_inicio, $dir_origen, $ciudad_destino, $dir_destino, $obaservaciones,
- $conductor_id, $conductor_nombre, $conductor_apellido, $conductor_telefono1, $conductor_telefono2, $conductor_direccion, $conductor_ciudad, $conductor_email, $conductor_codigo, $carro_tipo, $marca, $modelo, $color, $placa, $estado, $pasajeros_id, $pasajeros_codigo, $pasajeros_nombre, $pasajeros_apellido, $pasajeros_telefono1, $pasajeros_telefono2, $pasajeros_empresa, $pasajeros_correo1, $pasajeros_direccion, $pasajeros_ciudad);
+                           $conductor_id, $conductor_nombre, $conductor_apellido, $conductor_telefono1, $conductor_telefono2, $conductor_direccion, $conductor_ciudad, $conductor_email, $conductor_codigo, $carro_tipo, $marca, $modelo, $color, $placa, $estado, 
+                            $admin_id, $admin_nombre, $admin_apellido, $admin_correo, $admin_telefono1, $admin_telefono2);
 
         while ($stmt->fetch()) {
             $tmp = array();
@@ -385,16 +374,12 @@ class DbHandler {
             $tmp["car_license_plate"] = $placa;
             $tmp["driver_status"] = $estado;
             //Passenger information
-            $tmp["passenger_id"] = $pasajeros_id;
-            $tmp["passenger_code"] = $pasajeros_codigo;
-            $tmp["passenger_name"] = $pasajeros_nombre;
-            $tmp["passenger_lastname"] = $pasajeros_apellido;
-            $tmp["passenger_company"] = $pasajeros_empresa;
-            $tmp["passenger_phone1"] = $pasajeros_telefono1;
-            $tmp["passenger_phone2"] = $pasajeros_telefono2;
-            $tmp["passenger_email"] = $pasajeros_correo1;
-            $tmp["passenger_address"] = $pasajeros_direccion;
-            $tmp["passenger_city"] = $pasajeros_ciudad;
+            $tmp["admin_id"] = $admin_id;
+            $tmp["admin_name"] = $admin_nombre;
+            $tmp["admin_lastname"] = $admin_apellido;
+            $tmp["admin_phone1"] = $admin_telefono1;
+            $tmp["admin_phone2"] = $admin_telefono2;
+            $tmp["admin_email"] = $admin_correo;
 
             $services[] = $tmp;
         }
