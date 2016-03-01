@@ -64,20 +64,30 @@ $app->post('/recoverpassword', function() use ($app) {
 
     $username = $app->request()->post('username');    
     $response = array();
-    $db = new DbHandler();
-    
-    $res = $db->recoverPassword($username);
-    
-    if ($res) {
-        $response["error"] = false;
-        $response['message'] = 'We send you a mail with instructions for to reset your password';
+    try {
+        $db = new DbHandler();
+
+        $res = $db->recoverPassword($username);
+
+        if ($res) {
+            $response["error"] = false;
+            $response['message'] = 'We send you a mail with instructions for to reset your password';
+        } 
+        else {
+            $response['error'] = true;
+            $response['message'] = "An error occurred. Please try again";
+        }
+
+        echoRespnse(200, $response);
     } 
-    else {
-        $response['error'] = true;
-        $response['message'] = "An error occurred. Please try again";
+    catch (Exception $ex) {
+        $log = new LoggerHandler();
+        $log->writeString("Exception while getting data for service: " . $ex->getMessage());
+        $log->writeString($ex->getTraceAsString());
+        $response["error"] = true;
+        $response["services"] = array("An error occurred, contact the administrator");
+        echoRespnse(500, $response);
     }
-    
-    echoRespnse(200, $response);
 });
 
 /**
@@ -94,27 +104,37 @@ $app->post('/login', function() use ($app) {
     $username = $app->request()->post('username');
     $password = $app->request()->post('password');
     $response = array();
+        
+    try {
+        $db = new DbHandler();
+        // check for correct email and password
+        if ($db->checkLogin($username, $password)) {
+            // get the user by email
+            $response = $db->getUserByUsername($username);
 
-    $db = new DbHandler();
-    // check for correct email and password
-    if ($db->checkLogin($username, $password)) {
-        // get the user by email
-        $response = $db->getUserByUsername($username);
-
-        if ($response != NULL) {
-            $response["error"] = false;
+            if ($response != NULL) {
+                $response["error"] = false;
+            } else {
+                // unknown error occurred
+                $response['error'] = true;
+                $response['message'] = "An error occurred. Please try again";
+            }
         } else {
-            // unknown error occurred
+            // user credentials are wrong
             $response['error'] = true;
-            $response['message'] = "An error occurred. Please try again";
+            $response['message'] = 'Login failed. Incorrect credentials';
         }
-    } else {
-        // user credentials are wrong
-        $response['error'] = true;
-        $response['message'] = 'Login failed. Incorrect credentials';
-    }
 
-    echoRespnse(200, $response);
+        echoRespnse(200, $response);
+    }
+    catch (Exception $ex) {
+        $log = new LoggerHandler();
+        $log->writeString("Exception while getting data for service: " . $ex->getMessage());
+        $log->writeString($ex->getTraceAsString());
+        $response["error"] = true;
+        $response["services"] = array("An error occurred, contact the administrator");
+        echoRespnse(500, $response);
+    }
 });
 
 /*
@@ -129,29 +149,35 @@ $app->post('/login', function() use ($app) {
 $app->put('/apikey', 'authenticate', function() use($app) {
     // check for required params
     verifyRequiredParams(array('username'));
-
     global $user;    
-
     validateUserAdmin($user);
 
     $username = $app->request->put('username');
-
-    $db = new DbHandler();
-    $response = array();
-
-    //Generating Api Key
-    $result = $db->updateApiKey($username);
-
-    if ($result) {
-        // Apikey generated successfully
-        $response["error"] = false;
-        $response["message"] = "Apikey generated successfully for user: {$username}";
-    } else {
-        // Apikey failed to generate
-        $response["error"] = true;
-        $response["message"] = "Apikey failed to generate. Please try again!";
+    
+    try {
+        $db = new DbHandler();
+        $response = array();
+        //Generating Api Key
+        $result = $db->updateApiKey($username);
+        if ($result) {
+            // Apikey generated successfully
+            $response["error"] = false;
+            $response["message"] = "Apikey generated successfully for user: {$username}";
+        } else {
+            // Apikey failed to generate
+            $response["error"] = true;
+            $response["message"] = "Apikey failed to generate. Please try again!";
+        }
+        echoRespnse(200, $response);
     }
-    echoRespnse(200, $response);
+    catch (Exception $ex) {
+        $log = new LoggerHandler();
+        $log->writeString("Exception while getting data for service: " . $ex->getMessage());
+        $log->writeString($ex->getTraceAsString());
+        $response["error"] = true;
+        $response["services"] = array("An error occurred, contact the administrator");
+        echoRespnse(500, $response);
+    }
 });
 
 
@@ -162,8 +188,7 @@ $app->put('/apikey', 'authenticate', function() use($app) {
  * url /services          
  */
 $app->get('/services', 'authenticate', function() {
-    $log = new LoggerHandler();
-    
+    //$log = new LoggerHandler();
     $response = array();
     $response["error"] = false;
     $response["services"] = array();
@@ -173,10 +198,10 @@ $app->get('/services', 'authenticate', function() {
         $db = new DbHandler();
         $response["services"] = $db->getServices($user['code']);
 
-        $log->writeArray($response);
         echoRespnse(200, $response);
     } 
     catch (Exception $ex) {
+        $log = new LoggerHandler();
         $log->writeString("Exception while getting data for service: " . $ex->getMessage());
         $log->writeString($ex->getTraceAsString());
         $response["error"] = true;
@@ -192,14 +217,11 @@ $app->get('/services', 'authenticate', function() {
  * url /service         
  */
 $app->post('/service', 'authenticate', function() use ($app) {
-    $log = new LoggerHandler();
-
+    //$log = new LoggerHandler();
     // check for required params
     verifyRequiredParams(array('date'));
-
     // reading post params
     $date = $app->request()->post('date');
-    
     $response = array();
     $response["error"] = false;
     $response["services"] = array();
@@ -208,11 +230,10 @@ $app->post('/service', 'authenticate', function() use ($app) {
         global $user;
         $db = new DbHandler();
         $response["services"] = $db->getServicesByDate($user['code'], $date);
-
-        $log->writeArray($response);
         echoRespnse(200, $response);
     } 
     catch (Exception $ex) {
+        $log = new LoggerHandler();
         $log->writeString("Exception while getting data for service: " . $ex->getMessage());
         $log->writeString($ex->getTraceAsString());
         $response["error"] = true;
