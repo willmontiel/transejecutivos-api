@@ -146,98 +146,26 @@ $app->put('/apikey', 'authenticate', function() use($app) {
 $app->get('/services', 'authenticate', function() {
     $log = new LoggerHandler();
     
+    $response = array();
     $response["error"] = false;
     $response["services"] = array();
     
     try {
         global $user;
-        $response = array();
         $db = new DbHandler();
-
-        
-
-        $log->writeString("Init");
-
-        // fetching all user tasks
-        $result = $db->getServices($user['company']);
-
-        $log->writeArray("This a response: " . print_r($response, true));
-
-        // looping through result and preparing tasks array
-        while ($service = $result->fetch_assoc()) {
-            $log->writeArray("This a service: " . print_r($service, true));
-
-            array_push($response["services"], modelServiceData($service));
-            //$response["services"][] = $tmp;
-        }
+        $response["services"] = $db->getServices($user['company']);
 
         $log->writeArray($response);
         echoRespnse(200, $response);
     } 
     catch (Exception $ex) {
-        $log->writeString("Exception");
         $log->writeString("Exception while getting data for service: " . $ex->getMessage());
-        $log->writeString("Exception while getting data for service: " . $ex->getTraceAsString());
+        $log->writeString($ex->getTraceAsString());
         $response["error"] = true;
         $response["services"] = array("Error");
-        echoRespnse(200, $response);
+        echoRespnse(500, $response);
     }
 });
-
-/**
- * Model a service data
- * @param Array $service
- * @return Array
- */
-function modelServiceData($service) {
-    $tmp = array();
-    //Service information
-    $tmp["service_id"] = $service["orden_id"];
-    $tmp["ref"] = $service["referencia"];
-    $tmp["date"] = $service["fecha_e"] . " " . $service["hora_e"];
-    $tmp["start_date"] = $service["fecha_s"] . " " . $service['hora_s1'] . ":" . $service['hora_s2'] . ":" . $service['hora_s3'];
-    $tmp["end_date"] = null;
-    $tmp["fly"] = $service["vuelo"];
-    $tmp["aeroline"] = $service["aerolinea"];
-    $tmp["company"] = $service["empresa"];
-    $tmp["passenger_type"] = $service["tipo_s"];
-    $tmp["pax_cant"] = $service["cant_pax"];
-    $tmp["represent"] = $service["representando"];
-    //$tmp["source"] = $service["ciudad_inicio"] . ", " . $service['dir_origen'];
-    //$tmp["destiny"] = $service["ciudad_destino"] . ", " . $service['dir_destino'];
-    $tmp["source"] = $service["ciudad_inicio"];
-    $tmp["destiny"] = $service["ciudad_destino"];
-    $tmp["service_observations"] = $service["obaservaciones"];
-    //Driver information
-    $tmp["driver_id"] = $service["conductor_id"];
-    $tmp["driver_code"] = $service["conductor_codigo"];
-    $tmp["driver_name"] = $service["conductor_nombre"];
-    $tmp["driver_lastname"] = $service["conductor_apellido"];
-    $tmp["driver_phone1"] = $service["conductor_telefono1"];
-    $tmp["driver_phone1"] = $service["conductor_telefono2"];
-    $tmp["driver_address"] = $service["conductor_direccion"];
-    $tmp["driver_city"] = $service["conductor_ciudad"];
-    $tmp["driver_email"] = $service["conductor_email"];
-    $tmp["car_type"] = $service["carro_tipo"];
-    $tmp["car_brand"] = $service["marca"];
-    $tmp["car_model"] = $service["modelo"];
-    $tmp["car_color"] = $service["color"];
-    $tmp["car_license_plate"] = $service["placa"];
-    $tmp["driver_status"] = $service["estado"];
-    //Passenger information
-    $tmp["passenger_id"] = $service["pasajeros_id"];
-    $tmp["passenger_code"] = $service["pasajeros_codigo"];
-    $tmp["passenger_name"] = $service["pasajeros_nombre"];
-    $tmp["passenger_lastname"] = $service["pasajeros_apellido"];
-    $tmp["passenger_company"] = $service["pasajeros_empresa"];
-    $tmp["passenger_phone1"] = $service["pasajeros_telefono1"];
-    $tmp["passenger_phone2"] = $service["pasajeros_telefono2"];
-    $tmp["passenger_email"] = $service["pasajeros_correo1"];
-    $tmp["passenger_address"] = $service["pasajeros_direccion"];
-    $tmp["passenger_city"] = $service["pasajeros_ciudad"];
-    
-    return $tmp;
-}
 
 /**
  * Verifying required params posted or not

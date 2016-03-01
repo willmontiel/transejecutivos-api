@@ -1,0 +1,218 @@
+Array
+(
+    [error] => 
+    [services] => Array
+        (
+            [0] => Array
+                (
+                    [service_id] => 109
+                    [ref] => T1828-1
+                    [date] => 12/04/2012 10:25 am
+                    [start_date] => 11/28/2012 01:45:
+                    [end_date] => 
+                    [fly] => 
+                    [aeroline] => Seleccione una...
+                    [company] => SOCIEDAD PORTUARIA CALI
+                    [passenger_type] => Pasajero (s)
+                    [pax_cant] => 1
+                    [represent] => Seleccione una...
+                    [source] => Cali
+                    [destiny] => Cali
+                    [service_observations] => 
+                    [driver_id] => 15
+                    [driver_code] => TkanC-TE-13
+                    [driver_name] => aaaa
+                    [driver_lastname] => 99999
+                    [driver_phone1] => 0323772335
+                    [driver_address] => zzzz
+                    [driver_city] => zzzz
+                    [driver_email] => reynel.cardona@transportesejecutivos.com
+                    [car_type] => Automovil Sedan Basico
+                    [car_brand] => Toyota Corolla
+                    [car_model] => 2010
+                    [car_color] => HABANO
+                    [car_license_plate] => CPS 132
+                    [driver_status] => activo
+                    [passenger_id] => 33
+                    [passenger_code] => EQ2heyGiQh-TE-
+                    [passenger_name] => Ricardo 
+                    [passenger_lastname] => sanabria
+                    [passenger_company] => SOCIEDAD PORTUARIA CALI
+                    [passenger_phone1] => 3168769127
+                    [passenger_phone2] => 6914344 - 48 - 49
+                    [passenger_email] => ruthg@sprbun.com
+                    [passenger_address] => Direccion del Pax
+                    [passenger_city] => Cali
+                )
+
+            [1] => Array
+                (
+                    [service_id] => 71
+                    [ref] => T1486-1
+                    [date] => 12/01/2012 12:43 pm
+                    [start_date] => 11/28/2012 02:00:pm
+                    [end_date] => 
+                    [fly] => 
+                    [aeroline] => Seleccione una...
+                    [company] => SOCIEDAD PORTUARIA CALI
+                    [passenger_type] => Pasajero (s)
+                    [pax_cant] => 1
+                    [represent] => Seleccione una...
+                    [source] => CALI
+                    [destiny] => CALI
+                    [service_observations] => 
+                    [driver_id] => 8
+                    [driver_code] => e748KQ-TE-6
+                    [driver_name] => Bladimir
+                    [driver_lastname] => Perez
+                    [driver_phone1] => 0323208025
+                    [driver_address] => Cali
+                    [driver_city] => Cali
+                    [driver_email] => bladimirperezoviedo@hotmail.com
+                    [car_type] => Automovil Sedan Basico
+                    [car_brand] => Hyundai I-25
+                    [car_model] => 2011
+                    [car_color] => Azul
+                    [car_license_plate] => DIR 808
+                    [driver_status] => activo
+                    [passenger_id] => 23
+                    [passenger_code] => yECYlR2rfQ-TE-
+                    [passenger_name] => XIOMARA
+                    [passenger_lastname] => SANCHEZ
+                    [passenger_company] => SOCIEDAD PORTUARIA CALI
+                    [passenger_phone1] => 3176446219
+                    [passenger_phone2] => 3163231138
+                    [passenger_email] => mariar@sprbun.com
+                    [passenger_address] => Direccion del Pax
+                    [passenger_city] => Buenaventura * 
+                )
+
+            [2] => Array
+                (
+                    [service_id] => 336
+                    [ref] => T3322-1
+                    [date] => 12/18/2012 12:00 pm
+                    [start_date] => 11/28/2012 02:00:pm
+                    [end_date] => 
+                    [fly] => 
+                    [aeroline] => Seleccione una...
+                    [company] => SOCIEDAD PORTUARIA CALI
+                    [passenger_type] => Pasajero (s)
+                    [pax_cant] => 1
+                    [represent] => Seleccione una...
+                    [source] => BUENAVENTURA
+                    [destiny] => CALI
+                    [service_observations] => 
+                    [driver_id] => 8
+                    [driver_code] => e748KQ-TE-6
+                    [driver_name] => Bladimir
+                    [driver_lastname] => Perez
+                    [driver_phone1] => 0323208025
+                    [driver_address] => Cali
+                    [driver_city] => Cali
+                    [driver_email] => bladimirperezoviedo@hotmail.com
+                    [car_type] => Automovil Sedan Basico
+                    [car_brand] => Hyundai I-25
+                    [car_model] => 2011
+                    [car_color] => Azul
+                    [car_license_plate] => DIR 808
+                    [driver_status] => activo
+                    [passenger_id] => 23
+                    [passenger_code] => yECYlR2rfQ-TE-
+                    [passenger_name] => XIOMARA
+                    [passenger_lastname] => SANCHEZ
+                    [passenger_company] => SOCIEDAD PORTUARIA CALI
+                    [passenger_phone1] => 3176446219
+                    [passenger_phone2] => 3163231138
+                    [passenger_email] => mariar@sprbun.com
+                    [passenger_address] => Direccion del Pax
+                    [passenger_city] => Buenaventura * 
+                )
+
+            [3] => Array
+                (
+                    [service_id] => 70
+                    [ref] => T1477-1
+                    [date] => 12/01/2012 12:37 pm
+                    [start_date] => 11/28/2012 02:30:
+                    [end_date] => 
+                    [fly] => 
+                    [aeroline] => Seleccione una...
+                    [company] => SOCIEDAD PORTUARIA CALI
+                    [passenger_type] => Pasajero (s)
+                    [pax_cant] => 1
+                    [represent] => Seleccione una...
+                    [source] => CALI
+                    [destiny] => CALI
+                    [service_observations] => 
+                    [driver_id] => 14
+                    [driver_code] => vrihU3-TE-12
+                    [driver_name] => Robinson
+                    [driver_lastname] => Vega(SPK 826)
+                    [driver_phone1] => 3206884458  -  3765852 
+                    [driver_address] => Cali
+                    [driver_city] => Cali
+                    [driver_email] => transportamosencali@hotmail.com
+                    [car_type] => Van Ejecutiva
+                    [car_brand] => Hyundai H1
+                    [car_model] => 2012
+                    [car_color] => Blanca
+                    [car_license_plate] => SPK 826
+                    [driver_status] => activo
+                    [passenger_id] => 41
+                    [passenger_code] => JsY5ZSKyH2-TE-
+                    [passenger_name] => Marien 
+                    [passenger_lastname] => Valencia
+                    [passenger_company] => SOCIEDAD PORTUARIA CALI
+                    [passenger_phone1] => 3146621208
+                    [passenger_phone2] => 317-3526528 
+                    [passenger_email] => alexandrah@sprbun.com
+                    [passenger_address] => Direccion del Pax
+                    [passenger_city] => ciudad
+                )
+
+            [4] => Array
+                (
+                    [service_id] => 72
+                    [ref] => T1495-1
+                    [date] => 12/01/2012 12:57 pm
+                    [start_date] => 11/28/2012 05:00:
+                    [end_date] => 
+                    [fly] => 
+                    [aeroline] => Seleccione una...
+                    [company] => SOCIEDAD PORTUARIA CALI
+                    [passenger_type] => Pasajero (s)
+                    [pax_cant] => 1
+                    [represent] => Seleccione una...
+                    [source] => Cali
+                    [destiny] => Cali
+                    [service_observations] => 
+                    [driver_id] => 5
+                    [driver_code] => V4ow7b-TE-3
+                    [driver_name] => ZZZZZZZZ Hector
+                    [driver_lastname] => ZZZZZZ Cedeno
+                    [driver_phone1] => 3154382896 // 3503181485 // 2*32378 // 3836035
+                    [driver_address] =>  CARRERA 1 Nro 70-180 TORRE 1 APTO 101 PORTADA DE COMFANDI B
+                    [driver_city] => Cali
+                    [driver_email] => hector.cedeno@transportesejecutivos.com
+                    [car_type] => Van Ejecutiva
+                    [car_brand] => Hyundai H1 (Free WiFi)
+                    [car_model] => 2011
+                    [car_color] => Blanco / White
+                    [car_license_plate] => VCR458
+                    [driver_status] => activo
+                    [passenger_id] => 42
+                    [passenger_code] => YPpHi4kbvl-TE-
+                    [passenger_name] => Manuel 
+                    [passenger_lastname] => Parody
+                    [passenger_company] => SOCIEDAD PORTUARIA CALI
+                    [passenger_phone1] => 6914344
+                    [passenger_phone2] => 6914348
+                    [passenger_email] => ruthg@sprbun.com
+                    [passenger_address] => Direccion del Pax
+                    [passenger_city] => ciudad
+                )
+
+        )
+
+)

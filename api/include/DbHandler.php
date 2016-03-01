@@ -163,22 +163,27 @@ class DbHandler {
      */
     public function getServices($company) {
         $log = new LoggerHandler();
-    
-    
-        $log->writeString("Prepare SQL");
+        $services = array();
+        
         $stmt = $this->conn->prepare("SELECT o.id AS orden_id, 
-                                            o.*, 
-                                            p.id AS pasajeros_id, 
-                                            p.codigo AS pasajeros_codigo, 
-                                            p.nombre AS pasajeros_nombre, 
-                                            p.apellido AS pasajeros_apellido, 
-                                            p.telefono1 AS pasajeros_telefono1, 
-                                            p.telefono2 AS pasajeros_telefono2, 
-                                            p.empresa AS pasajeros_empresa,
-                                            p.correo1 AS pasajeros_correo1,
-                                            p.direccion AS pasajeros_direccion,
-                                            p.ciudad AS pasajeros_ciudad,
-                                            p.*, 
+                                            o.referencia,
+                                            o.fecha_e,
+                                            o.hora_e,
+                                            o.fecha_s,
+                                            o.hora_s1,
+                                            o.hora_s2,
+                                            o.hora_s3,
+                                            o.vuelo,
+                                            o.aerolinea,
+                                            o.empresa,
+                                            o.tipo_s,
+                                            o.cant_pax,
+                                            o.representando,
+                                            o.ciudad_inicio,
+                                            o.dir_origen,
+                                            o.ciudad_destino,
+                                            o.dir_destino,                                            
+                                            o.obaservaciones,
                                             c.id AS conductor_id, 
                                             c.nombre AS conductor_nombre, 
                                             c.apellido AS conductor_apellido, 
@@ -188,7 +193,23 @@ class DbHandler {
                                             c.ciudad AS conductor_ciudad,
                                             c.email1 AS conductor_email,
                                             c.codigo AS conductor_codigo, 
-                                            c.* 
+                                            c.carro_tipo,
+                                            c.marca,
+                                            c.modelo,
+                                            c.color,
+                                            c.placa,
+                                            c.estado,
+                                            p.id AS pasajeros_id, 
+                                            p.codigo AS pasajeros_codigo, 
+                                            p.nombre AS pasajeros_nombre, 
+                                            p.apellido AS pasajeros_apellido, 
+                                            p.telefono1 AS pasajeros_telefono1, 
+                                            p.telefono2 AS pasajeros_telefono2, 
+                                            p.empresa AS pasajeros_empresa,
+                                            p.correo1 AS pasajeros_correo1,
+                                            p.direccion AS pasajeros_direccion,
+                                            p.ciudad AS pasajeros_ciudad
+                                            
                                             FROM orden AS o
                                                 LEFT JOIN conductor AS c ON (c.codigo = o.conductor) 
                                                 LEFT JOIN pasajeros AS p ON (p.codigo = o.persona_origen)
@@ -199,16 +220,63 @@ class DbHandler {
         //$currentDate =  date('m/d/Y');
         $currentDate =  "11/28/2012";
         
-        $log->writeString("1");
-        
         $stmt->bind_param("ss", $currentDate, $company);
-        
-        $log->writeString("2");
         $stmt->execute();
-        
-        $log->writeString("3");
-        $services = $stmt->get_result();
-        $log->writeString("4");
+
+        $stmt->bind_result($orden_id, $referencia, $fecha_e, $hora_e, $fecha_s, $hora_s1, $hora_s2, $hora_s3, $vuelo, $aerolinea, $empresa, $tipo_s, $cant_pax, $representando, $ciudad_inicio, $dir_origen, $ciudad_destino, $dir_destino, $obaservaciones,
+ $conductor_id, $conductor_nombre, $conductor_apellido, $conductor_telefono1, $conductor_telefono2, $conductor_direccion, $conductor_ciudad, $conductor_email, $conductor_codigo, $carro_tipo, $marca, $modelo, $color, $placa, $estado, $pasajeros_id, $pasajeros_codigo, $pasajeros_nombre, $pasajeros_apellido, $pasajeros_telefono1, $pasajeros_telefono2, $pasajeros_empresa, $pasajeros_correo1, $pasajeros_direccion, $pasajeros_ciudad);
+
+        while ($stmt->fetch()) {
+            $tmp = array();
+            //Service information
+            $tmp["service_id"] = $orden_id;
+            $tmp["ref"] = $referencia;
+            $tmp["date"] = $fecha_e . " " . $hora_e;
+            $tmp["start_date"] = $fecha_s . " " . $hora_s1 . ":" . $hora_s2 . ":" . $hora_s3;
+            $tmp["end_date"] = null;
+            $tmp["fly"] = $vuelo;
+            $tmp["aeroline"] = $aerolinea;
+            $tmp["company"] = $empresa;
+            $tmp["passenger_type"] = $tipo_s;
+            $tmp["pax_cant"] = $cant_pax;
+            $tmp["represent"] = $representando;
+            //$tmp["source"] = $ciudad_inicio . ", " . $dir_origen;
+            //$tmp["destiny"] = $ciudad_destino . ", " . $dir_destino;
+            $tmp["source"] = $ciudad_inicio;
+            $tmp["destiny"] = $ciudad_destino;
+            $tmp["service_observations"] = $obaservaciones;
+            //Driver information
+            $tmp["driver_id"] = $conductor_id;
+            $tmp["driver_code"] = $conductor_codigo;
+            $tmp["driver_name"] = $conductor_nombre;
+            $tmp["driver_lastname"] = $conductor_apellido;
+            $tmp["driver_phone1"] = $conductor_telefono1;
+            $tmp["driver_phone1"] = $conductor_telefono2;
+            $tmp["driver_address"] = $conductor_direccion;
+            $tmp["driver_city"] = $conductor_ciudad;
+            $tmp["driver_email"] = $conductor_email;
+            $tmp["car_type"] = $carro_tipo;
+            $tmp["car_brand"] = $marca;
+            $tmp["car_model"] = $modelo;
+            $tmp["car_color"] = $color;
+            $tmp["car_license_plate"] = $placa;
+            $tmp["driver_status"] = $estado;
+            //Passenger information
+            $tmp["passenger_id"] = $pasajeros_id;
+            $tmp["passenger_code"] = $pasajeros_codigo;
+            $tmp["passenger_name"] = $pasajeros_nombre;
+            $tmp["passenger_lastname"] = $pasajeros_apellido;
+            $tmp["passenger_company"] = $pasajeros_empresa;
+            $tmp["passenger_phone1"] = $pasajeros_telefono1;
+            $tmp["passenger_phone2"] = $pasajeros_telefono2;
+            $tmp["passenger_email"] = $pasajeros_correo1;
+            $tmp["passenger_address"] = $pasajeros_direccion;
+            $tmp["passenger_city"] = $pasajeros_ciudad;
+
+            $services[] = $tmp;
+        }
+
+        //$services = $stmt->get_result();
         $stmt->close();
         return $services;
     }
