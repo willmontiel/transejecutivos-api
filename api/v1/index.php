@@ -205,7 +205,7 @@ $app->get('/services', 'authenticate', function() {
         $log->writeString("Exception while getting data for service: " . $ex->getMessage());
         $log->writeString($ex->getTraceAsString());
         $response["error"] = true;
-        $response["services"] = array("Error");
+        $response["services"] = array("An error occurred, contact the administrator");
         echoRespnse(500, $response);
     }
 });
@@ -237,7 +237,7 @@ $app->post('/service', 'authenticate', function() use ($app) {
         $log->writeString("Exception while getting data for service: " . $ex->getMessage());
         $log->writeString($ex->getTraceAsString());
         $response["error"] = true;
-        $response["services"] = array("Error");
+        $response["services"] = array("An error occurred, contact the administrator");
         echoRespnse(500, $response);
     }
 });
