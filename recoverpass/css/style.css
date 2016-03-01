@@ -9,9 +9,15 @@ and open the template in the editor.
 */
 
 .text-center {
-	text-align: center;
+    text-align: center;
 }
 
 .extra-big-text {
-	font-size: 10em;
+    font-size: 10em;
+}
+
+.alert-error {
+    background-color: #CC174A;
+    color: white;
+    padding: 10px;
 }

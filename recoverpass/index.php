@@ -1,23 +1,23 @@
 <?php
-	session_start();
+    session_start();
 
-	require_once '../api/include/DbHandler.php';
+    require_once '../api/include/DbHandler.php';
 
-	$db = new DbHandler();
+    $db = new DbHandler();
 
-	if (!isset($_GET["code"])) {
-		header("Location: notfound.html");
-		die();
-	}
-	else {
-		$code = $_GET["code"];
-		$user = $db->validateLink($code);
+    if (!isset($_GET["code"])) {
+        header("Location: notfound.html");
+        die();
+    }
+    else {
+        $code = $_GET["code"];
+        $user = $db->validateLink($code);
 
-		if (!$user) {
-			header("Location: notfound.html");
-			die();
-		}
-	}
+        if (!$user) {
+            header("Location: notfound.html");
+            die();
+        }
+    }
 ?>
 
 <!DOCTYPE html>
@@ -88,6 +88,7 @@
 			      	    <label for="password2">Confirma tu nueva contraseña</label>
 				        <input name="password2" class="u-full-width" required="required" type="password" placeholder="Confirma tu nueva contraseña" id="password2">
 				        <input name="link" value="<?php echo $code; ?>" type="hidden">
+				        <input name="username" value="<?php echo $user['username']; ?>" type="hidden">
 				    </div>
 				    <div class="three columns">
 				    	&nbsp;
@@ -109,15 +110,16 @@
 			  	</div>
 
 				<?php
-					if (isset($_SESSION['error']) && !empty($_SESSION['error'])) {
-    			?>
-					<div class="row">
+                                    if (isset($_SESSION['error']) && !empty($_SESSION['error'])) {
+                                ?>
+                                    <br>
+                                    <div class="row">
 				    	<div class="twelve columns text-center">
-							<div class="alert-error"><?php echo $_SESSION['error']; ?></div>
-					    </div>
-				  	</div>
-    			<?php
-					} 
+                                            <div class="alert-error"><?php echo $_SESSION['error']; ?></div>
+                                        </div>
+                                    </div>
+                                <?php
+                                    } 
 				?>
 			</form>
 		</div>
