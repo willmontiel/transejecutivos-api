@@ -167,6 +167,44 @@ $app->get('/services', 'authenticate', function() {
     }
 });
 
+
+/**
+ * Listing all user services by date
+ * method POST
+ * url /service         
+ */
+$app->post('/service', 'authenticate', function() use ($app) {
+    $log = new LoggerHandler();
+
+    // check for required params
+    verifyRequiredParams(array('date'));
+
+    // reading post params
+    $date = $app->request()->post('date');
+    
+    $response = array();
+    $response["error"] = false;
+    $response["services"] = array();
+    
+    try {
+        global $user;
+        $db = new DbHandler();
+        $response["services"] = $db->getServicesByDate($user['company'], $date);
+
+        $log->writeArray($response);
+        echoRespnse(200, $response);
+    } 
+    catch (Exception $ex) {
+        $log->writeString("Exception while getting data for service: " . $ex->getMessage());
+        $log->writeString($ex->getTraceAsString());
+        $response["error"] = true;
+        $response["services"] = array("Error");
+        echoRespnse(500, $response);
+    }
+});
+
+
+
 /**
  * Verifying required params posted or not
  */
