@@ -298,6 +298,7 @@ function validateUserAdmin($user) {
 function apache_request_headers2() {
     $arh = array();
     $rx_http = '/\AHTTP_/';
+    
     foreach($_SERVER as $key => $val) {
         if (preg_match($rx_http, $key)) {
             $arh_key = preg_replace($rx_http, '', $key);
