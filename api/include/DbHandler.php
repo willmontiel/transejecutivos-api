@@ -125,7 +125,7 @@ class DbHandler {
             $user["user_id"] = $user_id;
             $user["username"] = $username;
             $user["type"] = $type;
-            $user["codigo"] = $codigo;
+            $user["code"] = $codigo;
             // TODO
             // $user_id = $stmt->get_result()->fetch_assoc();
             $stmt->close();
@@ -332,6 +332,10 @@ class DbHandler {
                                     AND a.codigo = ? 
                                     ORDER BY o.hora_s1 ASC, o.hora_s2 ASC");
 
+        $log->writeString("Date: {$date}");
+        $log->writeString("Code: {$code}");
+        
+        
         $stmt->bind_param("ss", $date, $code);
         $stmt->execute();
 
