@@ -222,9 +222,11 @@ class DbHandler {
                             o.vuelo,
                             o.aerolinea,
                             o.empresa,
-                            o.tipo_s,
                             o.cant_pax,
-                            o.representando,
+                            o.pax2,
+                            o.pax3,
+                            o.pax4,
+                            o.pax5,
                             o.ciudad_inicio,
                             o.dir_origen,
                             o.ciudad_destino,
@@ -244,13 +246,7 @@ class DbHandler {
                             c.modelo,
                             c.color,
                             c.placa,
-                            c.estado,	
-                            a.id AS admin_id,
-                            a.nombre AS admin_name,
-                            a.apellido AS admin_apellido,
-                            a.correo1 AS admin_correo1,
-                            a.telefono1 AS admin_telefono1,
-                            a.telefono2 AS admin_telefono2
+                            c.estado
             FROM admin AS a
                     LEFT JOIN orden AS o ON (o.persona_origen = a.codigo)
                     LEFT JOIN conductor AS c ON (c.codigo = o.conductor) 
@@ -264,9 +260,8 @@ class DbHandler {
     private function modelDataServices($stmt) {
         $services = array();
         
-        $stmt->bind_result($orden_id, $referencia, $fecha_e, $hora_e, $fecha_s, $hora_s1, $hora_s2, $hora_s3, $vuelo, $aerolinea, $empresa, $tipo_s, $cant_pax, $representando, $ciudad_inicio, $dir_origen, $ciudad_destino, $dir_destino, $obaservaciones,
-                           $conductor_id, $conductor_nombre, $conductor_apellido, $conductor_telefono1, $conductor_telefono2, $conductor_direccion, $conductor_ciudad, $conductor_email, $conductor_codigo, $carro_tipo, $marca, $modelo, $color, $placa, $estado, 
-                            $admin_id, $admin_nombre, $admin_apellido, $admin_correo, $admin_telefono1, $admin_telefono2);
+        $stmt->bind_result($orden_id, $referencia, $fecha_e, $hora_e, $fecha_s, $hora_s1, $hora_s2, $hora_s3, $vuelo, $aerolinea, $empresa, $cant_pax, $pax2, $pax3, $pax4, $pax5, $ciudad_inicio, $dir_origen, $ciudad_destino, $dir_destino, $obaservaciones,
+                           $conductor_id, $conductor_nombre, $conductor_apellido, $conductor_telefono1, $conductor_telefono2, $conductor_direccion, $conductor_ciudad, $conductor_email, $conductor_codigo, $carro_tipo, $marca, $modelo, $color, $placa, $estado);
         
         while ($stmt->fetch()) {
             $tmp = array();
@@ -275,17 +270,13 @@ class DbHandler {
             $tmp["ref"] = $referencia;
             $tmp["date"] = $fecha_e . " " . $hora_e;
             $tmp["start_date"] = $fecha_s . " " . $hora_s1 . ":" . $hora_s2;
-            $tmp["end_date"] = null;
             $tmp["fly"] = $vuelo;
             $tmp["aeroline"] = $aerolinea;
             $tmp["company"] = $empresa;
-            $tmp["passenger_type"] = $tipo_s;
             $tmp["pax_cant"] = $cant_pax;
-            $tmp["represent"] = $representando;
+            $tmp["pax"] = $pax2 . ", " . $pax3 . ", " . $pax4 . ", " . $pax5;
             $tmp["source"] = trim($ciudad_inicio) . ", " . trim($dir_origen);
             $tmp["destiny"] = trim($ciudad_destino) . ", " . trim($dir_destino);
-            //$tmp["source"] = $ciudad_inicio;
-            //$tmp["destiny"] = $ciudad_destino;
             $tmp["service_observations"] = $obaservaciones;
             //Driver information
             $tmp["driver_id"] = $conductor_id;
@@ -293,7 +284,7 @@ class DbHandler {
             $tmp["driver_name"] = $conductor_nombre;
             $tmp["driver_lastname"] = $conductor_apellido;
             $tmp["driver_phone1"] = $conductor_telefono1;
-            $tmp["driver_phone1"] = $conductor_telefono2;
+            $tmp["driver_phone2"] = $conductor_telefono2;
             $tmp["driver_address"] = $conductor_direccion;
             $tmp["driver_city"] = $conductor_ciudad;
             $tmp["driver_email"] = $conductor_email;
@@ -303,13 +294,6 @@ class DbHandler {
             $tmp["car_color"] = $color;
             $tmp["car_license_plate"] = $placa;
             $tmp["driver_status"] = $estado;
-            //Passenger information
-            $tmp["admin_id"] = $admin_id;
-            $tmp["admin_name"] = $admin_nombre;
-            $tmp["admin_lastname"] = $admin_apellido;
-            $tmp["admin_phone1"] = $admin_telefono1;
-            $tmp["admin_phone2"] = $admin_telefono2;
-            $tmp["admin_email"] = $admin_correo;
 
             $services[] = $tmp;
         }
