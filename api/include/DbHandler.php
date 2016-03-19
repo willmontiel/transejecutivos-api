@@ -274,7 +274,7 @@ class DbHandler {
             $tmp["aeroline"] = $aerolinea;
             $tmp["company"] = $empresa;
             $tmp["pax_cant"] = $cant_pax;
-            $tmp["pax"] = $pax2 . ", " . $pax3 . ", " . $pax4 . ", " . $pax5;
+            $tmp["pax"] = $this->getPassengers($pax2, $pax3, $pax4, $pax5);
             $tmp["source"] = trim($ciudad_inicio) . ", " . trim($dir_origen);
             $tmp["destiny"] = trim($ciudad_destino) . ", " . trim($dir_destino);
             $tmp["service_observations"] = $obaservaciones;
@@ -299,6 +299,33 @@ class DbHandler {
         }
         
         return $services;
+    }
+
+    private function getPassengers($pax2, $pax3, $pax4, $pax5) {
+        $p = array();
+        $pax = null;
+
+        if (!empty($pax2) || $pax2 != "Seleccione una...") {
+            $p[] = $pax2;
+        }
+
+        if (!empty($pax3) || $pax3 != "Seleccione una...") {
+            $p[] = $pax3;
+        }
+
+        if (!empty($pax4) || $pax4 != "Seleccione una...") {
+            $p[] = $pax4;
+        }
+
+        if (!empty($pax5) || $pax5 != "Seleccione una...") {
+            $p[] = $pax5;
+        }
+
+        if (count($p) > 0) {
+            $pax = implode(", ", $p);
+        }
+
+        return $pax;
     }
 
 
