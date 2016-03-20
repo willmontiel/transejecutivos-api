@@ -305,19 +305,24 @@ class DbHandler {
         $p = array();
         $pax = null;
 
-        if (!empty($pax2) || $pax2 != "Seleccione una...") {
+        $pax2 = trim($pax2);
+        $pax3 = trim($pax3);
+        $pax4 = trim($pax4);
+        $pax5 = trim($pax5);
+
+        if (!empty($pax2) && $pax2 != "Seleccione una...") {
             $p[] = $pax2;
         }
 
-        if (!empty($pax3) || $pax3 != "Seleccione una...") {
+        if (!empty($pax3) && $pax3 != "Seleccione una...") {
             $p[] = $pax3;
         }
 
-        if (!empty($pax4) || $pax4 != "Seleccione una...") {
+        if (!empty($pax4) && $pax4 != "Seleccione una...") {
             $p[] = $pax4;
         }
 
-        if (!empty($pax5) || $pax5 != "Seleccione una...") {
+        if (!empty($pax5) && $pax5 != "Seleccione una...") {
             $p[] = $pax5;
         }
 
