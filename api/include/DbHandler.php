@@ -252,7 +252,7 @@ class DbHandler {
                     LEFT JOIN conductor AS c ON (c.codigo = o.conductor) 
             WHERE {$date} 
             AND a.codigo = ? 
-            ORDER BY o.hora_s1 ASC, o.hora_s2 ASC";
+            ORDER BY o.fecha_s ASC";
             
         return $sql;
     }

@@ -281,9 +281,8 @@ $app->put('/updateprofile', 'authenticate', function() use ($app) {
         //Generating Api Key
         $result = $db->updateProfile($user['username'], $name, $lastName, $email1, $email2, $phone1, $phone2, $password);
         if ($result) {
-            // Apikey generated successfully
+            $response = $db->getUserByUsername($user['username']);
             $response["error"] = false;
-            $response["message"] = "Profile user was updating successfully";
         } else {
             // Apikey failed to generate
             $response["error"] = true;
