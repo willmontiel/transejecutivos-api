@@ -172,7 +172,7 @@ $app->put('/apikey', 'authenticate', function() use($app) {
     }
     catch (Exception $ex) {
         $log = new LoggerHandler();
-        $log->writeString("Exception while getting data for service: " . $ex->getMessage());
+        $log->writeString("Exception while creating/updating apikey: " . $ex->getMessage());
         $log->writeString($ex->getTraceAsString());
         $response["error"] = true;
         $response["services"] = array("An error occurred, contact the administrator");
@@ -242,7 +242,64 @@ $app->post('/service', 'authenticate', function() use ($app) {
     }
 });
 
+/**
+ * Edit user data
+ * method PUT
+ * url /updateprofile         
+ */
+$app->put('/updateprofile', 'authenticate', function() use ($app) {
+    //$log = new LoggerHandler();
+    // check for required params
+    verifyRequiredParams(array('name'));
+    verifyRequiredParams(array('lastName'));
+    verifyRequiredParams(array('email1'));
+    verifyNotRequiredParams(array('email2'));
+    verifyRequiredParams(array('phone1'));
+    verifyNotRequiredParams(array('phone2'));
+    verifyNotRequiredParams(array('password'));
 
+    // reading post params
+    $name = $app->request()->post('name');
+    $lastName = $app->request()->post('lastName');
+    $email1 = $app->request()->post('email1');
+    $email2 = $app->request()->post('email2');
+    $phone1 = $app->request()->post('phone1');
+    $phone2 = $app->request()->post('phone2');
+    $password = $app->request()->post('password');
+
+    validateEmail($email1);
+    $email2 = trim($email2);
+
+    if (!empty($email2)) {
+        validateEmail($email2);
+    }
+
+    try {
+        global $user;
+        $db = new DbHandler();
+        $response = array();
+        //Generating Api Key
+        $result = $db->updateProfile($user['username'], $name, $lastName, $email1, $email2, $phone1, $phone2, $password);
+        if ($result) {
+            // Apikey generated successfully
+            $response["error"] = false;
+            $response["message"] = "Profile user was updating successfully";
+        } else {
+            // Apikey failed to generate
+            $response["error"] = true;
+            $response["message"] = "Error while updating profile user. Please try again!";
+        }
+        echoRespnse(200, $response);
+    }
+    catch (Exception $ex) {
+        $log = new LoggerHandler();
+        $log->writeString("Exception while updating user profile: " . $ex->getMessage());
+        $log->writeString($ex->getTraceAsString());
+        $response["error"] = true;
+        $response["services"] = array("An error occurred, contact the administrator");
+        echoRespnse(500, $response);
+    }
+});
 
 /**
  * Verifying required params posted or not
@@ -277,6 +334,38 @@ function verifyRequiredParams($required_fields) {
     }
 }
 
+/**
+ * Verifying required params posted or not
+ */
+function verifyNotRequiredParams($required_fields) {
+    $error = false;
+    $error_fields = "";
+    $request_params = array();
+    $request_params = $_REQUEST;
+    // Handling PUT request params
+    if ($_SERVER['REQUEST_METHOD'] == 'PUT') {
+        $app = \Slim\Slim::getInstance();
+        parse_str($app->request()->getBody(), $request_params);
+    }
+
+    foreach ($required_fields as $field) {
+        if (!isset($request_params[$field])) {
+            $error = true;
+            $error_fields .= $field . ', ';
+        }
+    }
+
+    if ($error) {
+        // Required field(s) are missing or empty
+        // echo error json and stop the app
+        $response = array();
+        $app = \Slim\Slim::getInstance();
+        $response["error"] = true;
+        $response["message"] = 'Required field(s) ' . substr($error_fields, 0, -2) . ' is missing or empty';
+        echoRespnse(400, $response);
+        $app->stop();
+    }
+}
 
 /**
 * Validate if is a user administrador

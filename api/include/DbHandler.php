@@ -67,20 +67,22 @@ class DbHandler {
      * @param String $username User username
      */
     public function getUserByUsername($username) {
-        $stmt = $this->conn->prepare("SELECT id, usuario, nombre, apellido, correo1, correo2, empresa, api_key, nivel_clte, codigo FROM admin WHERE usuario = ? AND estado = ?");
+        $stmt = $this->conn->prepare("SELECT id, usuario, nombre, apellido, correo1, correo2, telefono1, telefono2, empresa, api_key, nivel_clte, codigo FROM admin WHERE usuario = ? AND estado = ?");
 
         $status = "activo";
         $stmt->bind_param("ss", $username, $status);
         if ($stmt->execute()) {
-            $stmt->bind_result($id, $username, $name, $lastname, $mail1, $mail2, $company, $api_key, $type, $code);
+            $stmt->bind_result($id, $username, $name, $lastname, $email1, $email2, $phone1, $phone2, $company, $api_key, $type, $code);
             $stmt->fetch();
             $user = array();
             $user["id"] = $id;
             $user["username"] = $username;
             $user["name"] = $name;
             $user["lastname"] = $lastname;
-            $user["mail1"] = $mail1;
-            $user["mail2"] = $mail2;
+            $user["email1"] = $email1;
+            $user["email2"] = $email2;
+            $user["phone1"] = $phone1;
+            $user["phone2"] = $phone2;
             $user["type"] = $type;
             $user["company"] = $company;
             $user["api_key"] = $api_key;
@@ -164,11 +166,9 @@ class DbHandler {
     * @param String $code user code
     */
     public function getServices($code) {
-        $log = new LoggerHandler();
+        //$log = new LoggerHandler();
         
         $sql = $this->getServicesSQL(true);
-        
-        $log->writeString("SQL: {$sql}");
         
         $stmt = $this->conn->prepare($sql);
 
@@ -192,7 +192,7 @@ class DbHandler {
     * @param String $date service date
     */
     public function getServicesByDate($code, $date) {
-        $log = new LoggerHandler();
+        //$log = new LoggerHandler();
         
         $sql = $this->getServicesSQL(false);
         
@@ -348,6 +348,35 @@ class DbHandler {
         return $num_affected_rows > 0;
     }
 
+
+    /**
+     * update user profile
+     * @param String $username user username
+     */
+    public function updateProfile($username, $name, $lastname, $email1, $email2, $phone1, $phone2, $password) {
+        $log = new LoggerHandler();
+        $pass = trim($password);
+        $email2 = trim($email2);
+        $phone2 = trim($phone2);
+        $passSQL = (empty($pass) ? "" : ", clave = ?");
+     
+
+        $sql = "UPDATE admin SET nombre = ?, apellido = ?, correo1 = ? , correo2 = ?, telefono1 = ?, telefono2 = ? {$passSQL} WHERE usuario = ?";
+       
+        $stmt = $this->conn->prepare($sql);
+       
+        if (empty($pass)) {
+            $stmt->bind_param("sssssss", $name, $lastname, $email1, $email2, $phone1, $phone2, $username);
+        }
+        else {
+            $stmt->bind_param("ssssssss", $name, $lastname, $email1, $email2, $phone1, $phone2, $pass, $username);
+        }
+        
+        $stmt->execute();
+        $num_affected_rows = $stmt->affected_rows;
+        $stmt->close();
+        return $num_affected_rows > 0;
+    }
 
     /**
      * This function resets the user password 
