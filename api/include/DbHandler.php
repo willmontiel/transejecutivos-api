@@ -232,6 +232,7 @@ class DbHandler {
                             o.ciudad_destino,
                             o.dir_destino,                                            
                             o.obaservaciones,
+                            o.estado AS orden_estado,
                             c.id AS conductor_id, 
                             c.nombre AS conductor_nombre, 
                             c.apellido AS conductor_apellido, 
@@ -260,7 +261,7 @@ class DbHandler {
     private function modelDataServices($stmt) {
         $services = array();
         
-        $stmt->bind_result($orden_id, $referencia, $fecha_e, $hora_e, $fecha_s, $hora_s1, $hora_s2, $hora_s3, $vuelo, $aerolinea, $empresa, $cant_pax, $pax2, $pax3, $pax4, $pax5, $ciudad_inicio, $dir_origen, $ciudad_destino, $dir_destino, $obaservaciones,
+        $stmt->bind_result($orden_id, $referencia, $fecha_e, $hora_e, $fecha_s, $hora_s1, $hora_s2, $hora_s3, $vuelo, $aerolinea, $empresa, $cant_pax, $pax2, $pax3, $pax4, $pax5, $ciudad_inicio, $dir_origen, $ciudad_destino, $dir_destino, $obaservaciones, $orden_estado,
                            $conductor_id, $conductor_nombre, $conductor_apellido, $conductor_telefono1, $conductor_telefono2, $conductor_direccion, $conductor_ciudad, $conductor_email, $conductor_codigo, $carro_tipo, $marca, $modelo, $color, $placa, $estado);
         
         while ($stmt->fetch()) {
@@ -277,6 +278,7 @@ class DbHandler {
             $tmp["pax"] = $this->getPassengers($pax2, $pax3, $pax4, $pax5);
             $tmp["source"] = trim($ciudad_inicio) . ", " . trim($dir_origen);
             $tmp["destiny"] = trim($ciudad_destino) . ", " . trim($dir_destino);
+            $tmp["service_status"] = trim($orden_estado);
             $tmp["service_observations"] = $obaservaciones;
             //Driver information
             $tmp["driver_id"] = $conductor_id;
