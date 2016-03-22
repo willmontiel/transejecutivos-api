@@ -210,6 +210,33 @@ $app->get('/services', 'authenticate', function() {
     }
 });
 
+/**
+ * Listing all user services since today until next days
+ * method GET
+ * url /servicesgrouped          
+ */
+$app->get('/servicesgrouped', 'authenticate', function() {
+    //$log = new LoggerHandler();
+    $response = array();
+    
+    try {
+        global $user;
+        $db = new DbHandler();
+        $response = $db->getServicesGrouped($user['code']);
+        $response["error"] = false;
+
+        echoRespnse(200, $response);
+    } 
+    catch (Exception $ex) {
+        $log = new LoggerHandler();
+        $log->writeString("Exception while getting data for service: " . $ex->getMessage());
+        $log->writeString($ex->getTraceAsString());
+        $response["error"] = true;
+        $response["message"] = array("An error occurred, contact the administrator");
+        echoRespnse(500, $response);
+    }
+});
+
 
 /**
  * Listing all user services by date

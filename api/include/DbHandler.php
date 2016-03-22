@@ -185,6 +185,28 @@ class DbHandler {
         return $services;
     }
 
+    /**
+    * Fetching all user services grouped by date
+    * @param String $code user code
+    */
+    public function getServicesGrouped($code) {
+        $sql = $this->getServicesSQL(true);
+        
+        $stmt = $this->conn->prepare($sql);
+
+        $currentDate =  date('m/d/Y');
+        $nextdate = date('m/d/Y', strtotime(date('Y-m-d'). ' + 30 days'));
+        
+        $stmt->bind_param("sss", $currentDate, $nextdate, $code);
+        $stmt->execute();
+
+        $services = $this->modelGroupedDataServices($stmt);
+
+        //$services = $stmt->get_result();
+        $stmt->close();
+        return $services;
+    }
+
 
     /**
     * Fetching all user services by date
@@ -253,6 +275,7 @@ class DbHandler {
                     LEFT JOIN conductor AS c ON (c.codigo = o.conductor) 
             WHERE {$date} 
             AND a.codigo = ? 
+            AND o.estado != 'cancelar'
             ORDER BY o.fecha_s ASC";
             
         return $sql;
@@ -301,6 +324,67 @@ class DbHandler {
         }
         
         return $services;
+    }
+
+    private function modelGroupedDataServices($stmt) {
+        //$log = new LoggerHandler();
+        $dates = array();
+        $data = array(
+            'dates' => array(),
+            'services' => array(),
+        );
+        
+        $stmt->bind_result($orden_id, $referencia, $fecha_e, $hora_e, $fecha_s, $hora_s1, $hora_s2, $hora_s3, $vuelo, $aerolinea, $empresa, $cant_pax, $pax2, $pax3, $pax4, $pax5, $ciudad_inicio, $dir_origen, $ciudad_destino, $dir_destino, $obaservaciones, $orden_estado,
+                           $conductor_id, $conductor_nombre, $conductor_apellido, $conductor_telefono1, $conductor_telefono2, $conductor_direccion, $conductor_ciudad, $conductor_email, $conductor_codigo, $carro_tipo, $marca, $modelo, $color, $placa, $estado);
+
+        while ($stmt->fetch()) {
+            $date = trim($fecha_s);
+            $tmp = array();
+            //Service information
+            $tmp["service_id"] = $orden_id;
+            $tmp["ref"] = $referencia;
+            $tmp["date"] = $date . " " . $hora_e;
+            $tmp["start_date"] = $fecha_s . " " . $hora_s1 . ":" . $hora_s2;
+            $tmp["fly"] = $vuelo;
+            $tmp["aeroline"] = $aerolinea;
+            $tmp["company"] = $empresa;
+            $tmp["pax_cant"] = $cant_pax;
+            $tmp["pax"] = $this->getPassengers($pax2, $pax3, $pax4, $pax5);
+            $tmp["source"] = trim($ciudad_inicio) . ", " . trim($dir_origen);
+            $tmp["destiny"] = trim($ciudad_destino) . ", " . trim($dir_destino);
+            $tmp["service_status"] = trim($orden_estado);
+            $tmp["service_observations"] = $obaservaciones;
+            //Driver information
+            $tmp["driver_id"] = $conductor_id;
+            $tmp["driver_code"] = $conductor_codigo;
+            $tmp["driver_name"] = $conductor_nombre;
+            $tmp["driver_lastname"] = $conductor_apellido;
+            $tmp["driver_phone1"] = $conductor_telefono1;
+            $tmp["driver_phone2"] = $conductor_telefono2;
+            $tmp["driver_address"] = $conductor_direccion;
+            $tmp["driver_city"] = $conductor_ciudad;
+            $tmp["driver_email"] = $conductor_email;
+            $tmp["car_type"] = $carro_tipo;
+            $tmp["car_brand"] = $marca;
+            $tmp["car_model"] = $modelo;
+            $tmp["car_color"] = $color;
+            $tmp["car_license_plate"] = $placa;
+            $tmp["driver_status"] = $estado;
+
+            if (in_array($date, $dates)) {
+                $key = array_search($date, $dates);
+                $data['services'][$key][] = $tmp;
+            }
+            else {
+                $newKey = count($dates);
+                $dates[$newKey] = $date;
+                $data['services'][$newKey][] = $tmp;
+            }
+        }
+        
+        $data['dates'] = $dates;
+
+        return $data;
     }
 
     private function getPassengers($pax2, $pax3, $pax4, $pax5) {
