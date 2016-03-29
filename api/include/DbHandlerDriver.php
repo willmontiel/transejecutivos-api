@@ -94,7 +94,26 @@ class DbHandlerDriver {
         }
     }
 
+    public function searchPendingService($code) {
+        $stmt = $this->conn->prepare("SELECT id FROM orden WHERE conductor = ? and (CD = null or CD < 0 or CD = '') LIMIT 1");
+
+        $stmt->bind_param("s", $code);
+
+        $service = array();
+
+        if ($stmt->execute()) {
+            $stmt->bind_result($id);
+            $stmt->fetch();
+            
+            $service["id"] = $id;
+
+            $stmt->close();  
+        } 
+
+        return $service;
+    }
+
     public function getPendingService($code) {
-        $stmt = $this->conn->prepare("SELECT id, usuario, nombre, apellido, correo1, correo2, telefono1, telefono2, empresa, api_key, nivel_clte, codigo FROM admin WHERE usuario = ? AND estado = ?");
+        
     }
 }

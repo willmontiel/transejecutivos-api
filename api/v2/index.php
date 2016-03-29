@@ -110,9 +110,9 @@ $app->post('/login', function() use ($app) {
 /**
  * Listing all user services since today until next days
  * method GET
- * url /pendingservice          
+ * url /searchpendingservice          
  */
-$app->get('/pendingservice', 'authenticate', function() {
+$app->get('/searchpendingservice', 'authenticate', function() {
     //$log = new LoggerHandler();
     $response = array();
     $response["error"] = false;
@@ -121,7 +121,35 @@ $app->get('/pendingservice', 'authenticate', function() {
     try {
         global $user;
         $db = new DbHandlerDriver();
-        $response["service"] = $db->getPendingService($user['code']);
+        $response["service"] = $db->searchPendingService($user['code']);
+
+        echoRespnse(200, $response);
+    } 
+    catch (Exception $ex) {
+        $log = new LoggerHandler();
+        $log->writeString("Exception while searching for pending service: " . $ex->getMessage());
+        $log->writeString($ex->getTraceAsString());
+        $response["error"] = true;
+        $response["message"] = array("An error occurred, contact the administrator");
+        echoRespnse(500, $response);
+    }
+});
+
+/**
+ * Listing all user services since today until next days
+ * method GET
+ * url /getpendingservice          
+ */
+$app->get('/getpendingservice', 'authenticate', function() {
+    //$log = new LoggerHandler();
+    $response = array();
+    $response["error"] = false;
+    $response["service"] = array();
+    
+    try {
+        global $user;
+        $db = new DbHandlerDriver();
+        //$response["service"] = $db->getPendingService($user['code']);
 
         echoRespnse(200, $response);
     } 
