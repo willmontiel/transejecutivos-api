@@ -149,7 +149,7 @@ $app->get('/getpendingservice/:id', 'authenticate', function($id) {
     try {
         global $user;
         $db = new DbHandlerDriver();
-        $response["service"] = $db->getPendingService($id, $user['code']);
+        $response["service"] = $db->getService($id, $user['code']);
 
         echoRespnse(200, $response);
     } 
@@ -162,6 +162,70 @@ $app->get('/getpendingservice/:id', 'authenticate', function($id) {
         echoRespnse(500, $response);
     }
 });
+
+
+/**
+ * Listing a pending service by id
+ * method GET
+ * url /servicesgrouped       
+ */
+$app->get('/servicesgrouped', 'authenticate', function() {
+    $response = array();
+    try {
+        global $user;
+        $db = new DbHandlerDriver();
+        $response = $db->getServicesGrouped($user['code']);
+        $response["error"] = false;
+
+        echoRespnse(200, $response);
+    } 
+    catch (Exception $ex) {
+        $log = new LoggerHandler();
+        $log->writeString("Exception while getting data for service: " . $ex->getMessage());
+        $log->writeString($ex->getTraceAsString());
+        $response["error"] = true;
+        $response["message"] = array("An error occurred, contact the administrator");
+        echoRespnse(500, $response);
+    }
+});
+
+
+/**
+ * accept service
+ * method PUT
+ * params idOrden
+ * url - /updatestatusservice
+ */
+$app->put('/updatestatusservice', 'authenticate', function() use($app) {
+    global $user;    
+    
+    try {
+        
+        $service_id = $app->request->put('service_id');
+        $status = $app->request->put('status');
+        
+        $db = new DbHandlerDriver();
+        $response = array();
+        $result = $db->updateStatusService($user['code'], $service_id, $status);
+        if ($result) {
+            $response["error"] = false;
+            $response["message"] = "The driver has accepted the service";
+        } else {
+            $response["error"] = true;
+            $response["message"] = "Accepting service failed. Please try again!";
+        }
+        echoRespnse(200, $response);
+    }
+    catch (Exception $ex) {
+        $log = new LoggerHandler();
+        $log->writeString("Exception while accepting serviceee: " . $ex->getMessage());
+        $log->writeString($ex->getTraceAsString());
+        $response["error"] = true;
+        $response["message"] = array("An error occurred, contact the administrator");
+        echoRespnse(500, $response);
+    }
+});
+
 
 /**
  * Verifying required params posted or not

@@ -1,0 +1,72 @@
+SELECT o.id AS orden_id, 
+                        o.referencia,
+                        o.fecha_e,
+                        o.hora_e,
+                        o.fecha_s,
+                        o.hora_s1,
+                        o.hora_s2,
+                        o.hora_s3,
+                        o.vuelo,
+                        o.aerolinea,
+                        o.cant_pax,
+                        o.pax2,
+                        o.pax3,
+                        o.pax4,
+                        o.pax5,
+                        o.ciudad_inicio,
+                        o.dir_origen,
+                        o.ciudad_destino,
+                        o.dir_destino,                                            
+                        o.obaservaciones,
+                        o.estado AS orden_estado,
+                        o.CD,
+                        p.id AS passenger_id,
+                        p.codigo AS passenger_code,
+                        p.nombre,
+                        p.apellido,
+                        p.telefono1,
+                        p.telefono2,
+                        p.correo1,
+                        p.correo2
+            FROM orden AS o
+                LEFT JOIN pasajeros AS p ON (p.codigo = o.persona_origen) 
+            WHERE 1
+            AND o.conductor = ? 
+            AND o.estado != 'cancelar'
+            AND (o.CD != null OR o.CD != '')
+SELECT o.id AS orden_id, 
+                        o.referencia,
+                        o.fecha_e,
+                        o.hora_e,
+                        o.fecha_s,
+                        o.hora_s1,
+                        o.hora_s2,
+                        o.hora_s3,
+                        o.vuelo,
+                        o.aerolinea,
+                        o.cant_pax,
+                        o.pax2,
+                        o.pax3,
+                        o.pax4,
+                        o.pax5,
+                        o.ciudad_inicio,
+                        o.dir_origen,
+                        o.ciudad_destino,
+                        o.dir_destino,                                            
+                        o.obaservaciones,
+                        o.estado AS orden_estado,
+                        o.CD,
+                        p.id AS passenger_id,
+                        p.codigo AS passenger_code,
+                        p.nombre,
+                        p.apellido,
+                        p.telefono1,
+                        p.telefono2,
+                        p.correo1,
+                        p.correo2
+            FROM orden AS o
+                LEFT JOIN pasajeros AS p ON (p.codigo = o.persona_origen) 
+            WHERE o.fecha_s between ? AND ? 
+            AND o.conductor = ? 
+            AND o.estado != 'cancelar'
+            AND (o.CD != null OR o.CD != '')

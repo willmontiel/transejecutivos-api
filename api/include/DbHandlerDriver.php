@@ -1,6 +1,7 @@
 <?php
 
 require_once 'LoggerHandler.php';
+//require_once 'MailSender.php';
 /**
  * Class to handle all db operations
  * This class will have CRUD methods for database tables
@@ -150,7 +151,7 @@ class DbHandlerDriver {
             $stmt->bind_result($id);
             $stmt->fetch();
             
-            $service["id"] = $id;
+            $service["service_id"] = $id;
 
             $stmt->close();  
         } 
@@ -165,7 +166,7 @@ class DbHandlerDriver {
      * @param type $code
      * @return string
      */
-    public function getPendingService($id, $code) {
+    public function getService($id, $code) {
         $sql = "SELECT o.id AS orden_id, 
                         o.referencia,
                         o.fecha_e,
@@ -200,27 +201,25 @@ class DbHandlerDriver {
                 LEFT JOIN pasajeros AS p ON (p.codigo = o.persona_origen) 
             WHERE o.id = ?
             AND o.conductor = ? 
-            AND o.estado != 'cancelar'
-            AND (o.CD = null OR o.CD < 0 or o.CD = '')";
+            AND o.estado != 'cancelar'";
 
         $stmt = $this->conn->prepare($sql);
 
         $stmt->bind_param("is", $id, $code);
-
-        $service = array();
 
         if ($stmt->execute()) {
             $stmt->bind_result($orden_id, $referencia, $fecha_e, $hora_e, $fecha_s, $hora_s1, $hora_s2, $hora_s3, $vuelo, $aerolinea, $cant_pax, $pax2, $pax3, $pax4, $pax5, $ciudad_inicio, $dir_origen, $ciudad_destino, $dir_destino, $observaciones, $orden_estado, $cd, $passenger_id, $passenger_code, $name, $lastName, $phone1, $phone2, $email1, $email2);
 
             $stmt->fetch();
             
+            $service = array();
             $service["service_id"] = $orden_id;
             $service["ref"] = $referencia;
             $service["date"] = $fecha_e . " " . $hora_e;
-            $service["startDate"] = $fecha_s . " " . $hora_s1 . ":" . $hora_s2;
+            $service["start_date"] = $fecha_s . " " . $hora_s1 . ":" . $hora_s2;
             $service["fly"] = $vuelo;
             $service["aeroline"] = $aerolinea;
-            $service["paxCant"] = $cant_pax;
+            $service["pax_cant"] = $cant_pax;
             $service["pax"] = $this->getPassengers($pax2, $pax3, $pax4, $pax5);
             $service["source"] = trim($ciudad_inicio) . ", " . trim($dir_origen);
             $service["destiny"] = trim($ciudad_destino) . ", " . trim($dir_destino);
@@ -235,9 +234,12 @@ class DbHandlerDriver {
             $service["email"] = trim($email1) . ", " . trim($email2);
 
             $stmt->close();  
-        } 
-
-        return $service;
+            
+            return $service;
+        }
+        else {
+            return $service = array();
+        }
     }
     
     /**
@@ -278,5 +280,182 @@ class DbHandlerDriver {
         }
 
         return $pax;
+    }
+    
+    public function getServicesGrouped($code) {
+        $sql = $this->getServicesSQL(true);
+        
+        $stmt = $this->conn->prepare($sql);
+
+        $currentDate =  date('m/d/Y', strtotime(date('Y-m-d'). ' - 8 days'));
+        $nextdate = date('m/d/Y', strtotime(date('Y-m-d'). ' + 30 days'));
+        
+        $stmt->bind_param("sss", $currentDate, $nextdate, $code);
+        $stmt->execute();
+
+        $services = $this->modelGroupedDataServices($stmt);
+
+        //$services = $stmt->get_result();
+        $stmt->close();
+        return $services;
+    }
+    
+    private function getServicesSQL($between) {
+        $date = ($between ? 'o.fecha_s between ? AND ? ' : "o.fecha_s = ? ");
+        
+        $sql = "SELECT o.id AS orden_id, 
+                        o.referencia,
+                        o.fecha_e,
+                        o.hora_e,
+                        o.fecha_s,
+                        o.hora_s1,
+                        o.hora_s2,
+                        o.hora_s3,
+                        o.vuelo,
+                        o.aerolinea,
+                        o.cant_pax,
+                        o.pax2,
+                        o.pax3,
+                        o.pax4,
+                        o.pax5,
+                        o.ciudad_inicio,
+                        o.dir_origen,
+                        o.ciudad_destino,
+                        o.dir_destino,                                            
+                        o.obaservaciones,
+                        o.estado AS orden_estado,
+                        o.CD,
+                        p.id AS passenger_id,
+                        p.codigo AS passenger_code,
+                        p.nombre,
+                        p.apellido,
+                        p.telefono1,
+                        p.telefono2,
+                        p.correo1,
+                        p.correo2
+            FROM orden AS o
+                LEFT JOIN pasajeros AS p ON (p.codigo = o.persona_origen) 
+            WHERE {$date}
+            AND o.conductor = ? 
+            AND o.estado != 'cancelar'
+            AND (o.CD != null OR o.CD != '')";
+            
+        return $sql;
+    }
+    
+    
+    private function modelGroupedDataServices($stmt) {
+        //$log = new LoggerHandler();
+        $dates = array();
+        $data = array(
+            'dates' => array(),
+            'services' => array(),
+        );
+        
+        $stmt->bind_result($orden_id, $referencia, $fecha_e, $hora_e, $fecha_s, $hora_s1, $hora_s2, $hora_s3, $vuelo, $aerolinea, $cant_pax, $pax2, $pax3, $pax4, $pax5, $ciudad_inicio, $dir_origen, $ciudad_destino, $dir_destino, $observaciones, $orden_estado, $cd, $passenger_id, $passenger_code, $name, $lastName, $phone1, $phone2, $email1, $email2);
+
+        while ($stmt->fetch()) {
+            $date = trim($fecha_s);
+            $service = array();
+            $service["service_id"] = $orden_id;
+            $service["ref"] = $referencia;
+            $service["date"] = $fecha_e . " " . $hora_e;
+            $service["start_date"] = $fecha_s . " " . $hora_s1 . ":" . $hora_s2;
+            $service["fly"] = $vuelo;
+            $service["aeroline"] = $aerolinea;
+            $service["pax_cant"] = $cant_pax;
+            $service["pax"] = $this->getPassengers($pax2, $pax3, $pax4, $pax5);
+            $service["source"] = trim($ciudad_inicio) . ", " . trim($dir_origen);
+            $service["destiny"] = trim($ciudad_destino) . ", " . trim($dir_destino);
+            $service["observations"] = trim($observaciones);
+            $service["status"] = $orden_estado;
+            $service["cd"] = $cd;
+            $service["passenger_id"] = $passenger_id;
+            $service["passenger_code"] = $passenger_code;
+            $service["passenger_name"] = $name;
+            $service["passenger_lastname"] = $lastName;
+            $service["phone"] = trim($phone1) . ", " . trim($phone2);
+            $service["email"] = trim($email1) . ", " . trim($email2);
+            //Driver information
+            
+
+            if (in_array($date, $dates)) {
+                $key = array_search($date, $dates);
+                $data['services'][$key][] = $service;
+            }
+            else {
+                $newKey = count($dates);
+                $dates[$newKey] = $date;
+                $data['services'][$newKey][] = $service;
+            }
+        }
+        
+        $data['dates'] = $dates;
+
+        return $data;
+    }
+    
+    /**
+     * 
+     * @param type $code
+     * @param type $idOrden
+     * @param type $status
+     * @return type
+     */
+    public function updateStatusService($code, $idOrden, $status) {
+        $estado = ($status == 1 || $status == "1" ? date("D M j G:i:s T Y") : "");
+        $stmt = $this->conn->prepare("UPDATE orden SET CD = ? WHERE conductor = ? AND id = ?");
+        $stmt->bind_param("ssi", $estado, $code, $idOrden);
+        $stmt->execute();
+        $num_affected_rows = $stmt->affected_rows;
+        $stmt->close();
+        return $num_affected_rows > 0;
+    }
+    
+    /**
+     * 
+     * @param type $code
+     * @param type $idOrden
+     */
+    public function setOnSource($code, $idOrden) {
+        
+    }
+    
+    /**
+     * 
+     * @param type $code
+     * @param type $idOrden
+     */
+    public function passengerPickup($code, $idOrden) {
+        
+    }
+    
+    /**
+     * 
+     * @param type $code
+     * @param type $idOrden
+     */
+    public function startService($code, $idOrden) {
+        
+    }
+    
+    /**
+     * 
+     * @param type $code
+     * @param type $idOrden
+     * @param type $lat
+     * @param type $loc
+     */
+    public function setLocation($code, $idOrden, $lat, $loc) {
+        
+    }
+    
+    /**
+     * 
+     * @param type $code
+     * @param type $idOrden
+     */
+    public function finishService($code, $idOrden) {
+        
     }
 }
