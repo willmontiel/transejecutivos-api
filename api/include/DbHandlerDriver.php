@@ -178,7 +178,7 @@ class DbHandlerDriver {
                         o.CD,
                         p.id AS passenger_id,
                         p.codigo AS passenger_code,
-                        p.name,
+                        p.nombre,
                         p.apellido,
                         p.telefono1,
                         p.telefono2,
@@ -190,7 +190,7 @@ class DbHandlerDriver {
             AND o.id = ?
             AND o.conductor = ? 
             AND o.estado != 'cancelar'
-            AND (CD = null OR CD < 0 or CD = '')";
+            AND (o.CD = null OR o.CD < 0 or o.CD = '')";
 
         $stmt = $this->conn->prepare($sql);
 

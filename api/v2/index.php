@@ -136,7 +136,7 @@ $app->get('/searchpendingservice', 'authenticate', function() {
 });
 
 /**
- * Listing all user services since today until next days
+ * Listing a pending service by id
  * method GET
  * url /getpendingservice/:id         
  */
