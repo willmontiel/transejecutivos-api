@@ -134,6 +134,11 @@ class DbHandlerDriver {
         }
     }
 
+    /**
+     * 
+     * @param type $code
+     * @return type
+     */
     public function searchPendingService($code) {
         $stmt = $this->conn->prepare("SELECT id FROM orden WHERE conductor = ? AND (CD = null OR CD < 0 or CD = '') LIMIT 1");
 
@@ -153,6 +158,13 @@ class DbHandlerDriver {
         return $service;
     }
 
+    
+    /**
+     * 
+     * @param type $id
+     * @param type $code
+     * @return string
+     */
     public function getPendingService($id, $code) {
         $sql = "SELECT o.id AS orden_id, 
                         o.referencia,
@@ -184,10 +196,9 @@ class DbHandlerDriver {
                         p.telefono2,
                         p.correo1,
                         p.correo2
-            FROM admin AS a
-                    LEFT JOIN orden AS o ON (o.persona_origen = a.codigo)
-                    LEFT JOIN pasajeros AS p ON (p.codigo = o.persona_origen) 
-            AND o.id = ?
+            FROM orden AS o
+                LEFT JOIN pasajeros AS p ON (p.codigo = o.persona_origen) 
+            WHERE o.id = ?
             AND o.conductor = ? 
             AND o.estado != 'cancelar'
             AND (o.CD = null OR o.CD < 0 or o.CD = '')";
@@ -205,12 +216,12 @@ class DbHandlerDriver {
             
             $service["service_id"] = $orden_id;
             $service["ref"] = $referencia;
-            $service["date"] = $fecha_e . "" . $hora_e;
+            $service["date"] = $fecha_e . " " . $hora_e;
             $service["startDate"] = $fecha_s . " " . $hora_s1 . ":" . $hora_s2;
             $service["fly"] = $vuelo;
             $service["aeroline"] = $aerolinea;
             $service["paxCant"] = $cant_pax;
-            $service["pax"] = trim($pax2) . ", " . trim($pax3) . ", " . trim($pax4) . ", " . trim($pax5);
+            $service["pax"] = $this->getPassengers($pax2, $pax3, $pax4, $pax5);
             $service["source"] = trim($ciudad_inicio) . ", " . trim($dir_origen);
             $service["destiny"] = trim($ciudad_destino) . ", " . trim($dir_destino);
             $service["observations"] = trim($observaciones);
@@ -227,5 +238,45 @@ class DbHandlerDriver {
         } 
 
         return $service;
+    }
+    
+    /**
+     * 
+     * @param type $pax2
+     * @param type $pax3
+     * @param type $pax4
+     * @param type $pax5
+     * @return type
+     */
+    private function getPassengers($pax2, $pax3, $pax4, $pax5) {
+        $p = array();
+        $pax = null;
+
+        $pax2 = trim($pax2);
+        $pax3 = trim($pax3);
+        $pax4 = trim($pax4);
+        $pax5 = trim($pax5);
+
+        if (!empty($pax2) && $pax2 != "Seleccione una...") {
+            $p[] = $pax2;
+        }
+
+        if (!empty($pax3) && $pax3 != "Seleccione una...") {
+            $p[] = $pax3;
+        }
+
+        if (!empty($pax4) && $pax4 != "Seleccione una...") {
+            $p[] = $pax4;
+        }
+
+        if (!empty($pax5) && $pax5 != "Seleccione una...") {
+            $p[] = $pax5;
+        }
+
+        if (count($p) > 0) {
+            $pax = implode(", ", $p);
+        }
+
+        return $pax;
     }
 }
