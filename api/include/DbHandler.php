@@ -100,7 +100,7 @@ class DbHandler {
      * @param String $user_id user id primary key in admin table
      */
     public function getApiKeyById($user_id) {
-        $stmt = $this->conn->prepare("SELECT api_key FROM users WHERE id = ?");
+        $stmt = $this->conn->prepare("SELECT api_key FROM admin WHERE id = ?");
         $stmt->bind_param("i", $user_id);
         if ($stmt->execute()) {
             // $api_key = $stmt->get_result()->fetch_assoc();

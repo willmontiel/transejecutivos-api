@@ -62,6 +62,46 @@ class DbHandlerDriver {
     }
 
     /**
+     * Validating user api key
+     * If the api key is there in db, it is a valid key
+     * @param String $api_key user api key
+     * @return boolean
+     */
+    public function isValidApiKey($api_key) {
+        $stmt = $this->conn->prepare("SELECT id from admin WHERE api_key = ?");
+        $stmt->bind_param("s", $api_key);
+        $stmt->execute();
+        $stmt->store_result();
+        $num_rows = $stmt->num_rows;
+        $stmt->close();
+        return $num_rows > 0;
+    }
+
+    /**
+     * Fetching user data by api key
+     * @param String $api_key user api key
+     */
+    public function getUser($api_key) {
+        $stmt = $this->conn->prepare("SELECT id, usuario, codigo FROM admin WHERE api_key = ? AND nivel_clte = 'conductor'");
+        $stmt->bind_param("s", $api_key);
+        if ($stmt->execute()) {
+            $stmt->bind_result($user_id, $username, $codigo);
+            $stmt->fetch();
+            $user = array();
+            $user["user_id"] = $user_id;
+            $user["username"] = $username;
+            $user["code"] = $codigo;
+            // TODO
+            // $user_id = $stmt->get_result()->fetch_assoc();
+            $stmt->close();
+            return $user;
+        } else {
+            return NULL;
+        }
+    }
+
+
+    /**
      * Fetching user by username
      * @param String $username User username
      */

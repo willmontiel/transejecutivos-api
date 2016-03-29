@@ -108,7 +108,7 @@ $app->post('/login', function() use ($app) {
  */
 
 /**
- * Listing all user services since today until next days
+ * Search driver pending services 
  * method GET
  * url /searchpendingservice          
  */
