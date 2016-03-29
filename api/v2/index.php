@@ -1,6 +1,6 @@
 <?php
 
-require_once '../include/DbHandler.php';
+require_once '../include/DbHandlerDriver.php';
 //require_once '../include/PassHash.php';
 require_once '../include/LoggerHandler.php';
 require '.././libs/Slim/Slim.php';
@@ -24,7 +24,7 @@ function authenticate(\Slim\Route $route) {
 
     // Verifying Authorization Header
     if (isset($headers['AUTHORIZATION'])) {
-        $db = new DbHandler();
+        $db = new DbHandlerDriver();
 
         // get the api key
         $api_key = $headers['AUTHORIZATION'];
@@ -50,51 +50,15 @@ function authenticate(\Slim\Route $route) {
 }
 
 /**
- * ----------- METHODS WITHOUT AUTHENTICATION ---------------------------------
+* ----------- METHODS WITHOUT AUTHENTICATION ---------------------------------
  */
 
 /**
- * User recover password
- * url - /recoverpassword
- * method - POST
- * params - username
- */
-$app->post('/recoverpassword', function() use ($app) {
-    verifyRequiredParams(array('username'));
-
-    $username = $app->request()->post('username');    
-    $response = array();
-    try {
-        $db = new DbHandler();
-
-        $res = $db->recoverPassword($username);
-
-        if ($res) {
-            $response["error"] = false;
-            $response['message'] = 'We send you a mail with instructions for to reset your password';
-        } 
-        else {
-            $response['error'] = true;
-            $response['message'] = "An error occurred. Please try again";
-        }
-
-        echoRespnse(200, $response);
-    } 
-    catch (Exception $ex) {
-        $log = new LoggerHandler();
-        $log->writeString("Exception while getting data for service: " . $ex->getMessage());
-        $log->writeString($ex->getTraceAsString());
-        $response["error"] = true;
-        $response["message"] = array("An error occurred, contact the administrator");
-        echoRespnse(500, $response);
-    }
-});
-
-/**
- * User Login
+ * Driver longin
  * url - /login
  * method - POST
- * params - email, password
+ * params - username
+ * params - password
  */
 $app->post('/login', function() use ($app) {
     // check for required params
@@ -106,7 +70,7 @@ $app->post('/login', function() use ($app) {
     $response = array();
         
     try {
-        $db = new DbHandler();
+        $db = new DbHandlerDriver();
         // check for correct email and password
         if ($db->checkLogin($username, $password)) {
             // get the user by email
@@ -137,189 +101,33 @@ $app->post('/login', function() use ($app) {
     }
 });
 
-/*
- * ------------------------ METHODS WITH AUTHENTICATION ------------------------
- */
+
+
 /**
- * Generating apikey for user
- * method PUT
- * params username
- * url - /apikey
+* ----------- METHODS WITH AUTHENTICATION ---------------------------------
  */
-$app->put('/apikey', 'authenticate', function() use($app) {
-    // check for required params
-    verifyRequiredParams(array('username'));
-    global $user;    
-    validateUserAdmin($user);
-
-    $username = $app->request->put('username');
-    
-    try {
-        $db = new DbHandler();
-        $response = array();
-        //Generating Api Key
-        $result = $db->updateApiKey($username);
-        if ($result) {
-            // Apikey generated successfully
-            $response["error"] = false;
-            $response["message"] = "Apikey generated successfully for user: {$username}";
-        } else {
-            // Apikey failed to generate
-            $response["error"] = true;
-            $response["message"] = "Apikey failed to generate. Please try again!";
-        }
-        echoRespnse(200, $response);
-    }
-    catch (Exception $ex) {
-        $log = new LoggerHandler();
-        $log->writeString("Exception while creating/updating apikey: " . $ex->getMessage());
-        $log->writeString($ex->getTraceAsString());
-        $response["error"] = true;
-        $response["message"] = array("An error occurred, contact the administrator");
-        echoRespnse(500, $response);
-    }
-});
-
-
 
 /**
  * Listing all user services since today until next days
  * method GET
- * url /services          
+ * url /pendingservice          
  */
-$app->get('/services', 'authenticate', function() {
+$app->get('/pendingservice', 'authenticate', function() {
     //$log = new LoggerHandler();
     $response = array();
     $response["error"] = false;
-    $response["services"] = array();
+    $response["service"] = array();
     
     try {
         global $user;
-        $db = new DbHandler();
-        $response["services"] = $db->getServices($user['code']);
+        $db = new DbHandlerDriver();
+        $response["service"] = $db->getPendingService($user['code']);
 
         echoRespnse(200, $response);
     } 
     catch (Exception $ex) {
         $log = new LoggerHandler();
-        $log->writeString("Exception while getting data for service: " . $ex->getMessage());
-        $log->writeString($ex->getTraceAsString());
-        $response["error"] = true;
-        $response["message"] = array("An error occurred, contact the administrator");
-        echoRespnse(500, $response);
-    }
-});
-
-/**
- * Listing all user services since today until next days
- * method GET
- * url /servicesgrouped          
- */
-$app->get('/servicesgrouped', 'authenticate', function() {
-    //$log = new LoggerHandler();
-    $response = array();
-    
-    try {
-        global $user;
-        $db = new DbHandler();
-        $response = $db->getServicesGrouped($user['code']);
-        $response["error"] = false;
-
-        echoRespnse(200, $response);
-    } 
-    catch (Exception $ex) {
-        $log = new LoggerHandler();
-        $log->writeString("Exception while getting data for service: " . $ex->getMessage());
-        $log->writeString($ex->getTraceAsString());
-        $response["error"] = true;
-        $response["message"] = array("An error occurred, contact the administrator");
-        echoRespnse(500, $response);
-    }
-});
-
-
-/**
- * Listing all user services by date
- * method POST
- * url /service         
- */
-$app->post('/service', 'authenticate', function() use ($app) {
-    //$log = new LoggerHandler();
-    // check for required params
-    verifyRequiredParams(array('date'));
-    // reading post params
-    $date = $app->request()->post('date');
-    $response = array();
-    $response["error"] = false;
-    $response["services"] = array();
-    
-    try {
-        global $user;
-        $db = new DbHandler();
-        $response["services"] = $db->getServicesByDate($user['code'], $date);
-        echoRespnse(200, $response);
-    } 
-    catch (Exception $ex) {
-        $log = new LoggerHandler();
-        $log->writeString("Exception while getting data for service: " . $ex->getMessage());
-        $log->writeString($ex->getTraceAsString());
-        $response["error"] = true;
-        $response["message"] = array("An error occurred, contact the administrator");
-        echoRespnse(500, $response);
-    }
-});
-
-/**
- * Edit user data
- * method PUT
- * url /updateprofile         
- */
-$app->put('/updateprofile', 'authenticate', function() use ($app) {
-    //$log = new LoggerHandler();
-    // check for required params
-    verifyRequiredParams(array('name'));
-    verifyRequiredParams(array('lastName'));
-    verifyRequiredParams(array('email1'));
-    verifyNotRequiredParams(array('email2'));
-    verifyRequiredParams(array('phone1'));
-    verifyNotRequiredParams(array('phone2'));
-    verifyNotRequiredParams(array('password'));
-
-    // reading post params
-    $name = $app->request()->post('name');
-    $lastName = $app->request()->post('lastName');
-    $email1 = $app->request()->post('email1');
-    $email2 = $app->request()->post('email2');
-    $phone1 = $app->request()->post('phone1');
-    $phone2 = $app->request()->post('phone2');
-    $password = $app->request()->post('password');
-
-    validateEmail($email1);
-    $email2 = trim($email2);
-
-    if (!empty($email2)) {
-        validateEmail($email2);
-    }
-
-    try {
-        global $user;
-        $db = new DbHandler();
-        $response = array();
-        //Generating Api Key
-        $result = $db->updateProfile($user['username'], $name, $lastName, $email1, $email2, $phone1, $phone2, $password);
-        if ($result) {
-            $response = $db->getUserByUsername($user['username']);
-            $response["error"] = false;
-        } else {
-            // Apikey failed to generate
-            $response["error"] = true;
-            $response["message"] = "Error while updating profile user. Please try again!";
-        }
-        echoRespnse(200, $response);
-    }
-    catch (Exception $ex) {
-        $log = new LoggerHandler();
-        $log->writeString("Exception while updating user profile: " . $ex->getMessage());
+        $log->writeString("Exception while getting data for pending service: " . $ex->getMessage());
         $log->writeString($ex->getTraceAsString());
         $response["error"] = true;
         $response["message"] = array("An error occurred, contact the administrator");
