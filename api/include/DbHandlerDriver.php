@@ -135,7 +135,7 @@ class DbHandlerDriver {
     }
 
     public function searchPendingService($code) {
-        $stmt = $this->conn->prepare("SELECT id FROM orden WHERE conductor = ? and (CD = null or CD < 0 or CD = '') LIMIT 1");
+        $stmt = $this->conn->prepare("SELECT id FROM orden WHERE conductor = ? AND (CD = null OR CD < 0 or CD = '') LIMIT 1");
 
         $stmt->bind_param("s", $code);
 
@@ -153,7 +153,79 @@ class DbHandlerDriver {
         return $service;
     }
 
-    public function getPendingService($code) {
-        
+    public function getPendingService($id, $code) {
+        $sql = "SELECT o.id AS orden_id, 
+                        o.referencia,
+                        o.fecha_e,
+                        o.hora_e,
+                        o.fecha_s,
+                        o.hora_s1,
+                        o.hora_s2,
+                        o.hora_s3,
+                        o.vuelo,
+                        o.aerolinea,
+                        o.cant_pax,
+                        o.pax2,
+                        o.pax3,
+                        o.pax4,
+                        o.pax5,
+                        o.ciudad_inicio,
+                        o.dir_origen,
+                        o.ciudad_destino,
+                        o.dir_destino,                                            
+                        o.obaservaciones,
+                        o.estado AS orden_estado,
+                        o.CD,
+                        p.id AS passenger_id,
+                        p.codigo AS passenger_code,
+                        p.name,
+                        p.apellido,
+                        p.telefono1,
+                        p.telefono2,
+                        p.correo1,
+                        p.correo2
+            FROM admin AS a
+                    LEFT JOIN orden AS o ON (o.persona_origen = a.codigo)
+                    LEFT JOIN pasajeros AS p ON (p.codigo = o.persona_origen) 
+            AND o.id = ?
+            AND o.conductor = ? 
+            AND o.estado != 'cancelar'
+            AND (CD = null OR CD < 0 or CD = '')";
+
+        $stmt = $this->conn->prepare($sql);
+
+        $stmt->bind_param("is", $id, $code);
+
+        $service = array();
+
+        if ($stmt->execute()) {
+            $stmt->bind_result($orden_id, $referencia, $fecha_e, $hora_e, $fecha_s, $hora_s1, $hora_s2, $hora_s3, $vuelo, $aerolinea, $cant_pax, $pax2, $pax3, $pax4, $pax5, $ciudad_inicio, $dir_origen, $ciudad_destino, $dir_destino, $observaciones, $orden_estado, $cd, $passenger_id, $passenger_code, $name, $lastName, $phone1, $phone2, $email1, $email2);
+
+            $stmt->fetch();
+            
+            $service["service_id"] = $orden_id;
+            $service["ref"] = $referencia;
+            $service["date"] = $fecha_e . "" . $hora_e;
+            $service["startDate"] = $fecha_s . " " . $hora_s1 . ":" . $hora_s2;
+            $service["fly"] = $vuelo;
+            $service["aeroline"] = $aerolinea;
+            $service["paxCant"] = $cant_pax;
+            $service["pax"] = trim($pax2) . ", " . trim($pax3) . ", " . trim($pax4) . ", " . trim($pax5);
+            $service["source"] = trim($ciudad_inicio) . ", " . trim($dir_origen);
+            $service["destiny"] = trim($ciudad_destino) . ", " . trim($dir_destino);
+            $service["observations"] = trim($observaciones);
+            $service["status"] = $orden_estado;
+            $service["cd"] = $cd;
+            $service["passenger_id"] = $passenger_id;
+            $service["passenger_code"] = $passenger_code;
+            $service["passenger_name"] = $name;
+            $service["passenger_lastname"] = $lastName;
+            $service["phone"] = trim($phone1) . ", " . trim($phone2);
+            $service["email"] = trim($email1) . ", " . trim($email2);
+
+            $stmt->close();  
+        } 
+
+        return $service;
     }
 }

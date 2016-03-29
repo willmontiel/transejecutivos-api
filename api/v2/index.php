@@ -138,9 +138,9 @@ $app->get('/searchpendingservice', 'authenticate', function() {
 /**
  * Listing all user services since today until next days
  * method GET
- * url /getpendingservice          
+ * url /getpendingservice/:id         
  */
-$app->get('/getpendingservice', 'authenticate', function() {
+$app->get('/getpendingservice/:id', 'authenticate', function($id) {
     //$log = new LoggerHandler();
     $response = array();
     $response["error"] = false;
@@ -149,7 +149,7 @@ $app->get('/getpendingservice', 'authenticate', function() {
     try {
         global $user;
         $db = new DbHandlerDriver();
-        //$response["service"] = $db->getPendingService($user['code']);
+        $response["service"] = $db->getPendingService($id, $user['code']);
 
         echoRespnse(200, $response);
     } 
