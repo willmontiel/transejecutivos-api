@@ -138,9 +138,9 @@ $app->get('/searchpendingservice', 'authenticate', function() {
 /**
  * Listing a pending service by id
  * method GET
- * url /getpendingservice/:id         
+ * url /getservice/:id         
  */
-$app->get('/getpendingservice/:id', 'authenticate', function($id) {
+$app->get('/getservice/:id', 'authenticate', function($id) {
     //$log = new LoggerHandler();
     $response = array();
     $response["error"] = false;
