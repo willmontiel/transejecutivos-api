@@ -83,15 +83,17 @@ class DbHandlerDriver {
      * @param String $api_key user api key
      */
     public function getUser($api_key) {
-        $stmt = $this->conn->prepare("SELECT id, usuario, codigo FROM admin WHERE api_key = ? AND nivel_clte = 'conductor'");
+        $stmt = $this->conn->prepare("SELECT id, usuario, codigo, nombre, apellido FROM admin WHERE api_key = ? AND nivel_clte = 'conductor'");
         $stmt->bind_param("s", $api_key);
         if ($stmt->execute()) {
-            $stmt->bind_result($user_id, $username, $codigo);
+            $stmt->bind_result($user_id, $username, $codigo, $nombre, $apellido);
             $stmt->fetch();
             $user = array();
             $user["user_id"] = $user_id;
             $user["username"] = $username;
             $user["code"] = $codigo;
+            $user["name"] = $name;
+            $user["lastname"] = $lastname;
             // TODO
             // $user_id = $stmt->get_result()->fetch_assoc();
             $stmt->close();
@@ -141,9 +143,18 @@ class DbHandlerDriver {
      * @return type
      */
     public function searchPendingService($code) {
-        $stmt = $this->conn->prepare("SELECT id FROM orden WHERE conductor = ? AND (CD = null OR CD < 0 or CD = '') LIMIT 1");
+        $stmt = $this->conn->prepare("SELECT 
+                                            o.id 
+                                    FROM orden AS o 
+                                            LEFT JOIN seguimiento AS s ON (s.referencia = o.referencia)
+                                    WHERE o.conductor = ? 
+                                            AND o.fecha_s < ?
+                                            AND (o.CD = null OR o.CD = '') 
+                                            AND s.referencia IS NULL
+                                    LIMIT 1");
 
-        $stmt->bind_param("s", $code);
+        $today = date("d/m/Y");
+        $stmt->bind_param("ss", $code, $today);
 
         $service = array();
 
@@ -212,6 +223,15 @@ class DbHandlerDriver {
 
             $stmt->fetch();
             
+            $old = 0;
+            
+            $dateArray = explode("/", $fecha_s);
+            $timeStampDateS = strtotime("{$dateArray[1]}/{$dateArray[0]}/{$dateArray[2]}");
+            $timeStampToday = time();       
+            if ($timeStampDateS < $timeStampToday) {
+                $old = 1;
+            }
+            
             $service = array();
             $service["service_id"] = $orden_id;
             $service["ref"] = $referencia;
@@ -226,6 +246,7 @@ class DbHandlerDriver {
             $service["observations"] = trim($observaciones);
             $service["status"] = $orden_estado;
             $service["cd"] = $cd;
+            $service['old'] = $old;
             $service["passenger_id"] = $passenger_id;
             $service["passenger_code"] = $passenger_code;
             $service["passenger_name"] = $name;
@@ -356,6 +377,16 @@ class DbHandlerDriver {
 
         while ($stmt->fetch()) {
             $date = trim($fecha_s);
+            
+            $old = 0;
+            
+            $dateArray = explode("/", $date);
+            $timeStampDateS = strtotime("{$dateArray[1]}/{$dateArray[0]}/{$dateArray[2]}");
+            $timeStampToday = time();       
+            if ($timeStampDateS < $timeStampToday) {
+                $old = 1;
+            }
+            
             $service = array();
             $service["service_id"] = $orden_id;
             $service["ref"] = $referencia;
@@ -370,6 +401,7 @@ class DbHandlerDriver {
             $service["observations"] = trim($observaciones);
             $service["status"] = $orden_estado;
             $service["cd"] = $cd;
+            $service["old"] = $old;
             $service["passenger_id"] = $passenger_id;
             $service["passenger_code"] = $passenger_code;
             $service["passenger_name"] = $name;
@@ -402,14 +434,86 @@ class DbHandlerDriver {
      * @param type $status
      * @return type
      */
-    public function updateStatusService($code, $idOrden, $status) {
-        $estado = ($status == 1 || $status == "1" ? date("D M j G:i:s T Y") : "");
-        $stmt = $this->conn->prepare("UPDATE orden SET CD = ? WHERE conductor = ? AND id = ?");
-        $stmt->bind_param("ssi", $estado, $code, $idOrden);
+    public function acceptOrDeclineService($code, $idOrden, $status) {
+        if ($status == 1 || $status == "1") {
+            $estado = date("D M j G:i:s T Y");
+            $conductor = $code;
+        }
+        else {
+            $estado = "";
+            $conductor = "";
+        }
+        
+        $stmt = $this->conn->prepare("UPDATE orden SET CD = ?, conductor = ? WHERE id = ?");
+        
+        $stmt->bind_param("ssi", $estado, $conductor, $idOrden);
         $stmt->execute();
         $num_affected_rows = $stmt->affected_rows;
         $stmt->close();
         return $num_affected_rows > 0;
+    }
+    
+    /**
+     * 
+     * @param type $id
+     * @param type $code
+     * @param type $start
+     * @param type $end
+     * @param type $observations
+     */
+    public function tracingService($id, $user, $start, $end, $observations) {
+        $stmt = $this->conn->prepare("SELECT referencia, conductor FROM orden WHERE id = ? AND conductor = ?");
+        $stmt->bind_param("si", $id, $user['code']);
+        $stmt->execute();
+        $stmt->bind_result($referencia, $conductor);
+        $stmt->store_result();
+        
+        if ($stmt->num_rows <= 0) {
+            $stmt->close(); 
+            return false;
+        }
+        
+        $stmt->close(); 
+        
+        $estado = date("D M j G:i:s T Y");
+        $stmt = $this->conn->prepare("UPDATE orden SET CD = ?, conductor = ? WHERE id = ?");
+        $stmt->bind_param("ssi", $estado, $user['code'], $id);
+        $stmt->execute();
+        $num_affected_rows = $stmt->affected_rows;
+        if ($num_affected_rows > 0 == false) {
+            $stmt->close();
+            return false;
+        }
+        
+        $stmt->close();
+        
+        $stmt = $this->conn->prepare("SELECT placa FROM conductor WHERE codigo = ?");
+        $stmt->bind_param("s", $user['code']);
+        $stmt->execute();
+        $stmt->bind_result($placa);
+        $stmt->store_result();
+        
+        if ($stmt->num_rows <= 0) {
+            $stmt->close(); 
+            return false;
+        }
+        
+        $stmt->close(); 
+        
+        
+        $stmt = $this->conn->prepare("INSERT INTO seguimiento(referencia, hora1, hora2, conductor, elaborado, observaciones) VALUES(?, ?, ?, ?, ?, ?)");
+        
+        $conductor = "{$user['name']} {$user['lastname']} ({$placa})";
+        $elaborado = date("D, F d of Y");
+        $stmt->bind_param("ssssss", $referencia, $start, $end, $conductor, $elaborado, $observations);
+        $result = $stmt->execute();
+        $stmt->close();
+ 
+        if ($result) {
+            return true;
+        } else {
+            return false;
+        }
     }
     
     /**

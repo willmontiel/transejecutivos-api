@@ -194,22 +194,23 @@ $app->get('/servicesgrouped', 'authenticate', function() {
  * accept service
  * method PUT
  * params idOrden
- * url - /updatestatusservice
+ * url - /acceptordeclineservice
  */
-$app->put('/updatestatusservice', 'authenticate', function() use($app) {
+$app->put('/acceptordeclineservice', 'authenticate', function() use($app) {
     global $user;    
     
     try {
-        
         $service_id = $app->request->put('service_id');
         $status = $app->request->put('status');
         
+        $message = ($status == 1 || $status == "1" ? "The driver has accepted the service" : "The driver has not accepted the service");
+        
         $db = new DbHandlerDriver();
         $response = array();
-        $result = $db->updateStatusService($user['code'], $service_id, $status);
+        $result = $db->acceptOrDeclineService($user['code'], $service_id, $status);
         if ($result) {
             $response["error"] = false;
-            $response["message"] = "The driver has accepted the service";
+            $response["message"] = $message;
         } else {
             $response["error"] = true;
             $response["message"] = "Accepting service failed. Please try again!";
@@ -226,6 +227,46 @@ $app->put('/updatestatusservice', 'authenticate', function() use($app) {
     }
 });
 
+/**
+ * accept service
+ * method POST
+ * params idOrden
+ * url - /traceservice/:id 
+ */
+$app->post('/traceservice/:id', 'authenticate', function($id) use($app) {
+    global $user;    
+    
+    try {
+        // check for required params
+        verifyRequiredParams(array('start', 'end'));
+
+        // reading post params
+        $start = $app->request()->post('start');
+        $end = $app->request()->post('end');
+        $observations = $app->request()->post('observations');
+        
+        $db = new DbHandlerDriver();
+        $response = array();
+        
+        $result = $db->tracingService($id, $user, $start, $end, $observations);
+        if ($result) {
+            $response["error"] = false;
+            $response["message"] = "Tracing service success";
+        } else {
+            $response["error"] = true;
+            $response["message"] = "Tracing service failed. Please try again!";
+        }
+        echoRespnse(200, $response);
+    }
+    catch (Exception $ex) {
+        $log = new LoggerHandler();
+        $log->writeString("Exception while tracing service: " . $ex->getMessage());
+        $log->writeString($ex->getTraceAsString());
+        $response["error"] = true;
+        $response["message"] = array("An error occurred, contact the administrator");
+        echoRespnse(500, $response);
+    }
+});
 
 /**
  * Verifying required params posted or not
