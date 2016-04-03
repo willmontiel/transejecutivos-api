@@ -92,8 +92,8 @@ class DbHandlerDriver {
             $user["user_id"] = $user_id;
             $user["username"] = $username;
             $user["code"] = $codigo;
-            $user["name"] = $name;
-            $user["lastname"] = $lastname;
+            $user["name"] = $nombre;
+            $user["lastname"] = $apellido;
             // TODO
             // $user_id = $stmt->get_result()->fetch_assoc();
             $stmt->close();
@@ -452,7 +452,7 @@ class DbHandlerDriver {
         $stmt->close();
         return $num_affected_rows > 0;
     }
-    
+
     /**
      * 
      * @param type $id
@@ -461,51 +461,117 @@ class DbHandlerDriver {
      * @param type $end
      * @param type $observations
      */
-    public function tracingService($id, $user, $start, $end, $observations) {
-        $stmt = $this->conn->prepare("SELECT referencia, conductor FROM orden WHERE id = ? AND conductor = ?");
-        $stmt->bind_param("si", $id, $user['code']);
-        $stmt->execute();
-        $stmt->bind_result($referencia, $conductor);
-        $stmt->store_result();
+    public function traceService($id, $user, $start, $end, $observations) {
+        $log = new LoggerHandler();
+
+        //1. Validamos que el servicio exista, y si es asi tomamos la referencia
+        $reference = $this->validateServiceExists($id, $user['code']);
+
+        //2. Validamos que el servicio no tenga seguimiento
+        $this->validateTraceExists($reference);
+
+        //3. Aceptamos el servicio
+        $this->acceptService($id, $user['code']);
         
-        if ($stmt->num_rows <= 0) {
+        //4. Tomamos la placa del conductor
+        $carLicense = $this->getCarLicense($user['code']);
+
+        //5. Guardamos el seguimiento
+        return $this->setTrace($reference, $start, $end, $user, $observations, $carLicense);
+    }
+
+    private function validateServiceExists($id, $code) {
+        $stmt = $this->conn->prepare("SELECT referencia FROM orden WHERE id = ? AND conductor = ?");
+
+        $stmt->bind_param("is", $id, $code);
+
+        if ($stmt->execute()) {
+            $stmt->bind_result($referencia);
+            $stmt->store_result();
+
+            if ($stmt->num_rows > 0) {
+                $stmt->fetch();
+                $stmt->close();
+
+                return $referencia;
+            } 
+            else {
+                $stmt->close();
+                throw new InvalidArgumentException('No se encontró el servicio, por favor valida la información');
+            }
+        } 
+        else {
             $stmt->close(); 
-            return false;
+            throw new InvalidArgumentException('No se encontró el servicio, por favor valida la información');
         }
-        
-        $stmt->close(); 
-        
+    }
+
+    private function validateTraceExists($reference) {
+        $stmt = $this->conn->prepare("SELECT id FROM seguimiento WHERE referencia = ?");
+        $stmt->bind_param("s", $reference);
+
+        if ($stmt->execute()) {
+            $stmt->bind_result($id);
+            $stmt->store_result();
+
+            if ($stmt->num_rows > 0) {
+                $stmt->close();
+                throw new InvalidArgumentException('El servicio ya tiene seguimiento');
+            }
+        } 
+        else {
+            $stmt->close(); 
+            throw new InvalidArgumentException('El servicio ya tiene seguimiento');
+        }
+    }
+
+    private function acceptService($id, $code) {
         $estado = date("D M j G:i:s T Y");
         $stmt = $this->conn->prepare("UPDATE orden SET CD = ?, conductor = ? WHERE id = ?");
-        $stmt->bind_param("ssi", $estado, $user['code'], $id);
+        $stmt->bind_param("ssi", $estado, $code, $id);
         $stmt->execute();
         $num_affected_rows = $stmt->affected_rows;
         if ($num_affected_rows > 0 == false) {
             $stmt->close();
-            return false;
+            throw new InvalidArgumentException('No se encontró el servicio, por favor valida la información');
         }
         
         $stmt->close();
-        
+    }
+
+    private function getCarLicense($code) {
         $stmt = $this->conn->prepare("SELECT placa FROM conductor WHERE codigo = ?");
-        $stmt->bind_param("s", $user['code']);
-        $stmt->execute();
-        $stmt->bind_result($placa);
-        $stmt->store_result();
-        
-        if ($stmt->num_rows <= 0) {
+        $stmt->bind_param("s", $code);
+
+        if ($stmt->execute()) {
+            $stmt->bind_result($placa);
+            $stmt->store_result();
+
+            if ($stmt->num_rows > 0) {
+                $stmt->fetch();
+                $stmt->close();
+
+                return $placa;
+            } 
+            else {
+                $stmt->close();
+                throw new InvalidArgumentException('No se encontró el servicio, por favor valida la información');
+            }
+        } 
+        else {
             $stmt->close(); 
-            return false;
+            throw new InvalidArgumentException('No se encontró el servicio, por favor valida la información');
         }
-        
-        $stmt->close(); 
-        
-        
+    }
+
+    private function setTrace($reference, $start, $end, $user, $observations, $carLicense) {
         $stmt = $this->conn->prepare("INSERT INTO seguimiento(referencia, hora1, hora2, conductor, elaborado, observaciones) VALUES(?, ?, ?, ?, ?, ?)");
         
-        $conductor = "{$user['name']} {$user['lastname']} ({$placa})";
-        $elaborado = date("D, F d of Y");
-        $stmt->bind_param("ssssss", $referencia, $start, $end, $conductor, $elaborado, $observations);
+        $conductor = "{$user['name']} {$user['lastname']} ({$carLicense})";
+        $elaborado = date("D, F d Y, H:i:s");
+        $observations = (empty($observations) ? "SERVICIO SIN NOVEDAD" : $observations);
+
+        $stmt->bind_param("ssssss", $reference, $start, $end, $conductor, $elaborado, $observations);
         $result = $stmt->execute();
         $stmt->close();
  
@@ -518,31 +584,130 @@ class DbHandlerDriver {
     
     /**
      * 
-     * @param type $code
+     * @param type $user
      * @param type $idOrden
      */
-    public function setOnSource($code, $idOrden) {
-        
+    public function confirmService($user, $idOrden) {
+        $log = new LoggerHandler();
+
+        //1. Validamos que el servicio exista, y si es asi tomamos la referencia
+        $reference = $this->validateServiceExists($idOrden, $user['code']);
+
+        //2. Tomamos la placa del auto
+        $carLicense = $this->getCarLicense($user['code']);
+
+        //3. Guardamos el seguimiento con el estado B1HA
+        return saveB1HAStatus($reference, $user, $carLicense);
     }
+
+
+    private function saveB1HAStatus($reference, $user, $carLicense) {
+        $stmt = $this->conn->prepare("INSERT INTO seguimiento(referencia, conductor, b1ha) VALUES(?, ?, ?)");
+        
+        $conductor = "{$user['name']} {$user['lastname']} ({$carLicense})";
+        $b1ha = date("d/m/Y H:i:s");
+
+        $stmt->bind_param("sss", $reference, $conductor, $b1ha);
+        $result = $stmt->execute();
+        $stmt->close();
+ 
+        if ($result) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * 
+     * @param type $user
+     * @param type $idOrden
+     */
+    public function setOnSource($user, $idOrden) {
+        $log = new LoggerHandler();
+
+        //1. Validamos que el servicio exista, y si es asi tomamos la referencia
+        $reference = $this->validateServiceExists($idOrden, $user['code']);
+
+        //3. Guardamos el seguimiento con el estado BLS
+        return saveBLSStatus($reference);
+    }
+
+
+    public function saveBLSStatus($reference) {
+        $stmt = $this->conn->prepare("UPDATE seguimiento SET bls = ? WHERE referencia = ?");
+        
+        $bls = date("d/m/Y H:i:s");
+
+        $stmt->bind_param("ss", $bls, $reference);
+        $stmt->execute();
+        $num_affected_rows = $stmt->affected_rows;
+        $stmt->close();
+        return $num_affected_rows > 0;
+    }
+    /**
+     * 
+     * @param type $user
+     * @param type $idOrden
+     * @param type $lat
+     * @param type $loc
+     */
+    public function setPreLocation($code, $idOrden, $lat, $lon) {
+        $log = new LoggerHandler();
+
+        //1. Validamos que el servicio exista, y si es asi tomamos la referencia
+        $reference = $this->validateServiceExists($idOrden, $code);
+
+        //2. Guardamos la latitud y longitud en la tabla location
+        return $this->savePreLocation($idOrden, $reference, $lat, $lon);
+    }
+
+    private function savePreLocation($idOrden, $reference, $lat, $lon) {
+        $log = new LoggerHandler();
+
+        $stmt = $this->conn->prepare("INSERT INTO prelocation(idOrden, ordenReferencia, latitude, longitude, createdon, updatedon) VALUES(?, ?, ?, ?, ?, ?)");
+
+        $createdon = time();
+        $updatedon = time();
+        $stmt->bind_param("isssss", $idOrden, $reference, $lat, $lon, $createdon, $updatedon);
+        $result = $stmt->execute();
+        $stmt->close();
+ 
+        if ($result) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
     
     /**
      * 
      * @param type $code
      * @param type $idOrden
      */
-    public function passengerPickup($code, $idOrden) {
-        
+    public function startService($user, $idOrden) {
+        $log = new LoggerHandler();
+
+        //1. Validamos que el servicio exista, y si es asi tomamos la referencia
+        $reference = $this->validateServiceExists($idOrden, $user['code']);
+
+        //2. Guardamos la hora de inicio del segumiento
+        return saveStartTimeService($reference);
     }
     
-    /**
-     * 
-     * @param type $code
-     * @param type $idOrden
-     */
-    public function startService($code, $idOrden) {
+    public function saveStartTimeService($reference) {
+        $stmt = $this->conn->prepare("UPDATE seguimiento SET hora1 = ? WHERE referencia = ?");
         
+        $start = date("H:i");
+
+        $stmt->bind_param("ss", $start, $reference);
+        $stmt->execute();
+        $num_affected_rows = $stmt->affected_rows;
+        $stmt->close();
+        return $num_affected_rows > 0;
     }
-    
+
     /**
      * 
      * @param type $code
@@ -550,16 +715,62 @@ class DbHandlerDriver {
      * @param type $lat
      * @param type $loc
      */
-    public function setLocation($code, $idOrden, $lat, $loc) {
-        
+    public function setLocation($code, $idOrden, $lat, $lon) {
+        $log = new LoggerHandler();
+
+        //1. Validamos que el servicio exista, y si es asi tomamos la referencia
+        $reference = $this->validateServiceExists($idOrden, $code);
+
+        //2. Guardamos la latitud y longitud en la tabla location
+        return $this->saveLocation($idOrden, $reference, $lat, $lon);
+    }
+
+    private function saveLocation($idOrden, $reference, $lat, $lon) {
+        $log = new LoggerHandler();
+
+        $stmt = $this->conn->prepare("INSERT INTO location(idOrden, ordenReferencia, latitude, longitude, createdon, updatedon) VALUES(?, ?, ?, ?, ?, ?)");
+
+        $createdon = time();
+        $updatedon = time();
+        $stmt->bind_param("isssss", $idOrden, $reference, $lat, $lon, $createdon, $updatedon);
+        $result = $stmt->execute();
+        $stmt->close();
+ 
+        if ($result) {
+            return true;
+        } else {
+            return false;
+        }
     }
     
+
     /**
      * 
      * @param type $code
      * @param type $idOrden
      */
-    public function finishService($code, $idOrden) {
+    public function finishService($user, $idOrden, $observations) {
+        $log = new LoggerHandler();
+
+        //1. Validamos que el servicio exista, y si es asi tomamos la referencia
+        $reference = $this->validateServiceExists($idOrden, $user['code']);
         
+
+        //3. Actualizamos el seguimiento con la hora de finalización y demás datos
+        return saveEndTimeService($reference, $user, $observations);
+    }
+
+    private function saveEndTimeService($reference, $user, $observations) {
+        $stmt = $this->conn->prepare("UPDATE seguimiento SET hora2 = ?, elaborado = ?, observaciones = ? WHERE referencia = ?");
+        
+        $end = date("H:i");
+        $elaborado = date("D, F d Y, H:i:s");
+        $observations = (empty($observations) ? "SERVICIO SIN NOVEDAD" : $observations);
+
+        $stmt->bind_param("ssss", $end, $elaborado, $observations, $reference);
+        $stmt->execute();
+        $num_affected_rows = $stmt->affected_rows;
+        $stmt->close();
+        return $num_affected_rows > 0;
     }
 }

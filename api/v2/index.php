@@ -96,7 +96,7 @@ $app->post('/login', function() use ($app) {
         $log->writeString("Exception while getting data for service: " . $ex->getMessage());
         $log->writeString($ex->getTraceAsString());
         $response["error"] = true;
-        $response["message"] = array("An error occurred, contact the administrator");
+        $response["message"] = "An error occurred, contact the administrator";
         echoRespnse(500, $response);
     }
 });
@@ -130,7 +130,7 @@ $app->get('/searchpendingservice', 'authenticate', function() {
         $log->writeString("Exception while searching for pending service: " . $ex->getMessage());
         $log->writeString($ex->getTraceAsString());
         $response["error"] = true;
-        $response["message"] = array("An error occurred, contact the administrator");
+        $response["message"] = "An error occurred, contact the administrator";
         echoRespnse(500, $response);
     }
 });
@@ -158,7 +158,7 @@ $app->get('/getservice/:id', 'authenticate', function($id) {
         $log->writeString("Exception while getting data for pending service: " . $ex->getMessage());
         $log->writeString($ex->getTraceAsString());
         $response["error"] = true;
-        $response["message"] = array("An error occurred, contact the administrator");
+        $response["message"] = "An error occurred, contact the administrator";
         echoRespnse(500, $response);
     }
 });
@@ -184,7 +184,7 @@ $app->get('/servicesgrouped', 'authenticate', function() {
         $log->writeString("Exception while getting data for service: " . $ex->getMessage());
         $log->writeString($ex->getTraceAsString());
         $response["error"] = true;
-        $response["message"] = array("An error occurred, contact the administrator");
+        $response["message"] = "An error occurred, contact the administrator";
         echoRespnse(500, $response);
     }
 });
@@ -197,14 +197,17 @@ $app->get('/servicesgrouped', 'authenticate', function() {
  * url - /acceptordeclineservice
  */
 $app->put('/acceptordeclineservice', 'authenticate', function() use($app) {
-    global $user;    
+    global $user;   
+
+    verifyRequiredParams(array('service_id', 'status'));
+
+    $service_id = $app->request->put('service_id');
+    $status = $app->request->put('status');
+    
+    $message = ($status == 1 || $status == "1" ? "The driver has accepted the service" : "The driver has not accepted the service");
+         
     
     try {
-        $service_id = $app->request->put('service_id');
-        $status = $app->request->put('status');
-        
-        $message = ($status == 1 || $status == "1" ? "The driver has accepted the service" : "The driver has not accepted the service");
-        
         $db = new DbHandlerDriver();
         $response = array();
         $result = $db->acceptOrDeclineService($user['code'], $service_id, $status);
@@ -222,7 +225,7 @@ $app->put('/acceptordeclineservice', 'authenticate', function() use($app) {
         $log->writeString("Exception while accepting serviceee: " . $ex->getMessage());
         $log->writeString($ex->getTraceAsString());
         $response["error"] = true;
-        $response["message"] = array("An error occurred, contact the administrator");
+        $response["message"] = "An error occurred, contact the administrator";
         echoRespnse(500, $response);
     }
 });
@@ -230,25 +233,27 @@ $app->put('/acceptordeclineservice', 'authenticate', function() use($app) {
 /**
  * accept service
  * method POST
- * params idOrden
+ * params id
  * url - /traceservice/:id 
  */
 $app->post('/traceservice/:id', 'authenticate', function($id) use($app) {
+    $log = new LoggerHandler();
     global $user;    
     
-    try {
-        // check for required params
-        verifyRequiredParams(array('start', 'end'));
+    // check for required params
+    verifyRequiredParams(array("start", "end"));
+    verifyNotRequiredParams(array('observations'));
 
-        // reading post params
-        $start = $app->request()->post('start');
-        $end = $app->request()->post('end');
-        $observations = $app->request()->post('observations');
-        
+    // reading post params
+    $start = $app->request()->post('start');
+    $end = $app->request()->post('end');
+    $observations = $app->request()->post('observations');
+
+    try {
         $db = new DbHandlerDriver();
         $response = array();
         
-        $result = $db->tracingService($id, $user, $start, $end, $observations);
+        $result = $db->traceService($id, $user, $start, $end, $observations);
         if ($result) {
             $response["error"] = false;
             $response["message"] = "Tracing service success";
@@ -258,12 +263,262 @@ $app->post('/traceservice/:id', 'authenticate', function($id) use($app) {
         }
         echoRespnse(200, $response);
     }
+    catch (InvalidArgumentException $ex) {
+        $response["error"] = true;
+        $response["message"] = $ex->getMessage();
+        echoRespnse(400, $response);
+    }
     catch (Exception $ex) {
         $log = new LoggerHandler();
         $log->writeString("Exception while tracing service: " . $ex->getMessage());
-        $log->writeString($ex->getTraceAsString());
+        $log->writeArray($ex->getTraceAsString());
         $response["error"] = true;
-        $response["message"] = array("An error occurred, contact the administrator");
+        $response["message"] = "An error occurred, contact the administrator";
+        echoRespnse(500, $response);
+    }
+});
+
+
+/**
+ * accept service
+ * method POST
+ * params id
+ * url - /confirmservice/:id 
+ */
+$app->post('/confirmservice/:id', 'authenticate', function($id) use($app) {
+    $log = new LoggerHandler();
+    global $user;    
+
+    try {
+        $db = new DbHandlerDriver();
+        $response = array();
+
+        if ($db->confirmService($user, $id)) {
+            $response["error"] = false;
+            $response["message"] = "B1HA log setted successfuly";
+        } else {
+            $response["error"] = true;
+            $response["message"] = "B1HA service failed. Please try again!";
+        }
+
+        echoRespnse(200, $response);
+    }
+    catch (InvalidArgumentException $ex) {
+        $response["error"] = true;
+        $response["message"] = $ex->getMessage();
+        echoRespnse(400, $response);
+    }
+    catch (Exception $ex) {
+        $log = new LoggerHandler();
+        $log->writeString("Exception while setting B1HA log : " . $ex->getMessage());
+        $log->writeArray($ex->getTraceAsString());
+        $response["error"] = true;
+        $response["message"] = "An error occurred, contact the administrator";
+        echoRespnse(500, $response);
+    }
+});
+
+/**
+ * accept service
+ * method POST
+ * params id
+ * url - /setonsource/:id 
+ */
+$app->post('/setonsource/:id', 'authenticate', function($id) use($app) {
+    $log = new LoggerHandler();
+    global $user;    
+
+    try {
+        $db = new DbHandlerDriver();
+        $response = array();
+
+        if ($db->setOnSource($user, $id)) {
+            $response["error"] = false;
+            $response["message"] = "BLS log setted successfuly";
+        } else {
+            $response["error"] = true;
+            $response["message"] = "BLS service failed. Please try again!";
+        }
+
+        echoRespnse(200, $response);
+    }
+    catch (InvalidArgumentException $ex) {
+        $response["error"] = true;
+        $response["message"] = $ex->getMessage();
+        echoRespnse(400, $response);
+    }
+    catch (Exception $ex) {
+        $log = new LoggerHandler();
+        $log->writeString("Exception while setting BLS log: " . $ex->getMessage());
+        $log->writeArray($ex->getTraceAsString());
+        $response["error"] = true;
+        $response["message"] = "An error occurred, contact the administrator";
+        echoRespnse(500, $response);
+    }
+});
+
+
+/**
+ * accept service
+ * method POST
+ * params id
+ * url - /startservice/:id 
+ */
+$app->post('/startservice/:id', 'authenticate', function($id) use($app) {
+    $log = new LoggerHandler();
+    global $user;    
+
+    try {
+        $db = new DbHandlerDriver();
+        $response = array();
+
+        if ($db->startService($user, $id)) {
+            $response["error"] = false;
+            $response["message"] = "Service started successfuly";
+        } else {
+            $response["error"] = true;
+            $response["message"] = "Start service failed. Please try again!";
+        }
+
+        echoRespnse(200, $response);
+    }
+    catch (InvalidArgumentException $ex) {
+        $response["error"] = true;
+        $response["message"] = $ex->getMessage();
+        echoRespnse(400, $response);
+    }
+    catch (Exception $ex) {
+        $log = new LoggerHandler();
+        $log->writeString("Exception while starting service: " . $ex->getMessage());
+        $log->writeArray($ex->getTraceAsString());
+        $response["error"] = true;
+        $response["message"] = "An error occurred, contact the administrator";
+        echoRespnse(500, $response);
+    }
+});
+
+
+/**
+ * accept service
+ * method POST
+ * params id
+ * url - /setlocation/:id 
+ */
+$app->post('/setlocation/:id', 'authenticate', function($id) use($app) {
+    $log = new LoggerHandler();
+    global $user;    
+    
+    try {
+        // check for required params
+        verifyRequiredParams(array("longitude", "latitude"));
+
+        // reading post params
+        $longitude = $app->request()->post('longitude');
+        $latitude = $app->request()->post('latitude');
+
+        $db = new DbHandlerDriver();
+        $response = array();
+        
+        $response["error"] = false;
+        $response["message"] = "longitude: {$longitude}, latitude {$latitude}";
+
+        echoRespnse(200, $response);
+    }
+    catch (InvalidArgumentException $ex) {
+        $response["error"] = true;
+        $response["message"] = $ex->getMessage();
+        echoRespnse(400, $response);
+    }
+    catch (Exception $ex) {
+        $log = new LoggerHandler();
+        $log->writeString("Exception while setting location driver on service: " . $ex->getMessage());
+        $log->writeArray($ex->getTraceAsString());
+        $response["error"] = true;
+        $response["message"] = "An error occurred, contact the administrator";
+        echoRespnse(500, $response);
+    }
+});
+
+
+/**
+ * accept service
+ * method POST
+ * params id
+ * url - /finishservice/:id 
+ */
+$app->post('/finishservice/:id', 'authenticate', function($id) use($app) {
+    $log = new LoggerHandler();
+    global $user;    
+
+    verifyNotRequiredParams(array('observations'));
+    $observations = $app->request()->post('observations');
+
+    try {
+        $db = new DbHandlerDriver();
+        $response = array();
+
+        if ($db->finishService($user, $id, $observations)) {
+            $response["error"] = false;
+            $response["message"] = "Service finished successfuly";
+        } else {
+            $response["error"] = true;
+            $response["message"] = "Finish service failed. Please try again!";
+        }
+
+        echoRespnse(200, $response);
+    }
+    catch (InvalidArgumentException $ex) {
+        $response["error"] = true;
+        $response["message"] = $ex->getMessage();
+        echoRespnse(400, $response);
+    }
+    catch (Exception $ex) {
+        $log = new LoggerHandler();
+        $log->writeString("Exception while finishing service: " . $ex->getMessage());
+        $log->writeArray($ex->getTraceAsString());
+        $response["error"] = true;
+        $response["message"] = "An error occurred, contact the administrator";
+        echoRespnse(500, $response);
+    }
+});
+
+/**
+ * accept service
+ * method POST
+ * params id
+ * url - /setprelocation/:id 
+ */
+$app->post('/setprelocation/:id', 'authenticate', function($id) use($app) {
+    $log = new LoggerHandler();
+    global $user;    
+    
+    try {
+        // check for required params
+        verifyRequiredParams(array("longitude", "latitude"));
+
+        // reading post params
+        $longitude = $app->request()->post('longitude');
+        $latitude = $app->request()->post('latitude');
+
+        $db = new DbHandlerDriver();
+        $response = array();
+        
+        $response["error"] = false;
+        $response["message"] = "longitude: {$longitude}, latitude {$latitude}";
+
+        echoRespnse(200, $response);
+    }
+    catch (InvalidArgumentException $ex) {
+        $response["error"] = true;
+        $response["message"] = $ex->getMessage();
+        echoRespnse(400, $response);
+    }
+    catch (Exception $ex) {
+        $log = new LoggerHandler();
+        $log->writeString("Exception while setting prelocation driver on the way: " . $ex->getMessage());
+        $log->writeArray($ex->getTraceAsString());
+        $response["error"] = true;
+        $response["message"] = "An error occurred, contact the administrator";
         echoRespnse(500, $response);
     }
 });

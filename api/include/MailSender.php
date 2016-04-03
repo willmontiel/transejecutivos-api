@@ -29,7 +29,7 @@ class MailSender {
             $this->PHPMailer->AddAddress($this->data->email2, $this->data->email2);
             $this->PHPMailer->AddAddress($this->data->email3, $this->data->email3);
             $this->PHPMailer->SetFrom('info@transportesejecutivos.com', 'Transportes Ejecutivos');
-            $this->PHPMailer->AddReplyTo('info@transportesejecutivos.com', 'transportesejecutivos.com');
+            $this->PHPMailer->AddReplyTo('info@transportesejecutivos.com', 'Transportesejecutivos.com');
             $this->PHPMailer->Subject = $this->data->subject;
             $this->PHPMailer->AltBody = 'To view the message, please use an HTML compatible email viewer!'; // optional - MsgHTML will create an alternate automatically
             $this->PHPMailer->MsgHTML($this->mail);
