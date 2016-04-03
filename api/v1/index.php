@@ -36,9 +36,13 @@ function authenticate(\Slim\Route $route) {
             echoRespnse(401, $response);
             $app->stop();
         } else {
+            $log = new LoggerHandler();
             global $user;
             // get user primary key id
             $user = $db->getUser($api_key);
+            $log->writeString($api_key);
+            
+            $log->writeArray(print_r($user, true));
         }
     } else {
         // api key is missing in header

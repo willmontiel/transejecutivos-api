@@ -197,6 +197,11 @@ class DbHandler {
         $currentDate =  date('m/d/Y');
         $nextdate = date('m/d/Y', strtotime(date('Y-m-d'). ' + 30 days'));
         
+        $log = new LoggerHandler();
+        $log->writeString("Current Day: {$currentDate}");
+        $log->writeString("Next Day: {$nextdate}");
+        $log->writeString("Code: {$code}");
+        
         $stmt->bind_param("sss", $currentDate, $nextdate, $code);
         $stmt->execute();
 
@@ -277,7 +282,6 @@ class DbHandler {
             AND a.codigo = ? 
             AND o.estado != 'cancelar'
             ORDER BY o.fecha_s ASC";
-            
         return $sql;
     }
     
