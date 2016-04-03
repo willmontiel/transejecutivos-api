@@ -194,14 +194,13 @@ $app->get('/servicesgrouped', 'authenticate', function() {
  * accept service
  * method PUT
  * params idOrden
- * url - /acceptordeclineservice
+ * url - /acceptordeclineservice/:id
  */
-$app->put('/acceptordeclineservice', 'authenticate', function() use($app) {
+$app->put('/acceptordeclineservice/:id', 'authenticate', function($id) use($app) {
     global $user;   
 
-    verifyRequiredParams(array('service_id', 'status'));
+    verifyRequiredParams(array('status'));
 
-    $service_id = $app->request->put('service_id');
     $status = $app->request->put('status');
     
     $message = ($status == 1 || $status == "1" ? "The driver has accepted the service" : "The driver has not accepted the service");
@@ -210,7 +209,7 @@ $app->put('/acceptordeclineservice', 'authenticate', function() use($app) {
     try {
         $db = new DbHandlerDriver();
         $response = array();
-        $result = $db->acceptOrDeclineService($user['code'], $service_id, $status);
+        $result = $db->acceptOrDeclineService($user['code'], $id, $status);
         if ($result) {
             $response["error"] = false;
             $response["message"] = $message;
@@ -280,7 +279,7 @@ $app->post('/traceservice/:id', 'authenticate', function($id) use($app) {
 
 
 /**
- * accept service
+ * Confirma el servicio, setea el estado de B1HA (Botón una hora antes)
  * method POST
  * params id
  * url - /confirmservice/:id 

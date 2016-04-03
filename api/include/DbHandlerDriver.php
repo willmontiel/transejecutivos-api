@@ -207,9 +207,15 @@ class DbHandlerDriver {
                         p.telefono1,
                         p.telefono2,
                         p.correo1,
-                        p.correo2
+                        p.correo2,
+                        s.id as seguimiento_id,
+                        s.b1ha,
+                        s.bls,
+                        s.pab,
+                        s.st
             FROM orden AS o
                 LEFT JOIN pasajeros AS p ON (p.codigo = o.persona_origen) 
+                LEFT JOIN seguimiento as s ON (s.referencia = o.referencia)
             WHERE o.id = ?
             AND o.conductor = ? 
             AND o.estado != 'cancelar'";
@@ -219,7 +225,7 @@ class DbHandlerDriver {
         $stmt->bind_param("is", $id, $code);
 
         if ($stmt->execute()) {
-            $stmt->bind_result($orden_id, $referencia, $fecha_e, $hora_e, $fecha_s, $hora_s1, $hora_s2, $hora_s3, $vuelo, $aerolinea, $cant_pax, $pax2, $pax3, $pax4, $pax5, $ciudad_inicio, $dir_origen, $ciudad_destino, $dir_destino, $observaciones, $orden_estado, $cd, $passenger_id, $passenger_code, $name, $lastName, $phone1, $phone2, $email1, $email2);
+            $stmt->bind_result($orden_id, $referencia, $fecha_e, $hora_e, $fecha_s, $hora_s1, $hora_s2, $hora_s3, $vuelo, $aerolinea, $cant_pax, $pax2, $pax3, $pax4, $pax5, $ciudad_inicio, $dir_origen, $ciudad_destino, $dir_destino, $observaciones, $orden_estado, $cd, $passenger_id, $passenger_code, $name, $lastName, $phone1, $phone2, $email1, $email2, $trace_id, $b1ha, $bls, $pab, $st);
 
             $stmt->fetch();
             
@@ -232,6 +238,11 @@ class DbHandlerDriver {
                 $old = 1;
             }
             
+            $b1ha = trim($b1ha);
+            $bls = trim($bls);
+            $pab = trim($pab);
+            $st = trim($st);
+
             $service = array();
             $service["service_id"] = $orden_id;
             $service["ref"] = $referencia;
@@ -253,6 +264,11 @@ class DbHandlerDriver {
             $service["passenger_lastname"] = $lastName;
             $service["phone"] = trim($phone1) . ", " . trim($phone2);
             $service["email"] = trim($email1) . ", " . trim($email2);
+            $service["trace_id"] = (empty($trace_id) ? 0 : $trace_id);
+            $service["b1ha"] = (empty($b1ha) ? null : $b1ha);
+            $service["bls"] = (empty($bls) ? null : $bls);
+            $service["pab"] = (empty($pab) ? null : $pab);
+            $service["st"] = (empty($st) ? null : $st);
 
             $stmt->close();  
             
