@@ -398,7 +398,7 @@ $app->post('/startservice/:id', 'authenticate', function($id) use($app) {
 
 
 /**
- * accept service
+ * Save the driver location updates during the service
  * method POST
  * params id
  * url - /setlocation/:id 
@@ -417,9 +417,14 @@ $app->post('/setlocation/:id', 'authenticate', function($id) use($app) {
 
         $db = new DbHandlerDriver();
         $response = array();
-        
-        $response["error"] = false;
-        $response["message"] = "longitude: {$longitude}, latitude {$latitude}";
+        if ($db->setLocation($user, $id, $latitude, $longitude)) {
+            $response["error"] = false;
+            $response["message"] = "Location setted succesusfuly";
+        }
+        else {
+            $response["error"] = true;
+            $response["message"] = "Error while setting location, please try again";
+        }
 
         echoRespnse(200, $response);
     }
@@ -440,7 +445,7 @@ $app->post('/setlocation/:id', 'authenticate', function($id) use($app) {
 
 
 /**
- * accept service
+ * Finish a service
  * method POST
  * params id
  * url - /finishservice/:id 
@@ -482,7 +487,7 @@ $app->post('/finishservice/:id', 'authenticate', function($id) use($app) {
 });
 
 /**
- * accept service
+ * Save the driver location updates, Before reaching the destination
  * method POST
  * params id
  * url - /setprelocation/:id 
@@ -501,9 +506,14 @@ $app->post('/setprelocation/:id', 'authenticate', function($id) use($app) {
 
         $db = new DbHandlerDriver();
         $response = array();
-        
-        $response["error"] = false;
-        $response["message"] = "longitude: {$longitude}, latitude {$latitude}";
+        if ($db->setPreLocation($user, $id, $latitude, $longitude)) {
+            $response["error"] = false;
+            $response["message"] = "Prelocation setted succesusfuly";
+        }
+        else {
+            $response["error"] = true;
+            $response["message"] = "Error while setting prelocation, please try again";
+        }
 
         echoRespnse(200, $response);
     }

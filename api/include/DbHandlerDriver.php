@@ -138,7 +138,7 @@ class DbHandlerDriver {
     }
 
     /**
-     * 
+     * Busca un servicio pendiente
      * @param type $code
      * @return type
      */
@@ -666,26 +666,21 @@ class DbHandlerDriver {
      * @param type $user
      * @param type $idOrden
      * @param type $lat
-     * @param type $loc
+     * @param type $lon
      */
-    public function setPreLocation($code, $idOrden, $lat, $lon) {
-        $log = new LoggerHandler();
-
+    public function setPreLocation($user, $idOrden, $lat, $lon) {
         //1. Validamos que el servicio exista, y si es asi tomamos la referencia
-        $reference = $this->validateServiceExists($idOrden, $code);
+        $reference = $this->validateServiceExists($idOrden, $user['code']);
 
         //2. Guardamos la latitud y longitud en la tabla location
         return $this->savePreLocation($idOrden, $reference, $lat, $lon);
     }
 
     private function savePreLocation($idOrden, $reference, $lat, $lon) {
-        $log = new LoggerHandler();
+        $stmt = $this->conn->prepare("INSERT INTO prelocation(idOrden, referencia, latitude, longitude, createdon) VALUES(?, ?, ?, ?, ?)");
 
-        $stmt = $this->conn->prepare("INSERT INTO prelocation(idOrden, ordenReferencia, latitude, longitude, createdon, updatedon) VALUES(?, ?, ?, ?, ?, ?)");
-
-        $createdon = time();
-        $updatedon = time();
-        $stmt->bind_param("isssss", $idOrden, $reference, $lat, $lon, $createdon, $updatedon);
+        $createdon = date("d/m/Y H:i:s");
+        $stmt->bind_param("isssss", $idOrden, $reference, $lat, $lon, $createdon);
         $result = $stmt->execute();
         $stmt->close();
  
@@ -699,12 +694,10 @@ class DbHandlerDriver {
     
     /**
      * 
-     * @param type $code
+     * @param type $user
      * @param type $idOrden
      */
     public function startService($user, $idOrden) {
-        $log = new LoggerHandler();
-
         //1. Validamos que el servicio exista, y si es asi tomamos la referencia
         $reference = $this->validateServiceExists($idOrden, $user['code']);
 
@@ -725,15 +718,13 @@ class DbHandlerDriver {
     }
 
     /**
-     * 
+     * Save a location with latitude and longitude
      * @param type $code
      * @param type $idOrden
      * @param type $lat
-     * @param type $loc
+     * @param type $lon
      */
     public function setLocation($code, $idOrden, $lat, $lon) {
-        $log = new LoggerHandler();
-
         //1. Validamos que el servicio exista, y si es asi tomamos la referencia
         $reference = $this->validateServiceExists($idOrden, $code);
 
@@ -742,13 +733,10 @@ class DbHandlerDriver {
     }
 
     private function saveLocation($idOrden, $reference, $lat, $lon) {
-        $log = new LoggerHandler();
+        $stmt = $this->conn->prepare("INSERT INTO location(idOrden, referencia, latitude, longitude, createdon) VALUES(?, ?, ?, ?, ?)");
 
-        $stmt = $this->conn->prepare("INSERT INTO location(idOrden, ordenReferencia, latitude, longitude, createdon, updatedon) VALUES(?, ?, ?, ?, ?, ?)");
-
-        $createdon = time();
-        $updatedon = time();
-        $stmt->bind_param("isssss", $idOrden, $reference, $lat, $lon, $createdon, $updatedon);
+        $createdon = date("d/m/Y H:i:s");
+        $stmt->bind_param("issss", $idOrden, $reference, $lat, $lon, $createdon);
         $result = $stmt->execute();
         $stmt->close();
  
