@@ -547,6 +547,33 @@ class DbHandler {
         return false;
     }
     
+    public function getPrelocation($id) {
+        $response = array(
+            "latitude" => 0,
+            "longitude" => 0
+        );
+        
+        $stmt = $this->conn->prepare("SELECT latitude, longitude FROM prelocation WHERE idOrden = ? ORDER BY createdon DESC LIMIT 1");
+        $stmt->bind_param("i", $id);
+  
+        if ($stmt->execute()) {
+            $stmt->bind_result($latitude, $longitude);
+            $stmt->store_result();
+            if ($stmt->num_rows > 0) {
+                $stmt->fetch();
+                $stmt->close();
+
+                $response["latitude"] = $latitude;
+                $response["longitude"] = $longitude;
+            } 
+            else {
+                $stmt->close();
+            }
+        }
+        
+        return $response;
+    }
+    
     /**
      * Send a mail with instructions for to recover password
      * @param string $code

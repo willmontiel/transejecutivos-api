@@ -604,19 +604,33 @@ class DbHandlerDriver {
      * @param type $idOrden
      */
     public function confirmService($user, $idOrden) {
-        $log = new LoggerHandler();
-
         //1. Validamos que el servicio exista, y si es asi tomamos la referencia
         $reference = $this->validateServiceExists($idOrden, $user['code']);
 
         //2. Tomamos la placa del auto
         $carLicense = $this->getCarLicense($user['code']);
 
-        //3. Guardamos el seguimiento con el estado B1HA
+        //3. Cambiamos el estado de la orden a reconfirmacion = 1 y reconfirmacion2 = "si"
+        $this->reconfirmService($idOrden);
+        
+        //4. Guardamos el seguimiento con el estado B1HA
         return saveB1HAStatus($reference, $user, $carLicense);
     }
 
-
+    private function reconfirmService($id) {
+        $stmt = $this->conn->prepare("UPDATE orden SET reconfirmacion = 1, reconfirmacion2 = 'si' WHERE id = ?");
+        $stmt->bind_param("i", $id);
+        
+        $stmt->execute();
+        $num_affected_rows = $stmt->affected_rows;
+        if ($num_affected_rows > 0 == false) {
+            $stmt->close();
+            throw new InvalidArgumentException('No se encontró el servicio, por favor valida la información');
+        }
+        
+        $stmt->close();
+    }
+    
     private function saveB1HAStatus($reference, $user, $carLicense) {
         $stmt = $this->conn->prepare("INSERT INTO seguimiento(referencia, conductor, b1ha) VALUES(?, ?, ?)");
         

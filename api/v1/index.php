@@ -182,6 +182,36 @@ $app->put('/apikey', 'authenticate', function() use($app) {
 });
 
 
+/**
+ * Listing all user services since today until next days
+ * method GET
+ * url /getprelocation/:id          
+ */
+$app->get('/getprelocation/:id', 'authenticate', function($id) {
+    //$log = new LoggerHandler();
+    $response = array();
+    $response["error"] = false;
+    $response["location"] = array(
+        "latitude" => 0,
+        "longitude" => 0
+    );
+    
+    try {
+        global $user;
+        $db = new DbHandler();
+        $response["location"] = $db->getPrelocation($id);
+
+        echoRespnse(200, $response);
+    } 
+    catch (Exception $ex) {
+        $log = new LoggerHandler();
+        $log->writeString("Exception while getting data for service: " . $ex->getMessage());
+        $log->writeString($ex->getTraceAsString());
+        $response["error"] = true;
+        $response["message"] = array("An error occurred, contact the administrator");
+        echoRespnse(500, $response);
+    }
+});
 
 /**
  * Listing all user services since today until next days
