@@ -355,6 +355,7 @@ $app->put('/updateprofile', 'authenticate', function() use ($app) {
     verifyRequiredParams(array('phone1'));
     verifyNotRequiredParams(array('phone2'));
     verifyNotRequiredParams(array('password'));
+    verifyNotRequiredParams(array('notifications'));
 
     // reading post params
     $name = $app->request()->post('name');
@@ -364,6 +365,7 @@ $app->put('/updateprofile', 'authenticate', function() use ($app) {
     $phone1 = $app->request()->post('phone1');
     $phone2 = $app->request()->post('phone2');
     $password = $app->request()->post('password');
+    $notifications = $app->request()->post('notifications');
 
     validateEmail($email1);
     $email2 = trim($email2);
@@ -377,7 +379,7 @@ $app->put('/updateprofile', 'authenticate', function() use ($app) {
         $db = new DbHandler();
         $response = array();
         //Generating Api Key
-        $result = $db->updateProfile($user['username'], $name, $lastName, $email1, $email2, $phone1, $phone2, $password);
+        $result = $db->updateProfile($user['username'], $name, $lastName, $email1, $email2, $phone1, $phone2, $password, $notifications);
         if ($result) {
             $response = $db->getUserByUsername($user['username']);
             $response["error"] = false;

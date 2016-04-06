@@ -204,8 +204,7 @@ $app->put('/acceptordeclineservice/:id', 'authenticate', function($id) use($app)
     $status = $app->request->put('status');
     
     $message = ($status == 1 || $status == "1" ? "The driver has accepted the service" : "The driver has not accepted the service");
-         
-    
+
     try {
         $db = new DbHandlerDriver();
         $response = array();
@@ -496,14 +495,15 @@ $app->post('/setprelocation/:id', 'authenticate', function($id) use($app) {
     $log = new LoggerHandler();
     global $user;    
     
-    try {
         // check for required params
         verifyRequiredParams(array("longitude", "latitude"));
 
         // reading post params
         $longitude = $app->request()->post('longitude');
         $latitude = $app->request()->post('latitude');
-
+        
+    try {
+        
         $db = new DbHandlerDriver();
         $response = array();
         if ($db->setPreLocation($user, $id, $latitude, $longitude)) {

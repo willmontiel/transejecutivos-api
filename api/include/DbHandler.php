@@ -67,12 +67,12 @@ class DbHandler {
      * @param String $username User username
      */
     public function getUserByUsername($username) {
-        $stmt = $this->conn->prepare("SELECT id, usuario, nombre, apellido, correo1, correo2, telefono1, telefono2, empresa, api_key, nivel_clte, codigo, first_time FROM admin WHERE usuario = ? AND estado = ?");
+        $stmt = $this->conn->prepare("SELECT id, usuario, nombre, apellido, correo1, correo2, telefono1, telefono2, empresa, api_key, nivel_clte, codigo, first_time, notifications FROM admin WHERE usuario = ? AND estado = ?");
 
         $status = "activo";
         $stmt->bind_param("ss", $username, $status);
         if ($stmt->execute()) {
-            $stmt->bind_result($id, $username, $name, $lastname, $email1, $email2, $phone1, $phone2, $company, $api_key, $type, $code, $first_time);
+            $stmt->bind_result($id, $username, $name, $lastname, $email1, $email2, $phone1, $phone2, $company, $api_key, $type, $code, $first_time, $notifications);
             $stmt->fetch();
             $user = array();
             $user["id"] = $id;
@@ -87,6 +87,7 @@ class DbHandler {
             $user["company"] = $company;
             $user["api_key"] = $api_key;
             $user["first_time"] = $first_time;
+            $user["notifications"] = $notifications;
             $user["code"] = $code;
             $stmt->close();
             return $user;
@@ -275,10 +276,16 @@ class DbHandler {
                             c.modelo,
                             c.color,
                             c.placa,
-                            c.estado
+                            c.estado,
+                            s.id as seguimiento_id,
+                            s.b1ha,
+                            s.bls,
+                            s.pab,
+                            s.st
             FROM admin AS a
                     LEFT JOIN orden AS o ON (o.persona_origen = a.codigo)
                     LEFT JOIN conductor AS c ON (c.codigo = o.conductor) 
+                    LEFT JOIN seguimiento as s ON (s.referencia = o.referencia)
             WHERE {$date} 
             AND a.codigo = ? 
             AND o.estado != 'cancelar'
@@ -340,10 +347,26 @@ class DbHandler {
         );
         
         $stmt->bind_result($orden_id, $referencia, $fecha_e, $hora_e, $fecha_s, $hora_s1, $hora_s2, $hora_s3, $vuelo, $aerolinea, $empresa, $cant_pax, $pax2, $pax3, $pax4, $pax5, $ciudad_inicio, $dir_origen, $ciudad_destino, $dir_destino, $obaservaciones, $orden_estado,
-                           $conductor_id, $conductor_nombre, $conductor_apellido, $conductor_telefono1, $conductor_telefono2, $conductor_direccion, $conductor_ciudad, $conductor_email, $conductor_codigo, $carro_tipo, $marca, $modelo, $color, $placa, $estado);
+                           $conductor_id, $conductor_nombre, $conductor_apellido, $conductor_telefono1, $conductor_telefono2, 
+                $conductor_direccion, $conductor_ciudad, $conductor_email, $conductor_codigo, $carro_tipo, $marca, $modelo, $color, $placa, $estado,
+                $seguimiento_id, $b1ha, $bls, $pab, $st);
 
         while ($stmt->fetch()) {
+            $dlocation = 0;
             $date = trim($fecha_s);
+            
+            $seguimiento_id = trim($seguimiento_id);
+            $b1ha = trim($b1ha);
+            $bls = trim($bls);
+            $pab = trim($pab);
+            $st = trim($st);
+            
+            if (!empty($seguimiento_id)) {
+                if (!empty($b1ha) && empty($bls)) {
+                    $dlocation = 1;
+                }
+            }
+                   
             $tmp = array();
             //Service information
             $tmp["service_id"] = $orden_id;
@@ -375,6 +398,7 @@ class DbHandler {
             $tmp["car_color"] = $color;
             $tmp["car_license_plate"] = $placa;
             $tmp["driver_status"] = $estado;
+            $tmp['driver_location'] = $dlocation;
 
             if (in_array($date, $dates)) {
                 $key = array_search($date, $dates);
@@ -453,23 +477,24 @@ class DbHandler {
      * update user profile
      * @param String $username user username
      */
-    public function updateProfile($username, $name, $lastname, $email1, $email2, $phone1, $phone2, $password) {
+    public function updateProfile($username, $name, $lastname, $email1, $email2, $phone1, $phone2, $password, $notifications) {
         $log = new LoggerHandler();
         $pass = trim($password);
         $email2 = trim($email2);
         $phone2 = trim($phone2);
         $passSQL = (empty($pass) ? "" : ", clave = ?");
+        $notifications = (empty($notifications) ? 0 : $notifications);
      
 
-        $sql = "UPDATE admin SET nombre = ?, apellido = ?, correo1 = ? , correo2 = ?, telefono1 = ?, telefono2 = ? {$passSQL} WHERE usuario = ?";
+        $sql = "UPDATE admin SET nombre = ?, apellido = ?, correo1 = ? , correo2 = ?, telefono1 = ?, telefono2 = ?, notifications = ? {$passSQL} WHERE usuario = ?";
        
         $stmt = $this->conn->prepare($sql);
        
         if (empty($pass)) {
-            $stmt->bind_param("sssssss", $name, $lastname, $email1, $email2, $phone1, $phone2, $username);
+            $stmt->bind_param("ssssssss", $name, $lastname, $email1, $email2, $phone1, $phone2, $notifications, $username);
         }
         else {
-            $stmt->bind_param("ssssssss", $name, $lastname, $email1, $email2, $phone1, $phone2, $pass, $username);
+            $stmt->bind_param("sssssssss", $name, $lastname, $email1, $email2, $phone1, $phone2, $notifications, $pass, $username);
         }
         
         $stmt->execute();

@@ -146,25 +146,46 @@ class DbHandlerDriver {
      */
     public function searchPendingService($code) {
         $stmt = $this->conn->prepare("SELECT 
-                                            o.id 
+                                            o.id, o.fecha_s, o.hora_s1, o.hora_s2 
                                     FROM orden AS o 
                                             LEFT JOIN seguimiento AS s ON (s.referencia = o.referencia)
                                     WHERE o.conductor = ? 
-                                            AND o.fecha_s < ?
-                                            AND (o.CD = null OR o.CD = '') 
-                                            AND s.referencia IS NULL
+                                            AND ((o.CD = NULL OR o.CD =  '') OR s.referencia IS NULL)
                                     LIMIT 1");
 
-        $today = date("d/m/Y");
-        $stmt->bind_param("ss", $code, $today);
+        //$today = date("m/d/Y");
+        $stmt->bind_param("s", $code);
 
         $service = array();
 
         if ($stmt->execute()) {
-            $stmt->bind_result($id);
+            $stmt->bind_result($id, $fecha_s, $hora_s1, $hora_s2);
             $stmt->fetch();
             
+            $fecha = "{$fecha_s} {$hora_s1}:{$hora_s2}";
+            $hoy = date("m/d/Y H:i");
+            
+            $log = new LoggerHandler();
+            $log->writeString("DATE: {$fecha}");
+            $log->writeString("HOY: {$hoy}");
+            
+            list($fmonth, $fday, $fyear, $fhour, $fminute) = split('[/ :]', $fecha);
+            $d = mktime($fhour, $fminute, 0, $fmonth, $fday, $fyear);
+            
+            list($tmonth, $tday, $tyear, $thour, $tminute) = split('[/ :]', $hoy);
+            $t = mktime($thour, $tminute, 0, $tmonth, $tday, $tyear);
+            
+            $log->writeString("DATE: {$d}");
+            $log->writeString("HOY: {$t}");
+            
+            $old = 1;
+            
+            if ($d > $t) {
+                $old = 0;
+            }
+            
             $service["service_id"] = $id;
+            $service["old"] = $old;
 
             $stmt->close();  
         } 
@@ -231,13 +252,18 @@ class DbHandlerDriver {
 
             $stmt->fetch();
             
-            $old = 0;
+            $fecha = "{$fecha_s} {$hora_s1}:{$hora_s2}";
+            $hoy = date("m/d/Y H:i");
+            list($fmonth, $fday, $fyear, $fhour, $fminute) = split('[/ :]', $fecha);
+            $d = mktime($fhour, $fminute, 0, $fmonth, $fday, $fyear);
             
-            $dateArray = explode("/", $fecha_s);
-            $timeStampDateS = strtotime("{$dateArray[1]}/{$dateArray[0]}/{$dateArray[2]}");
-            $timeStampToday = time();       
-            if ($timeStampDateS < $timeStampToday) {
-                $old = 1;
+            list($tmonth, $tday, $tyear, $thour, $tminute) = split('[/ :]', $hoy);
+            $t = mktime($thour, $tminute, 0, $tmonth, $tday, $tyear);
+       
+            $old = 1;
+            
+            if ($d > $t) {
+                $old = 0;
             }
             
             $b1ha = trim($b1ha);
@@ -426,6 +452,11 @@ class DbHandlerDriver {
             $service["passenger_lastname"] = $lastName;
             $service["phone"] = trim($phone1) . ", " . trim($phone2);
             $service["email"] = trim($email1) . ", " . trim($email2);
+            $service["trace_id"] = 0;
+            $service["b1ha"] = null;
+            $service["bls"] = null;
+            $service["pab"] = null;
+            $service["st"] = null;
             //Driver information
             
 
@@ -484,7 +515,7 @@ class DbHandlerDriver {
 
         //1. Validamos que el servicio exista, y si es asi tomamos la referencia
         $reference = $this->validateServiceExists($id, $user['code']);
-
+        
         //2. Validamos que el servicio no tenga seguimiento
         $this->validateTraceExists($reference);
 
@@ -603,34 +634,36 @@ class DbHandlerDriver {
     /**
      * 
      * @param type $user
-     * @param type $idOrden
+     * @param type $id
      */
-    public function confirmService($user, $idOrden) {
+    public function confirmService($user, $id) {
+        $log = new LoggerHandler();
         //1. Validamos que el servicio exista, y si es asi tomamos la referencia
-        $reference = $this->validateServiceExists($idOrden, $user['code']);
+        $reference = $this->validateServiceExists($id, $user['code']);
 
         //2. Tomamos la placa del auto
         $carLicense = $this->getCarLicense($user['code']);
-
+        
         //3. Cambiamos el estado de la orden a reconfirmacion = 1 y reconfirmacion2 = "si"
-        $this->reconfirmService($idOrden);
+        if (!$this->reconfirmService($id)) {
+            throw new InvalidArgumentException('No se encontró el servicio, por favor valida la información');
+        }
         
         //4. Guardamos el seguimiento con el estado B1HA
-        return saveB1HAStatus($reference, $user, $carLicense);
+        return $this->saveB1HAStatus($reference, $user, $carLicense);
     }
 
     private function reconfirmService($id) {
         $stmt = $this->conn->prepare("UPDATE orden SET reconfirmacion = 1, reconfirmacion2 = 'si' WHERE id = ?");
         $stmt->bind_param("i", $id);
         
-        $stmt->execute();
-        $num_affected_rows = $stmt->affected_rows;
-        if ($num_affected_rows > 0 == false) {
-            $stmt->close();
-            throw new InvalidArgumentException('No se encontró el servicio, por favor valida la información');
-        }
+        if (!$stmt->execute()) {
+            throw new Exception('Ocurrió un error, contacta al administrador');
+        } 
         
+        $num_affected_rows = $stmt->affected_rows;
         $stmt->close();
+        return $num_affected_rows > 0;
     }
     
     private function saveB1HAStatus($reference, $user, $carLicense) {
@@ -645,7 +678,8 @@ class DbHandlerDriver {
  
         if ($result) {
             return true;
-        } else {
+        } 
+        else {
             return false;
         }
     }
@@ -662,7 +696,7 @@ class DbHandlerDriver {
         $reference = $this->validateServiceExists($idOrden, $user['code']);
 
         //3. Guardamos el seguimiento con el estado BLS
-        return saveBLSStatus($reference);
+        return $this->saveBLSStatus($reference);
     }
 
 
@@ -680,23 +714,28 @@ class DbHandlerDriver {
     /**
      * 
      * @param type $user
-     * @param type $idOrden
+     * @param type $id
      * @param type $lat
      * @param type $lon
      */
-    public function setPreLocation($user, $idOrden, $lat, $lon) {
+    public function setPreLocation($user, $id, $lat, $lon) {
+        $log = new LoggerHandler();
+        
+        $log->writeString("1");
         //1. Validamos que el servicio exista, y si es asi tomamos la referencia
-        $reference = $this->validateServiceExists($idOrden, $user['code']);
+        $reference = $this->validateServiceExists($id, $user['code']);
 
+        $log->writeString("2");
+        
         //2. Guardamos la latitud y longitud en la tabla location
-        return $this->savePreLocation($idOrden, $reference, $lat, $lon);
+        return $this->savePreLocation($id, $reference, $lat, $lon);
     }
 
-    private function savePreLocation($idOrden, $reference, $lat, $lon) {
+    private function savePreLocation($id, $reference, $lat, $lon) {
         $stmt = $this->conn->prepare("INSERT INTO prelocation(idOrden, referencia, latitude, longitude, createdon) VALUES(?, ?, ?, ?, ?)");
 
         $createdon = date("d/m/Y H:i:s");
-        $stmt->bind_param("isssss", $idOrden, $reference, $lat, $lon, $createdon);
+        $stmt->bind_param("issss", $id, $reference, $lat, $lon, $createdon);
         $result = $stmt->execute();
         $stmt->close();
  
@@ -718,15 +757,16 @@ class DbHandlerDriver {
         $reference = $this->validateServiceExists($idOrden, $user['code']);
 
         //2. Guardamos la hora de inicio del segumiento
-        return saveStartTimeService($reference);
+        return $this->saveStartTimeService($reference);
     }
     
     public function saveStartTimeService($reference) {
-        $stmt = $this->conn->prepare("UPDATE seguimiento SET hora1 = ? WHERE referencia = ?");
+        $stmt = $this->conn->prepare("UPDATE seguimiento SET hora1 = ?, pab = ? WHERE referencia = ?");
         
+        $pab = date("d/m/Y H:i:s");
         $start = date("H:i");
 
-        $stmt->bind_param("ss", $start, $reference);
+        $stmt->bind_param("sss", $start, $pab, $reference);
         $stmt->execute();
         $num_affected_rows = $stmt->affected_rows;
         $stmt->close();
@@ -735,24 +775,24 @@ class DbHandlerDriver {
 
     /**
      * Save a location with latitude and longitude
-     * @param type $code
-     * @param type $idOrden
+     * @param type $user
+     * @param type $id
      * @param type $lat
      * @param type $lon
      */
-    public function setLocation($code, $idOrden, $lat, $lon) {
+    public function setLocation($user, $id, $lat, $lon) {
         //1. Validamos que el servicio exista, y si es asi tomamos la referencia
-        $reference = $this->validateServiceExists($idOrden, $code);
+        $reference = $this->validateServiceExists($id, $user['code']);
 
         //2. Guardamos la latitud y longitud en la tabla location
-        return $this->saveLocation($idOrden, $reference, $lat, $lon);
+        return $this->saveLocation($id, $reference, $lat, $lon);
     }
 
-    private function saveLocation($idOrden, $reference, $lat, $lon) {
+    private function saveLocation($id, $reference, $lat, $lon) {
         $stmt = $this->conn->prepare("INSERT INTO location(idOrden, referencia, latitude, longitude, createdon) VALUES(?, ?, ?, ?, ?)");
 
         $createdon = date("d/m/Y H:i:s");
-        $stmt->bind_param("issss", $idOrden, $reference, $lat, $lon, $createdon);
+        $stmt->bind_param("issss", $id, $reference, $lat, $lon, $createdon);
         $result = $stmt->execute();
         $stmt->close();
  
@@ -766,28 +806,31 @@ class DbHandlerDriver {
 
     /**
      * 
-     * @param type $code
-     * @param type $idOrden
+     * @param type $user
+     * @param type $id
+     * @param type $observations
      */
-    public function finishService($user, $idOrden, $observations) {
+    public function finishService($user, $id, $observations) {
         $log = new LoggerHandler();
 
         //1. Validamos que el servicio exista, y si es asi tomamos la referencia
-        $reference = $this->validateServiceExists($idOrden, $user['code']);
+        $reference = $this->validateServiceExists($id, $user['code']);
         
 
         //3. Actualizamos el seguimiento con la hora de finalización y demás datos
-        return saveEndTimeService($reference, $user, $observations);
+        return $this->saveEndTimeService($reference, $user, $observations);
     }
 
     private function saveEndTimeService($reference, $user, $observations) {
-        $stmt = $this->conn->prepare("UPDATE seguimiento SET hora2 = ?, elaborado = ?, observaciones = ? WHERE referencia = ?");
+        
+        $stmt = $this->conn->prepare("UPDATE seguimiento SET hora2 = ?, elaborado = ?, observaciones = ?, st = ? WHERE referencia = ?");
         
         $end = date("H:i");
         $elaborado = date("D, F d Y, H:i:s");
         $observations = (empty($observations) ? "SERVICIO SIN NOVEDAD" : $observations);
-
-        $stmt->bind_param("ssss", $end, $elaborado, $observations, $reference);
+        $st = date("d/m/Y H:i:s");
+        
+        $stmt->bind_param("sssss", $end, $elaborado, $observations, $st, $reference);
         $stmt->execute();
         $num_affected_rows = $stmt->affected_rows;
         $stmt->close();
