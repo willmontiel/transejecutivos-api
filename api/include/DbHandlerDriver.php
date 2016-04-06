@@ -109,12 +109,12 @@ class DbHandlerDriver {
      * @param String $username User username
      */
     public function getUserByUsername($username) {
-        $stmt = $this->conn->prepare("SELECT id, usuario, nombre, apellido, correo1, correo2, telefono1, telefono2, empresa, api_key, nivel_clte, codigo FROM admin WHERE usuario = ? AND estado = ?");
+        $stmt = $this->conn->prepare("SELECT id, usuario, nombre, apellido, correo1, correo2, telefono1, telefono2, empresa, api_key, nivel_clte, codigo, first_time FROM admin WHERE usuario = ? AND estado = ?");
 
         $status = "activo";
         $stmt->bind_param("ss", $username, $status);
         if ($stmt->execute()) {
-            $stmt->bind_result($id, $username, $name, $lastname, $email1, $email2, $phone1, $phone2, $company, $api_key, $type, $code);
+            $stmt->bind_result($id, $username, $name, $lastname, $email1, $email2, $phone1, $phone2, $company, $api_key, $type, $code, $first_time);
             $stmt->fetch();
             $user = array();
             $user["id"] = $id;
@@ -129,6 +129,8 @@ class DbHandlerDriver {
             $user["company"] = $company;
             $user["api_key"] = $api_key;
             $user["code"] = $code;
+            $user["first_time"] = $first_time;
+            
             $stmt->close();
             return $user;
         } 

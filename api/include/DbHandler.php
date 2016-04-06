@@ -28,7 +28,7 @@ class DbHandler {
      */
     public function checkLogin($username, $password) {
         // fetching user by email
-        $stmt = $this->conn->prepare("SELECT clave FROM admin WHERE usuario = ?");
+        $stmt = $this->conn->prepare("SELECT clave FROM admin WHERE usuario = ? AND nivel_clte != 'conductor'");
 
         $stmt->bind_param("s", $username);
 
@@ -67,12 +67,12 @@ class DbHandler {
      * @param String $username User username
      */
     public function getUserByUsername($username) {
-        $stmt = $this->conn->prepare("SELECT id, usuario, nombre, apellido, correo1, correo2, telefono1, telefono2, empresa, api_key, nivel_clte, codigo FROM admin WHERE usuario = ? AND estado = ?");
+        $stmt = $this->conn->prepare("SELECT id, usuario, nombre, apellido, correo1, correo2, telefono1, telefono2, empresa, api_key, nivel_clte, codigo, first_time FROM admin WHERE usuario = ? AND estado = ?");
 
         $status = "activo";
         $stmt->bind_param("ss", $username, $status);
         if ($stmt->execute()) {
-            $stmt->bind_result($id, $username, $name, $lastname, $email1, $email2, $phone1, $phone2, $company, $api_key, $type, $code);
+            $stmt->bind_result($id, $username, $name, $lastname, $email1, $email2, $phone1, $phone2, $company, $api_key, $type, $code, $first_time);
             $stmt->fetch();
             $user = array();
             $user["id"] = $id;
@@ -86,6 +86,7 @@ class DbHandler {
             $user["type"] = $type;
             $user["company"] = $company;
             $user["api_key"] = $api_key;
+            $user["first_time"] = $first_time;
             $user["code"] = $code;
             $stmt->close();
             return $user;
@@ -438,6 +439,15 @@ class DbHandler {
         return $num_affected_rows > 0;
     }
 
+    public function changePassword($username, $password) {
+        $apikey = $this->generateApiKey();
+        $stmt = $this->conn->prepare("UPDATE admin SET clave = ?, api_key = ?, first_time = 0 WHERE usuario = ?");
+        $stmt->bind_param("sss", $password, $apikey, $username);
+        $stmt->execute();
+        $num_affected_rows = $stmt->affected_rows;
+        $stmt->close();
+        return $num_affected_rows > 0;
+    }
 
     /**
      * update user profile
@@ -549,6 +559,7 @@ class DbHandler {
     
     public function getPrelocation($id) {
         $response = array(
+            "location" => 0,
             "latitude" => 0,
             "longitude" => 0
         );
@@ -565,6 +576,7 @@ class DbHandler {
 
                 $response["latitude"] = $latitude;
                 $response["longitude"] = $longitude;
+                $response["location"] = 1;
             } 
             else {
                 $stmt->close();

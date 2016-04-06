@@ -86,7 +86,7 @@ $app->post('/recoverpassword', function() use ($app) {
         $log->writeString("Exception while getting data for service: " . $ex->getMessage());
         $log->writeString($ex->getTraceAsString());
         $response["error"] = true;
-        $response["message"] = array("An error occurred, contact the administrator");
+        $response["message"] = "An error occurred, contact the administrator";
         echoRespnse(500, $response);
     }
 });
@@ -133,7 +133,47 @@ $app->post('/login', function() use ($app) {
         $log->writeString("Exception while getting data for service: " . $ex->getMessage());
         $log->writeString($ex->getTraceAsString());
         $response["error"] = true;
-        $response["message"] = array("An error occurred, contact the administrator");
+        $response["message"] = "An error occurred, contact the administrator";
+        echoRespnse(500, $response);
+    }
+});
+
+
+/**
+ * User reset password
+ * url - /resetpassword
+ * method - POST
+ * params - username, password
+ */
+$app->post('/resetpassword', function() use ($app) {
+    // check for required params
+    verifyRequiredParams(array('username', 'password'));
+
+    // reading post params
+    $username = $app->request()->post('username');
+    $password = $app->request()->post('password');
+    $response = array();
+        
+    try {
+        $db = new DbHandler();
+        // check for correct email and password
+        if ($db->changePassword($username, $password)) {
+            $response['error'] = false;
+            $response['message'] = "Password resetted successfully";
+        } 
+        else {
+            $response['error'] = true;
+            $response['message'] = "An error occurred. Please try again";
+        }
+
+        echoRespnse(200, $response);
+    }
+    catch (Exception $ex) {
+        $log = new LoggerHandler();
+        $log->writeString("Exception while resetting password: " . $ex->getMessage());
+        $log->writeString($ex->getTraceAsString());
+        $response["error"] = true;
+        $response["message"] = "An error occurred, contact the administrator";
         echoRespnse(500, $response);
     }
 });
@@ -176,7 +216,7 @@ $app->put('/apikey', 'authenticate', function() use($app) {
         $log->writeString("Exception while creating/updating apikey: " . $ex->getMessage());
         $log->writeString($ex->getTraceAsString());
         $response["error"] = true;
-        $response["message"] = array("An error occurred, contact the administrator");
+        $response["message"] = "An error occurred, contact the administrator";
         echoRespnse(500, $response);
     }
 });
@@ -208,7 +248,7 @@ $app->get('/getprelocation/:id', 'authenticate', function($id) {
         $log->writeString("Exception while getting data for service: " . $ex->getMessage());
         $log->writeString($ex->getTraceAsString());
         $response["error"] = true;
-        $response["message"] = array("An error occurred, contact the administrator");
+        $response["message"] = "An error occurred, contact the administrator";
         echoRespnse(500, $response);
     }
 });
@@ -236,7 +276,7 @@ $app->get('/services', 'authenticate', function() {
         $log->writeString("Exception while getting data for service: " . $ex->getMessage());
         $log->writeString($ex->getTraceAsString());
         $response["error"] = true;
-        $response["message"] = array("An error occurred, contact the administrator");
+        $response["message"] = "An error occurred, contact the administrator";
         echoRespnse(500, $response);
     }
 });
@@ -263,7 +303,7 @@ $app->get('/servicesgrouped', 'authenticate', function() {
         $log->writeString("Exception while getting data for service: " . $ex->getMessage());
         $log->writeString($ex->getTraceAsString());
         $response["error"] = true;
-        $response["message"] = array("An error occurred, contact the administrator");
+        $response["message"] = "An error occurred, contact the administrator";
         echoRespnse(500, $response);
     }
 });
@@ -295,7 +335,7 @@ $app->post('/service', 'authenticate', function() use ($app) {
         $log->writeString("Exception while getting data for service: " . $ex->getMessage());
         $log->writeString($ex->getTraceAsString());
         $response["error"] = true;
-        $response["message"] = array("An error occurred, contact the administrator");
+        $response["message"] = "An error occurred, contact the administrator";
         echoRespnse(500, $response);
     }
 });
@@ -353,7 +393,7 @@ $app->put('/updateprofile', 'authenticate', function() use ($app) {
         $log->writeString("Exception while updating user profile: " . $ex->getMessage());
         $log->writeString($ex->getTraceAsString());
         $response["error"] = true;
-        $response["message"] = array("An error occurred, contact the administrator");
+        $response["message"] = "An error occurred, contact the administrator";
         echoRespnse(500, $response);
     }
 });
