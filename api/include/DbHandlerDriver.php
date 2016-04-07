@@ -145,15 +145,35 @@ class DbHandlerDriver {
      * @return type
      */
     public function searchPendingService($code) {
+        //$prevdate = date('m/d/Y', strtotime(date('Y-m-d'). ' -10 days'));
+        //$nextdate = date('m/d/Y', strtotime(date('Y-m-d'). ' +30 days'));
+        
+        $prevdate = date('m/d/Y', strtotime(date('Y-m-d'). ' -10 days'));
+        $nextdate = date('m/d/Y', strtotime(date('Y-m-d'). ' -1 days'));
+        
+        /*
         $stmt = $this->conn->prepare("SELECT 
                                             o.id, o.fecha_s, o.hora_s1, o.hora_s2 
                                     FROM orden AS o 
                                             LEFT JOIN seguimiento AS s ON (s.referencia = o.referencia)
                                     WHERE o.conductor = ? 
+                                            AND STR_TO_DATE(o.fecha_s, '%m/%d/%Y') BETWEEN STR_TO_DATE('{$prevdate}', '%m/%d/%Y') AND STR_TO_DATE('{$nextdate}', '%m/%d/%Y') 
                                             AND ((o.CD = NULL OR o.CD =  '') OR s.referencia IS NULL)
+                                    ORDER BY o.id DESC
                                     LIMIT 1");
-
-        //$today = date("m/d/Y");
+         */
+        
+        $stmt = $this->conn->prepare("SELECT 
+                                            o.id, o.fecha_s, o.hora_s1, o.hora_s2 
+                                    FROM orden AS o 
+                                            LEFT JOIN seguimiento AS s ON (s.referencia = o.referencia)
+                                    WHERE o.conductor = ? 
+                                            AND STR_TO_DATE(o.fecha_s, '%m/%d/%Y') BETWEEN STR_TO_DATE('{$prevdate}', '%m/%d/%Y') AND STR_TO_DATE('{$nextdate}', '%m/%d/%Y') 
+                                            AND o.estado != 'cancelar'
+                                            AND s.referencia IS NULL
+                                    ORDER BY o.id ASC
+                                    LIMIT 1");
+      
         $stmt->bind_param("s", $code);
 
         $service = array();
@@ -165,18 +185,11 @@ class DbHandlerDriver {
             $fecha = "{$fecha_s} {$hora_s1}:{$hora_s2}";
             $hoy = date("m/d/Y H:i");
             
-            $log = new LoggerHandler();
-            $log->writeString("DATE: {$fecha}");
-            $log->writeString("HOY: {$hoy}");
-            
             list($fmonth, $fday, $fyear, $fhour, $fminute) = split('[/ :]', $fecha);
             $d = mktime($fhour, $fminute, 0, $fmonth, $fday, $fyear);
             
             list($tmonth, $tday, $tyear, $thour, $tminute) = split('[/ :]', $hoy);
             $t = mktime($thour, $tminute, 0, $tmonth, $tday, $tyear);
-            
-            $log->writeString("DATE: {$d}");
-            $log->writeString("HOY: {$t}");
             
             $old = 1;
             
@@ -352,7 +365,8 @@ class DbHandlerDriver {
         
         $stmt = $this->conn->prepare($sql);
 
-        $currentDate =  date('m/d/Y', strtotime(date('Y-m-d'). ' - 8 days'));
+        //$currentDate =  date('m/d/Y', strtotime(date('Y-m-d'). ' - 8 days'));
+        $currentDate =  date('m/d/Y');
         $nextdate = date('m/d/Y', strtotime(date('Y-m-d'). ' + 30 days'));
         
         $stmt->bind_param("sss", $currentDate, $nextdate, $code);
@@ -366,7 +380,7 @@ class DbHandlerDriver {
     }
     
     private function getServicesSQL($between) {
-        $date = ($between ? 'o.fecha_s between ? AND ? ' : "o.fecha_s = ? ");
+        $date = ($between ? "STR_TO_DATE(o.fecha_s, '%m/%d/%Y') BETWEEN STR_TO_DATE(?, '%m/%d/%Y') AND STR_TO_DATE(?, '%m/%d/%Y') " : "o.fecha_s = ? ");
         
         $sql = "SELECT o.id AS orden_id, 
                         o.referencia,
@@ -403,7 +417,9 @@ class DbHandlerDriver {
             WHERE {$date}
             AND o.conductor = ? 
             AND o.estado != 'cancelar'
-            AND (o.CD != null OR o.CD != '')";
+            ORDER BY o.id DESC LIMIT 20";
+            
+            //AND (o.CD != null OR o.CD != '') ORDER BY o.id DESC LIMIT 20";
             
         return $sql;
     }
@@ -422,13 +438,18 @@ class DbHandlerDriver {
         while ($stmt->fetch()) {
             $date = trim($fecha_s);
             
-            $old = 0;
+            $fecha = "{$date} {$hora_s1}:{$hora_s2}";
+            $hoy = date("m/d/Y H:i");
+            list($fmonth, $fday, $fyear, $fhour, $fminute) = split('[/ :]', $fecha);
+            $d = mktime($fhour, $fminute, 0, $fmonth, $fday, $fyear);
             
-            $dateArray = explode("/", $date);
-            $timeStampDateS = strtotime("{$dateArray[1]}/{$dateArray[0]}/{$dateArray[2]}");
-            $timeStampToday = time();       
-            if ($timeStampDateS < $timeStampToday) {
-                $old = 1;
+            list($tmonth, $tday, $tyear, $thour, $tminute) = split('[/ :]', $hoy);
+            $t = mktime($thour, $tminute, 0, $tmonth, $tday, $tyear);
+       
+            $old = 1;
+            
+            if ($d > $t) {
+                $old = 0;
             }
             
             $service = array();
@@ -457,9 +478,8 @@ class DbHandlerDriver {
             $service["bls"] = null;
             $service["pab"] = null;
             $service["st"] = null;
-            //Driver information
             
-
+            
             if (in_array($date, $dates)) {
                 $key = array_search($date, $dates);
                 $data['services'][$key][] = $service;
