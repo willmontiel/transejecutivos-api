@@ -272,7 +272,17 @@ class DbHandlerDriver {
             
             list($tmonth, $tday, $tyear, $thour, $tminute) = split('[/ :]', $hoy);
             $t = mktime($thour, $tminute, 0, $tmonth, $tday, $tyear);
+            
+            $ohourb = ($fhour == 0 ? $fhour : $fhour - 1);
+            $oneHourBefore = mktime($ohourb, $fminute, 0, $fmonth, $fday, $fyear);
        
+            $b1haStatus = 0;
+            
+            if ($t >= $oneHourBefore && $t <= $d) {
+                $b1haStatus = 1;
+            }
+            
+            
             $old = 1;
             
             if ($d > $t) {
@@ -310,6 +320,7 @@ class DbHandlerDriver {
             $service["bls"] = (empty($bls) ? null : $bls);
             $service["pab"] = (empty($pab) ? null : $pab);
             $service["st"] = (empty($st) ? null : $st);
+            $service["b1haStatus"] = $b1haStatus;
 
             $stmt->close();  
             
@@ -528,9 +539,10 @@ class DbHandlerDriver {
      * @param type $code
      * @param type $start
      * @param type $end
+     * @param type $image
      * @param type $observations
      */
-    public function traceService($id, $user, $start, $end, $observations) {
+    public function traceService($id, $user, $start, $end, $image, $observations) {
         $log = new LoggerHandler();
 
         //1. Validamos que el servicio exista, y si es asi tomamos la referencia
@@ -544,6 +556,13 @@ class DbHandlerDriver {
         
         //4. Tomamos la placa del conductor
         $carLicense = $this->getCarLicense($user['code']);
+        
+        $uploaddir = '../../admin/informes/os/';
+        $path = $uploaddir . $reference .".jpg";
+        
+        if (!file_put_contents($path, base64_decode($image))) {
+            throw new InvalidArgumentException('Error cargando la imagen al servidor, por favor contacta al administrador');
+        }
 
         //5. Guardamos el seguimiento
         return $this->setTrace($reference, $start, $end, $user, $observations, $carLicense);

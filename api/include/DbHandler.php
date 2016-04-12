@@ -484,9 +484,10 @@ class DbHandler {
         $phone2 = trim($phone2);
         $passSQL = (empty($pass) ? "" : ", clave = ?");
         $notifications = (empty($notifications) ? 0 : $notifications);
+        $now = date("d/M/Y H:i");
      
 
-        $sql = "UPDATE admin SET nombre = ?, apellido = ?, correo1 = ? , correo2 = ?, telefono1 = ?, telefono2 = ?, notifications = ? {$passSQL} WHERE usuario = ?";
+        $sql = "UPDATE admin SET nombre = ?, apellido = ?, correo1 = ? , correo2 = ?, telefono1 = ?, telefono2 = ?, notifications = ?, fecha_edicion = '{$now}' {$passSQL} WHERE usuario = ?";
        
         $stmt = $this->conn->prepare($sql);
        

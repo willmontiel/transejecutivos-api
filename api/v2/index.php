@@ -239,19 +239,20 @@ $app->post('/traceservice/:id', 'authenticate', function($id) use($app) {
     global $user;    
     
     // check for required params
-    verifyRequiredParams(array("start", "end"));
+    verifyRequiredParams(array("start", "end", "image"));
     verifyNotRequiredParams(array('observations'));
 
     // reading post params
     $start = $app->request()->post('start');
     $end = $app->request()->post('end');
     $observations = $app->request()->post('observations');
+    $image = $app->request()->post('image');
 
     try {
         $db = new DbHandlerDriver();
         $response = array();
         
-        $result = $db->traceService($id, $user, $start, $end, $observations);
+        $result = $db->traceService($id, $user, $start, $end, $image, $observations);
         if ($result) {
             $response["error"] = false;
             $response["message"] = "Tracing service success";
