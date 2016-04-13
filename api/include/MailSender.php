@@ -10,6 +10,7 @@ $m->sendMail($data);
 
 class MailSender {
     public $mail;
+    public $plaintext;
     
     const SMTP_TRANSPORT = "smtp.mandrillapp.com";
     const SMTP_PORT = 587;
@@ -20,6 +21,11 @@ class MailSender {
         
     }
     
+    public function setMail($data) {
+        $this->mail = $data->mail;
+        $this->plaintext = $data->plaintext;
+    }
+
     public function sendMail($data) {
         $log = new LoggerHandler();
         $log->writeString("Iniciando proceso");
@@ -43,10 +49,10 @@ class MailSender {
                 ->setTo(array('will.montiel@aol.com', 'willtechandscience@gmail.com' => 'Will Montiel'))
 
                 // Give it a body
-                ->setBody('Here is the message itself')
+                ->setBody($this->mail, 'text/html')
 
                 // And optionally an alternative body
-                ->addPart('<q>Here is the message itself</q>', 'text/html');
+                ->addPart($this->plaintext, 'text/plain');
 
             $result = $mailer->send($message);
         } 
@@ -54,25 +60,5 @@ class MailSender {
             $log->writeString("Exception: " . $ex->getMessage());
             $log->writeString("Exception: " . $ex->getTraceAsString());
         }
-    }
-    
-    public function createDeclineServiceNotification($data) {
-        $this->html = "";
-    }
-    
-    public function createAcceptServiceNotification($data) {
-        $this->html = "";
-    }
-    
-    public function createConfirmNotification($data) {
-        $this->html = "";
-    }
-    
-    public function createOnSourceNotification($data) {
-        $this->html = "";
-    }
-    
-    public function createResumeNotification($data) {
-        $this->html = "";
-    }
+    }  
 }
