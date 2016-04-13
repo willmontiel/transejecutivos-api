@@ -275,6 +275,9 @@ class DbHandlerDriver {
             
             $ohourb = ($fhour == 0 ? $fhour : $fhour - 1);
             $oneHourBefore = mktime($ohourb, $fminute, 0, $fmonth, $fday, $fyear);
+            
+            $ohoura = ($thour == 0 ? $thour : $thour + 1);
+            $oneHourAfter = mktime($ohoura, $tminute, 0, $tmonth, $tday, $tyear);
        
             $b1haStatus = 0;
             
@@ -285,7 +288,7 @@ class DbHandlerDriver {
             
             $old = 1;
             
-            if ($d > $t) {
+            if ($d < $oneHourAfter) {
                 $old = 0;
             }
             
