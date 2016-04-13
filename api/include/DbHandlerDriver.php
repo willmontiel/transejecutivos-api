@@ -859,6 +859,8 @@ class DbHandlerDriver {
         $reference = $this->validateServiceExists($id, $user['code']);
         
 
+        
+        
         //3. Actualizamos el seguimiento con la hora de finalización y demás datos
         return $this->saveEndTimeService($reference, $user, $observations);
     }
