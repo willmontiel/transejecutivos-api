@@ -277,11 +277,15 @@ class DbHandlerDriver {
             $ohourb = ($sdhour == 0 ? $sdhour : $sdhour - 1);
             $oneHourBefore = mktime($ohourb, $sdminute, 0, $sdmonth, $sdday, $sdyear);
        
+            $b1haStatus = 1;
+            
+            /*
             $b1haStatus = 0;
             
             if ($now >= $oneHourBefore && $now <= $sd) {
                 $b1haStatus = 1;
             }
+            */
             
             $b1ha = trim($b1ha);
             $bls = trim($bls);
@@ -290,10 +294,16 @@ class DbHandlerDriver {
 
             $old = 1;
             
+            /*
             if ($b1haStatus == 1 && $fecha_s == date('m/d/Y')) {
                 $old = 0;
             }
             else if ($b1haStatus == 0 && !empty($b1ha) && $fecha_s == date('m/d/Y')) {
+                $old = 0;
+            }
+            */
+            
+            if ($fecha_s == date('m/d/Y')) {
                 $old = 0;
             }
             
