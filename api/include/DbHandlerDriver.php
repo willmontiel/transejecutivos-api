@@ -265,31 +265,22 @@ class DbHandlerDriver {
 
             $stmt->fetch();
             
-            $fecha = "{$fecha_s} {$hora_s1}:{$hora_s2}";
-            $hoy = date("m/d/Y H:i");
-            list($fmonth, $fday, $fyear, $fhour, $fminute) = split('[/ :]', $fecha);
-            $d = mktime($fhour, $fminute, 0, $fmonth, $fday, $fyear);
+            //1. Calculamos la fecha de hoy y la transformamos a timestamp
+            $now = time();
+
+            //2. Transformamos la fecha de inicio del servicio a timestamp
+            $startdate = "{$fecha_s} {$hora_s1}:{$hora_s2}";
+            list($sdmonth, $sdday, $sdyear, $sdhour, $sdminute) = split('[/ :]', $startdate);
+            $sd = mktime($sdhour, $sdminute, 0, $sdmonth, $sdday, $sdyear);
             
-            list($tmonth, $tday, $tyear, $thour, $tminute) = split('[/ :]', $hoy);
-            $t = mktime($thour, $tminute, 0, $tmonth, $tday, $tyear);
-            
-            $ohourb = ($fhour == 0 ? $fhour : $fhour - 1);
-            $oneHourBefore = mktime($ohourb, $fminute, 0, $fmonth, $fday, $fyear);
-            
-            $ohoura = ($thour == 0 ? $thour : $thour + 1);
-            $oneHourAfter = mktime($ohoura, $tminute, 0, $tmonth, $tday, $tyear);
+            //3. Le restamos una hora a la fecha de inicio del servicio y transformamos a timestamp
+            $ohourb = ($sdhour == 0 ? $sdhour : $sdhour - 1);
+            $oneHourBefore = mktime($ohourb, $sdminute, 0, $sdmonth, $sdday, $sdyear);
        
             $b1haStatus = 0;
             
-            if ($t >= $oneHourBefore && $t <= $d) {
+            if ($now >= $oneHourBefore && $now <= $sd) {
                 $b1haStatus = 1;
-            }
-            
-            
-            $old = 1;
-            
-            if ($d < $oneHourAfter) {
-                $old = 0;
             }
             
             $b1ha = trim($b1ha);
@@ -297,6 +288,15 @@ class DbHandlerDriver {
             $pab = trim($pab);
             $st = trim($st);
 
+            $old = 1;
+            
+            if ($b1haStatus == 1 && $fecha_s == date('m/d/Y')) {
+                $old = 0;
+            }
+            else if ($b1haStatus == 0 && !empty($b1ha) && $fecha_s == date('m/d/Y')) {
+                $old = 0;
+            }
+            
             $service = array();
             $service["service_id"] = $orden_id;
             $service["ref"] = $referencia;
