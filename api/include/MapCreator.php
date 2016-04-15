@@ -26,20 +26,15 @@ class MapCreator {
         $log = new LoggerHandler();
         $log->writeString("URL: {$url}");
         
-        
-        
         if (!file_put_contents("../../maps/{$name}.png", file_get_contents($url))) {
-            throw new Exception("No se pudo guardar la imagen de la ubicación de google maps");
+            $log->writeString("No se pudo guardar la imagen de la ubicación de google maps, referncia: {$name}");
         }
     }
     
-    public function findLocationPoints() {
-        $log = new LoggerHandler();
+    public function findLocationPoints($id) {
         $points = array();
         
         $stmt = $this->conn->prepare("SELECT latitude, longitude FROM location WHERE idOrden = ?");
-        
-        $id = 102817;
         
         $stmt->bind_param("i", $id);
 
@@ -50,8 +45,6 @@ class MapCreator {
         $stmt->store_result();
         
         $numResults = $stmt->num_rows;
-        
-        $log->writeString("POINTS: " . $numResults);
      
         $j = 1;
         $i = 0;
@@ -75,8 +68,6 @@ class MapCreator {
         }
         
         $stmt->close(); 
-        
-        $log->writeString("POINTS: " . implode("|", $points));
         
         return implode("|", $points);
     }

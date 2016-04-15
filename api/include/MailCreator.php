@@ -3,10 +3,21 @@
 require_once 'LoggerHandler.php';
 
 class MailCreator {
+    public $html;
+    public $plaintext;
+    
     public function __construct() {
         
     }
     
+    public function getHtml() {
+        return $this->html;
+    }
+    
+    public function getPlaintext() {
+        return $this->plaintext;
+    }
+
     public function createDeclineServiceNotification($data) {
         $this->html = "";
     }
@@ -303,6 +314,8 @@ class MailCreator {
                           </tr>
                        </tbody>
                     </table>';
+        
+        $this->plaintext = "Resumen de servicio con Transportes Ejecutivos con referencia: {$data->referencia}";
     }
 }
 

@@ -28,7 +28,8 @@ class MailSender {
 
     public function sendMail($data) {
         $log = new LoggerHandler();
-        $log->writeString("Iniciando proceso");
+        $log->writeString("Enviando Resumen con los siguientes datos");
+        $log->writeArray(print_r($data, true));
         
         try {
             $transport = Swift_SmtpTransport::newInstance(MailSender::SMTP_TRANSPORT, MailSender::SMTP_PORT)
@@ -40,13 +41,13 @@ class MailSender {
             // Create the message
             $message = Swift_Message::newInstance()
                 // Give the message a subject
-                ->setSubject('Este es mi asunto')
+                ->setSubject($data->subject)
 
                 // Set the From address with an associative array
-                ->setFrom(array('info@transportesejecutivos.com' => 'Transportes Ejecutivos'))
+                ->setFrom($data->from)
 
                 // Set the To addresses with an associative array
-                ->setTo(array('will.montiel@aol.com', 'willtechandscience@gmail.com' => 'Will Montiel'))
+                ->setTo($data->to)
 
                 // Give it a body
                 ->setBody($this->mail, 'text/html')
@@ -54,11 +55,14 @@ class MailSender {
                 // And optionally an alternative body
                 ->addPart($this->plaintext, 'text/plain');
 
-            $result = $mailer->send($message);
+            if(!$mailer->send($message)) {
+                throw new InvalidArgumentException("Se finalizó el servicio, pero no se pudo enviar el resumen por correo al cliente");
+            }
         } 
         catch (Exception $ex) {
             $log->writeString("Exception: " . $ex->getMessage());
             $log->writeString("Exception: " . $ex->getTraceAsString());
+            throw new Exception($ex->getMessage());
         }
     }  
 }

@@ -1,7 +1,9 @@
 <?php
 
 require_once 'LoggerHandler.php';
-//require_once 'MailSender.php';
+require_once 'MailSender.php';
+require_once 'MailCreator.php';
+require_once 'MapCreator.php';
 /**
  * Class to handle all db operations
  * This class will have CRUD methods for database tables
@@ -311,6 +313,9 @@ class DbHandlerDriver {
             $service["service_id"] = $orden_id;
             $service["ref"] = $referencia;
             $service["date"] = $fecha_e . " " . $hora_e;
+            $service["sdate"] = $fecha_s;
+            $service["start_time"] = $hora_s1;
+            $service["end_time"] = $hora_s2;
             $service["start_date"] = $fecha_s . " " . $hora_s1 . ":" . $hora_s2;
             $service["fly"] = $vuelo;
             $service["aeroline"] = $aerolinea;
@@ -328,6 +333,8 @@ class DbHandlerDriver {
             $service["passenger_lastname"] = $lastName;
             $service["phone"] = trim($phone1) . ", " . trim($phone2);
             $service["email"] = trim($email1) . ", " . trim($email2);
+            $service["email1"] = trim($email1);
+            $service["email2"] = trim($email2);
             $service["trace_id"] = (empty($trace_id) ? 0 : $trace_id);
             $service["b1ha"] = (empty($b1ha) ? null : $b1ha);
             $service["bls"] = (empty($bls) ? null : $bls);
@@ -863,18 +870,77 @@ class DbHandlerDriver {
      * @param type $observations
      */
     public function finishService($user, $id, $observations) {
-        $log = new LoggerHandler();
+        try {
+            //1. Validamos que el servicio exista, y si es asi tomamos la referencia
+            $reference = $this->validateServiceExists($id, $user['code']);
 
-        //1. Validamos que el servicio exista, y si es asi tomamos la referencia
-        $reference = $this->validateServiceExists($id, $user['code']);
-        
+            //3. Actualizamos el seguimiento con la hora de finalización y demás datos
+            if ($this->saveEndTimeService($reference, $user, $observations)) {
+                $mapCreator = new MapCreator();
+                $mapCreator->createMap($reference, $mapCreator->findLocationPoints($id));
 
-        
-        
-        //3. Actualizamos el seguimiento con la hora de finalización y demás datos
-        return $this->saveEndTimeService($reference, $user, $observations);
+                $serviceArray = $this->getService($id, $user['code']);
+
+                $email1 = $serviceArray["email1"];
+                $email2 = $serviceArray["email2"];
+
+                if (empty($email1) && empty($email2)) {
+                    throw new InvalidArgumentException("Se finalizo el servicio exitosamente, pero no se pudo enviar el resumen al cliente");
+                }
+
+                if (!filter_var($email1, FILTER_VALIDATE_EMAIL) && !filter_var($email2, FILTER_VALIDATE_EMAIL)) {
+                    throw new InvalidArgumentException("Se finalizo el servicio exitosamente, pero no se pudo enviar el resumen al cliente");
+                }
+
+                $service = new stdClass();
+                $service->name = $serviceArray['passenger_name'] . " " . $serviceArray['passenger_lastname'];
+                $service->reference = $reference;
+                $service->date = $serviceArray['sdate'];
+                $service->startTime = $serviceArray['start_time'];
+                $service->source = $serviceArray['source'];
+                $service->destiny = $serviceArray['destiny'];
+                $service->endTime = $serviceArray['end_time'];
+                $service->driverName = $user['name'] . " " . $user['lastname'];
+                $service->driverCode = $user['code'];
+
+                $mailCreator = new MailCreator();
+                $mailCreator->createResumeNotification($service);
+
+                $mail = new stdClass();
+                $mail->html = $mailCreator->getHtml();
+                $mail->plaintext = $mailCreator->getPlaintext();
+
+                $data = new stdClass();
+                $data->subject = 'Este es el resumen de tu servicio con Transportes Ejecutivos';
+                $data->from = array('info@transportesejecutivos.com' => 'Transportes Ejecutivos');
+
+                $to = array();
+                if (!empty($email1)) {
+                    $to[$email1] = 'Will Montiel';
+                }
+
+                if (!empty($email2)) {
+                    $to[$email2] = 'Will Montiel';
+                }
+
+                $data->to = $to;
+
+                $mailSender = new MailSender();
+                $mailSender->setMail($mail);
+                $mailSender->sendMail($data);
+            }
+            else {
+                throw new InvalidArgumentException("No se pudo finalizar el servicio, por favor intenta de nuevo");
+            }
+        } 
+        catch (InvalidArgumentException $ex) {
+            throw new InvalidArgumentException($ex->getMessage());
+        }
+        catch (Exception $ex) {
+            throw new Exception($ex->getMessage());
+        }
     }
-
+    
     private function saveEndTimeService($reference, $user, $observations) {
         
         $stmt = $this->conn->prepare("UPDATE seguimiento SET hora2 = ?, elaborado = ?, observaciones = ?, st = ? WHERE referencia = ?");

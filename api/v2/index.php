@@ -461,20 +461,16 @@ $app->post('/finishservice/:id', 'authenticate', function($id) use($app) {
         $db = new DbHandlerDriver();
         $response = array();
 
-        if ($db->finishService($user, $id, $observations)) {
-            $response["error"] = false;
-            $response["message"] = "Service finished successfuly";
-        } else {
-            $response["error"] = true;
-            $response["message"] = "Finish service failed. Please try again!";
-        }
-
+        $db->finishService($user, $id, $observations);
+        $response["error"] = false;
+        $response["message"] = "Se ha finalizado el servicio exitosamente";
+        
         echoRespnse(200, $response);
     }
     catch (InvalidArgumentException $ex) {
         $response["error"] = true;
         $response["message"] = $ex->getMessage();
-        echoRespnse(400, $response);
+        echoRespnse(200, $response);
     }
     catch (Exception $ex) {
         $log = new LoggerHandler();
