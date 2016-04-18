@@ -3,8 +3,6 @@
     
     require_once '../api/include/DbHandlerDriver.php';
     
-    echo "ID {$_GET["id"]}";
-    
     if (!isset($_GET["id"])) {
         header("Location: notfound.html");
         die();
@@ -14,8 +12,6 @@
     
     $db = new DbHandlerDriver();
     $ref = $db->validateServiceExistsById($id);
-
-    echo "ref {$ref}";
 
     /*
     if ($ref == 0) {
@@ -98,7 +94,7 @@
 			    	<div class="three columns">
 			    		&nbsp;
 			    	</div>
-				    <div class="six columns" style="text-align: center;">
+				    <div class="six columns">
                                         <span class="starRating">
                                             <input id="rating5" type="radio" name="rating" value="5">
                                             <label for="rating5">5</label>
@@ -130,8 +126,7 @@
 			    	</div>
 				    <div class="six columns">
 			      	    <label for="comments">Escribe tus comentarios</label>
-			      	    <textarea name="comments" class="u-full-width"></textarea>
-
+                                        <textarea name="comments" class="u-full-width"></textarea>
 				        <input name="ref" value="<?php echo $ref; ?>" type="hidden">
 				        <input name="id" value="<?php echo $id; ?>" type="hidden">
 				    </div>

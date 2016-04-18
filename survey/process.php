@@ -11,7 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $ref = $_POST['ref'];
     $id = $_POST['id'];
     $rating = $_POST['rating'];
-
+    
     $res = $db->setQualify($id, $ref, $rating, $comments);
     if ($res) {
         header("Location: success.html");
