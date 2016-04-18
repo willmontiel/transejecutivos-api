@@ -294,10 +294,10 @@ $app->post('/confirmservice/:id', 'authenticate', function($id) use($app) {
 
         if ($db->confirmService($user, $id)) {
             $response["error"] = false;
-            $response["message"] = "B1HA log setted successfuly";
+            $response["message"] = "Se ha actualizado la orden a estoy en camino";
         } else {
             $response["error"] = true;
-            $response["message"] = "B1HA service failed. Please try again!";
+            $response["message"] = "No se pudo actualizar el estado, por favor intenta de nuevo";
         }
 
         echoRespnse(200, $response);
@@ -305,7 +305,7 @@ $app->post('/confirmservice/:id', 'authenticate', function($id) use($app) {
     catch (InvalidArgumentException $ex) {
         $response["error"] = true;
         $response["message"] = $ex->getMessage();
-        echoRespnse(400, $response);
+        echoRespnse(200, $response);
     }
     catch (Exception $ex) {
         $log = new LoggerHandler();
@@ -333,10 +333,10 @@ $app->post('/setonsource/:id', 'authenticate', function($id) use($app) {
 
         if ($db->setOnSource($user, $id)) {
             $response["error"] = false;
-            $response["message"] = "BLS log setted successfuly";
+            $response["message"] = "Se ha actualizado la orden a Estoy en el sitio";
         } else {
             $response["error"] = true;
-            $response["message"] = "BLS service failed. Please try again!";
+            $response["message"] = "No se pudo actualizar el estado, por favor intenta de nuevo";
         }
 
         echoRespnse(200, $response);
@@ -344,7 +344,7 @@ $app->post('/setonsource/:id', 'authenticate', function($id) use($app) {
     catch (InvalidArgumentException $ex) {
         $response["error"] = true;
         $response["message"] = $ex->getMessage();
-        echoRespnse(400, $response);
+        echoRespnse(200, $response);
     }
     catch (Exception $ex) {
         $log = new LoggerHandler();
@@ -373,10 +373,10 @@ $app->post('/startservice/:id', 'authenticate', function($id) use($app) {
 
         if ($db->startService($user, $id)) {
             $response["error"] = false;
-            $response["message"] = "Service started successfuly";
+            $response["message"] = "Se ha iniciado el servicio exitosamente";
         } else {
             $response["error"] = true;
-            $response["message"] = "Start service failed. Please try again!";
+            $response["message"] = "No se pudo iniciar el servicio, por favor intenta de nuevo";
         }
 
         echoRespnse(200, $response);
@@ -384,7 +384,7 @@ $app->post('/startservice/:id', 'authenticate', function($id) use($app) {
     catch (InvalidArgumentException $ex) {
         $response["error"] = true;
         $response["message"] = $ex->getMessage();
-        echoRespnse(400, $response);
+        echoRespnse(200, $response);
     }
     catch (Exception $ex) {
         $log = new LoggerHandler();
@@ -431,7 +431,7 @@ $app->post('/setlocation/:id', 'authenticate', function($id) use($app) {
     catch (InvalidArgumentException $ex) {
         $response["error"] = true;
         $response["message"] = $ex->getMessage();
-        echoRespnse(400, $response);
+        echoRespnse(200, $response);
     }
     catch (Exception $ex) {
         $log = new LoggerHandler();
@@ -454,14 +454,15 @@ $app->post('/finishservice/:id', 'authenticate', function($id) use($app) {
     $log = new LoggerHandler();
     global $user;    
 
-    verifyNotRequiredParams(array('observations'));
+    verifyNotRequiredParams(array('observations', 'image'));
+    $image = $app->request()->post('image');
     $observations = $app->request()->post('observations');
 
     try {
         $db = new DbHandlerDriver();
         $response = array();
 
-        $db->finishService($user, $id, $observations);
+        $db->finishService($user, $id, $observations, $image);
         $response["error"] = false;
         $response["message"] = "Se ha finalizado el servicio exitosamente";
         

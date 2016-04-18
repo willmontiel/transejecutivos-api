@@ -250,7 +250,9 @@ class DbHandlerDriver {
                         s.b1ha,
                         s.bls,
                         s.pab,
-                        s.st
+                        s.st,
+                        s.hora1,
+                        s.hora2
             FROM orden AS o
                 LEFT JOIN pasajeros AS p ON (p.codigo = o.persona_origen) 
                 LEFT JOIN seguimiento as s ON (s.referencia = o.referencia)
@@ -263,7 +265,7 @@ class DbHandlerDriver {
         $stmt->bind_param("is", $id, $code);
 
         if ($stmt->execute()) {
-            $stmt->bind_result($orden_id, $referencia, $fecha_e, $hora_e, $fecha_s, $hora_s1, $hora_s2, $hora_s3, $vuelo, $aerolinea, $cant_pax, $pax2, $pax3, $pax4, $pax5, $ciudad_inicio, $dir_origen, $ciudad_destino, $dir_destino, $observaciones, $orden_estado, $cd, $passenger_id, $passenger_code, $name, $lastName, $phone1, $phone2, $email1, $email2, $trace_id, $b1ha, $bls, $pab, $st);
+            $stmt->bind_result($orden_id, $referencia, $fecha_e, $hora_e, $fecha_s, $hora_s1, $hora_s2, $hora_s3, $vuelo, $aerolinea, $cant_pax, $pax2, $pax3, $pax4, $pax5, $ciudad_inicio, $dir_origen, $ciudad_destino, $dir_destino, $observaciones, $orden_estado, $cd, $passenger_id, $passenger_code, $name, $lastName, $phone1, $phone2, $email1, $email2, $trace_id, $b1ha, $bls, $pab, $st, $hora1, $hora2);
 
             $stmt->fetch();
             
@@ -314,8 +316,8 @@ class DbHandlerDriver {
             $service["ref"] = $referencia;
             $service["date"] = $fecha_e . " " . $hora_e;
             $service["sdate"] = $fecha_s;
-            $service["start_time"] = $hora_s1;
-            $service["end_time"] = $hora_s2;
+            $service["start_time"] = $hora_s1 . ":" . $hora_s2;
+            $service["end_time"] = $hora1 . ":" . $hora2;
             $service["start_date"] = $fecha_s . " " . $hora_s1 . ":" . $hora_s2;
             $service["fly"] = $vuelo;
             $service["aeroline"] = $aerolinea;
@@ -613,6 +615,28 @@ class DbHandlerDriver {
             throw new InvalidArgumentException('No se encontró el servicio, por favor valida la información');
         }
     }
+    
+    public function validateServiceExistsById($id) {
+        $stmt = $this->conn->prepare("SELECT referencia FROM orden WHERE id = ?");
+
+        $stmt->bind_param("i", $id);
+
+        if ($stmt->execute()) {
+            $stmt->bind_result($referencia);
+            $stmt->store_result();
+
+            if ($stmt->num_rows > 0) {
+                $stmt->fetch();
+                $stmt->close();
+
+                return $referencia;
+            } 
+            else {
+                $stmt->close();
+                return 0;
+            }
+        } 
+    }
 
     private function validateTraceExists($reference) {
         $stmt = $this->conn->prepare("SELECT id FROM seguimiento WHERE referencia = ?");
@@ -696,7 +720,6 @@ class DbHandlerDriver {
      * @param type $id
      */
     public function confirmService($user, $id) {
-        $log = new LoggerHandler();
         //1. Validamos que el servicio exista, y si es asi tomamos la referencia
         $reference = $this->validateServiceExists($id, $user['code']);
 
@@ -749,8 +772,6 @@ class DbHandlerDriver {
      * @param type $idOrden
      */
     public function setOnSource($user, $idOrden) {
-        $log = new LoggerHandler();
-
         //1. Validamos que el servicio exista, y si es asi tomamos la referencia
         $reference = $this->validateServiceExists($idOrden, $user['code']);
 
@@ -778,13 +799,8 @@ class DbHandlerDriver {
      * @param type $lon
      */
     public function setPreLocation($user, $id, $lat, $lon) {
-        $log = new LoggerHandler();
-        
-        $log->writeString("1");
         //1. Validamos que el servicio exista, y si es asi tomamos la referencia
         $reference = $this->validateServiceExists($id, $user['code']);
-
-        $log->writeString("2");
         
         //2. Guardamos la latitud y longitud en la tabla location
         return $this->savePreLocation($id, $reference, $lat, $lon);
@@ -869,27 +885,36 @@ class DbHandlerDriver {
      * @param type $id
      * @param type $observations
      */
-    public function finishService($user, $id, $observations) {
+    public function finishService($user, $id, $observations, $image) {
         try {
             //1. Validamos que el servicio exista, y si es asi tomamos la referencia
             $reference = $this->validateServiceExists($id, $user['code']);
 
             //3. Actualizamos el seguimiento con la hora de finalización y demás datos
             if ($this->saveEndTimeService($reference, $user, $observations)) {
+                
+                if (!empty($image)) {
+                    $uploaddir = '../../admin/informes/os/';
+                    $path = $uploaddir . $reference .".jpg";
+
+                    if (!file_put_contents($path, base64_decode($image))) {
+                        throw new InvalidArgumentException('Error cargando la imagen al servidor, por favor contacta al administrador');
+                    }
+                }
+                
                 $mapCreator = new MapCreator();
                 $mapCreator->createMap($reference, $mapCreator->findLocationPoints($id));
 
                 $serviceArray = $this->getService($id, $user['code']);
 
                 $email1 = $serviceArray["email1"];
-                $email2 = $serviceArray["email2"];
 
-                if (empty($email1) && empty($email2)) {
-                    throw new InvalidArgumentException("Se finalizo el servicio exitosamente, pero no se pudo enviar el resumen al cliente");
+                if (empty($email1)) {
+                    throw new InvalidArgumentException("Se finalizo el servicio exitosamente, pero no se pudo enviar el resumen al cliente porque no este no tiene correo");
                 }
 
-                if (!filter_var($email1, FILTER_VALIDATE_EMAIL) && !filter_var($email2, FILTER_VALIDATE_EMAIL)) {
-                    throw new InvalidArgumentException("Se finalizo el servicio exitosamente, pero no se pudo enviar el resumen al cliente");
+                if (!filter_var($email1, FILTER_VALIDATE_EMAIL)) {
+                    throw new InvalidArgumentException("Se finalizo el servicio exitosamente, pero no se pudo enviar el resumen al cliente, por correo invalido");
                 }
 
                 $service = new stdClass();
@@ -914,16 +939,7 @@ class DbHandlerDriver {
                 $data->subject = 'Este es el resumen de tu servicio con Transportes Ejecutivos';
                 $data->from = array('info@transportesejecutivos.com' => 'Transportes Ejecutivos');
 
-                $to = array();
-                if (!empty($email1)) {
-                    $to[$email1] = 'Will Montiel';
-                }
-
-                if (!empty($email2)) {
-                    $to[$email2] = 'Will Montiel';
-                }
-
-                $data->to = $to;
+                $data->to = array($email1 => $service->name);
 
                 $mailSender = new MailSender();
                 $mailSender->setMail($mail);
@@ -955,5 +971,22 @@ class DbHandlerDriver {
         $num_affected_rows = $stmt->affected_rows;
         $stmt->close();
         return $num_affected_rows > 0;
+    }
+    
+    public function setQualify($id, $ref, $points, $comments) {
+        $c = (empty($comments) ? "Sin comentarios" : $comments);
+        
+        $stmt = $this->conn->prepare("INSERT INTO survey(idOrden, referencia, puntos, comentarios, fecha) VALUES(?, ?, ?, ?, ?)");
+
+        $createdon = date("d/m/Y H:i:s");
+        $stmt->bind_param("issss", $id, $ref, $points, $c, $createdon);
+        $result = $stmt->execute();
+        $stmt->close();
+ 
+        if ($result) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }

@@ -10,12 +10,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $comments = $_POST['comments'];
     $ref = $_POST['ref'];
     $id = $_POST['id'];
-    $points = $_POST['points'];
+    $rating = $_POST['rating'];
 
-    $res = $db->setQualify($id, $ref, $points, $comments);
+    $res = $db->setQualify($id, $ref, $rating, $comments);
     if ($res) {
         header("Location: success.html");
-                    die();
+        die();
     }
     else {
         $_SESSION['error']  = 'No se pudo calificar el servicio, lo invitamos a hacer todo el proceso de nuevo';

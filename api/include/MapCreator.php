@@ -25,6 +25,8 @@ class MapCreator {
 
         $log = new LoggerHandler();
         $log->writeString("URL: {$url}");
+        $log->writeString("points: {$points}");
+        $log->writeString("name: {$name}");
         
         if (!file_put_contents("../../maps/{$name}.png", file_get_contents($url))) {
             $log->writeString("No se pudo guardar la imagen de la ubicación de google maps, referncia: {$name}");
@@ -51,20 +53,25 @@ class MapCreator {
         $f = true;
         
         while ($stmt->fetch()) {
-            if ($f) {
-                $points[] = "{$latitude},{$longitude}";
-                $f = false;
+            if ($numResults > 20) {
+                if ($f) {
+                    $points[] = "{$latitude},{$longitude}";
+                    $f = false;
+                }
+                else if ($i == 18) {
+                    $i = 0;
+                    $points[] = "{$latitude},{$longitude}";
+                }
+                else if ($j == $numResults) {
+                    $points[] = "{$latitude},{$longitude}";
+                }
+
+                $j++;
+                $i++;
             }
-            else if ($i == 18) {
-                $i = 0;
+            else {
                 $points[] = "{$latitude},{$longitude}";
             }
-            else if ($j == $numResults) {
-                $points[] = "{$latitude},{$longitude}";
-            }
-        
-            $j++;
-            $i++;
         }
         
         $stmt->close(); 
