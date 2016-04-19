@@ -316,7 +316,7 @@ class DbHandlerDriver {
             $service["ref"] = $referencia;
             $service["date"] = $fecha_e . " " . $hora_e;
             $service["sdate"] = $fecha_s;
-            $service["start_time"] = $hora_s1 . ":" . $hora_s2;
+            $service["start_time"] = $hora1;
             $service["end_time"] = $hora2;
             $service["start_date"] = $fecha_s . " " . $hora_s1 . ":" . $hora_s2;
             $service["fly"] = $vuelo;
@@ -937,7 +937,7 @@ class DbHandlerDriver {
                 $mail->plaintext = $mailCreator->getPlaintext();
 
                 $data = new stdClass();
-                $data->subject = 'Este es el resumen de tu servicio con Transportes Ejecutivos';
+                $data->subject = "Resumen de su servicio con Transportes Ejecutivos({$reference}) {$serviceArray['start_date']}";
                 $data->from = array('info@transportesejecutivos.com' => 'Transportes Ejecutivos');
 
                 $data->to = array($email1 => $service->name);
