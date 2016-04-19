@@ -47,26 +47,6 @@
         <link rel="stylesheet" href="css/skeleton.css">
         <link rel="stylesheet" href="css/normalize.css">
         <link rel="stylesheet" href="css/stylesheet.css">
-        <style>
-            .rating {
-                text-align: center;
-                unicode-bidi: bidi-override;
-                direction: rtl;
-            }
-            .rating > span {
-                display: inline-block;
-                position: relative;
-                width: 1.1em;
-                font-size: 3em;
-            }
-            .rating > span:hover:before,
-            .rating > span:hover ~ span:before {
-                content: "\2605";
-                position: absolute;
-                cursor: pointer;
-                color: yellow;
-            }
-        </style>
         <title>
             Transportes Ejecutivos - Califica nuestro servicio
         </title>
@@ -95,25 +75,18 @@
 			    		&nbsp;
 			    	</div>
 				    <div class="six columns">
-                                        <span class="starRating">
-                                            <input id="rating5" type="radio" name="rating" value="5">
-                                            <label for="rating5">5</label>
-                                            <input id="rating4" type="radio" name="rating" value="4">
-                                            <label for="rating4">4</label>
-                                            <input id="rating3" type="radio" name="rating" value="3">
-                                            <label for="rating3">3</label>
-                                            <input id="rating2" type="radio" name="rating" value="2">
-                                            <label for="rating2">2</label>
-                                            <input id="rating1" type="radio" name="rating" value="1">
-                                            <label for="rating1">1</label>
-                                        </span>
-                                        
-                                        <!--
-                                            <div class="rating">
-                                                <span>☆</span><span>☆</span><span>☆</span><span>☆</span><span>☆</span>
-                                            </div>
-                                            <input name="points" class="u-full-width" autofocus="autofocus" type="number" max="5" min="0">
-                                        -->
+                        <span class="starRating">
+                            <input id="rating5" type="radio" name="rating" value="5">
+                            <label for="rating5">5</label>
+                            <input id="rating4" type="radio" name="rating" value="4">
+                            <label for="rating4">4</label>
+                            <input id="rating3" type="radio" name="rating" value="3">
+                            <label for="rating3">3</label>
+                            <input id="rating2" type="radio" name="rating" value="2">
+                            <label for="rating2">2</label>
+                            <input id="rating1" type="radio" name="rating" value="1">
+                            <label for="rating1">1</label>
+                        </span>
 				    </div>
 				    <div class="three columns">
 				    	&nbsp;

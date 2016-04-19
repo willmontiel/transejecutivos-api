@@ -317,7 +317,7 @@ class DbHandlerDriver {
             $service["date"] = $fecha_e . " " . $hora_e;
             $service["sdate"] = $fecha_s;
             $service["start_time"] = $hora_s1 . ":" . $hora_s2;
-            $service["end_time"] = $hora1 . ":" . $hora2;
+            $service["end_time"] = $hora2;
             $service["start_date"] = $fecha_s . " " . $hora_s1 . ":" . $hora_s2;
             $service["fly"] = $vuelo;
             $service["aeroline"] = $aerolinea;
@@ -918,6 +918,7 @@ class DbHandlerDriver {
                 }
 
                 $service = new stdClass();
+                $service->id = $id;
                 $service->name = $serviceArray['passenger_name'] . " " . $serviceArray['passenger_lastname'];
                 $service->reference = $reference;
                 $service->date = $serviceArray['sdate'];

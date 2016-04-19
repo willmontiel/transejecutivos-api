@@ -13,14 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $rating = $_POST['rating'];
     
     $res = $db->setQualify($id, $ref, $rating, $comments);
-    if ($res) {
-        header("Location: success.html");
-        die();
-    }
-    else {
-        $_SESSION['error']  = 'No se pudo calificar el servicio, lo invitamos a hacer todo el proceso de nuevo';
-        header("Location: index.php?id={$id}");
-        die();
-    }
-    
+ 
+    header("Location: success.html");
+    die();
 }

@@ -153,7 +153,7 @@ class MailCreator {
                                                                        <table style="border-color:#ffffff;border-style:none;border-width:0px;background-color:transparent;border-top-left-radius:0px;border-top-right-radius:0px;border-bottom-right-radius:0px;border-bottom-left-radius:0px;margin-top:0px;margin-bottom:0px;width:100%;border-spacing:0px" cellpadding="0" width="100%">
                                                                           <tbody>
                                                                              <tr>
-                                                                                <td align="center" style="width:300px" width="300px"><img src="http://transportesejecutivos.com/resume/maps/' . $data->reference . '.png" alt="map_b256658b-4442-44db-9a39-e887775d9c78.jpg" style="min-height:228px;width:300px" height="228" width="300" class="CToWUd"></td>
+                                                                                <td align="center" style="width:300px" width="300px"><img src="http://transportesejecutivos.com/maps/' . $data->reference . '.png" alt="map_b256658b-4442-44db-9a39-e887775d9c78.jpg" style="min-height:228px;width:300px" height="228" width="300" class="CToWUd"></td>
                                                                              </tr>
                                                                           </tbody>
                                                                        </table>
@@ -209,7 +209,7 @@ class MailCreator {
                                                                           <tbody>
                                                                              <tr>
                                                                                 <td style="word-break:break-word;padding:15px 15px;font-family:Helvetica,Arial,sans-serif">
-                                                                                   <p style="text-align:center">Viajaste con ' . $data->driverName . '</p>
+                                                                                   <p style="text-align:center">Viajó con ' . $data->driverName . '</p>
                                                                                 </td>
                                                                              </tr>
                                                                           </tbody>
@@ -279,7 +279,7 @@ class MailCreator {
                                                                           <tbody>
                                                                              <tr>
                                                                                 <td align="center" style="width:273px" width="273px">
-                                                                                    <a href="http://transportesejecutivos.com/qualifier/index.php?ref=' . $data->reference . '">
+                                                                                    <a href="http://transportesejecutivos.com/survey/index.php?id=' . $data->id . '">
                                                                                         <img src="http://transportesejecutivos.com/images/qualifier.png" alt="qualifier.png" style="min-height:82px;width:273px" height="82" width="273" class="CToWUd">
                                                                                     </a>
                                                                                 </td>

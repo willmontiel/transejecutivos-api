@@ -9,20 +9,20 @@ $m->sendMail($data);
 */
 
 class MailSender {
-    public $mail;
+    public $html;
     public $plaintext;
     
     const SMTP_TRANSPORT = "smtp.mandrillapp.com";
     const SMTP_PORT = 587;
-    const SMTP_USERNAME = "info@transportesejecutivos.com";
-    const SMTP_PASSWORD = "DiP2MT9BtAmZs67cQG0alA";
+    const SMTP_USERNAME = "info@zonaenlinea.com";
+    const SMTP_PASSWORD = "xI9JscYclOD4QJ64vdbFRQ";
     
     public function __construct() {
         
     }
     
     public function setMail($data) {
-        $this->mail = $data->mail;
+        $this->html = $data->html;
         $this->plaintext = $data->plaintext;
     }
 
@@ -50,7 +50,7 @@ class MailSender {
                 ->setTo($data->to)
 
                 // Give it a body
-                ->setBody($this->mail, 'text/html')
+                ->setBody($this->html, 'text/html')
 
                 // And optionally an alternative body
                 ->addPart($this->plaintext, 'text/plain');

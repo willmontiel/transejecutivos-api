@@ -1,9 +1,10 @@
 .starRating:not(old){
   display        : inline-block;
-  width          : 7.5em;
-  height         : 1.5em;
+  /*width          : 7.5em;*/
+  height         : 4em;
   overflow       : hidden;
   vertical-align : bottom;
+  margin: 15px;
 }
 
 .starRating:not(old) > input{
@@ -22,8 +23,8 @@
 .starRating:not(old) > label:before{
   content         : '';
   display         : block;
-  width           : 1.5em;
-  height          : 1.5em;
+  width           : 4em;
+  height          : 4em;
   background      : url('star-on.svg');
   background-size : contain;
   opacity         : 0;
