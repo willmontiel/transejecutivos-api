@@ -36,3 +36,16 @@
 .starRating:not(:hover) > :checked ~ label:before{
   opacity : 1;
 }
+
+#btn-comment {
+    text-align: center;
+    border: 1px solid gray;
+    padding: 10px;
+    border-radius: 10px;
+    color: white;
+    background-color: gray;
+}
+
+#btn-comment:hover {
+    cursor: pointer;
+}

@@ -274,29 +274,43 @@ class MailCreator {
                                                            <table style="border-color:#ffffff;border-style:none;border-width:0px;background-color:transparent;border-top-left-radius:0px;border-top-right-radius:0px;border-bottom-right-radius:0px;border-bottom-left-radius:0px;margin-top:20px;margin-bottom:20px;width:100%;border-spacing:0px" cellpadding="0" width="100%">
                                                               <tbody>
                                                                  <tr>
-                                                                    <td style="width:50%;vertical-align:middle;padding-left:0px;padding-right:0px" width="50%">
-                                                                       <table style="border-color:#ffffff;border-style:none;border-width:0px;background-color:transparent;border-top-left-radius:0px;border-top-right-radius:0px;border-bottom-right-radius:0px;border-bottom-left-radius:0px;margin-top:0px;margin-bottom:0px;width:100%;border-spacing:0px" cellpadding="0" width="100%">
-                                                                          <tbody>
-                                                                             <tr>
-                                                                                <td align="center" style="width:273px" width="273px">
-                                                                                    <a href="http://transportesejecutivos.com/survey/index.php?id=' . $data->id . '">
-                                                                                        <img src="http://transportesejecutivos.com/images/qualifier.png" alt="qualifier.png" style="min-height:82px;width:273px" height="82" width="273" class="CToWUd">
-                                                                                    </a>
-                                                                                </td>
-                                                                             </tr>
-                                                                          </tbody>
-                                                                       </table>
+                                                                    <td style="text-align:center;word-break:break-word;padding:15px 15px;font-family:Helvetica,Arial,sans-serif">
+                                                                            <span style="color:rgb(127,127,127)">
+                                                                                    Por Favor, Califique Nuestro Servicio
+                                                                            </span>
                                                                     </td>
-                                                                    <td style="width:50%;padding-left:0px;padding-right:0px" width="50%">
-                                                                       <table style="border-color:#ffffff;border-style:none;border-width:0px;background-color:transparent;border-top-left-radius:0px;border-top-right-radius:0px;border-bottom-right-radius:0px;border-bottom-left-radius:0px;margin-top:0px;margin-bottom:0px;width:100%" cellpadding="0" width="100%">
-                                                                          <tbody>
-                                                                             <tr>
-                                                                                <td style="word-break:break-word;padding:15px 15px;font-family:Helvetica,Arial,sans-serif">
-                                                                                   
-                                                                                </td>
-                                                                             </tr>
-                                                                          </tbody>
-                                                                       </table>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td style="text-align:center;word-break:break-word;padding:15px 15px;font-family:Helvetica,Arial,sans-serif">
+                                                                       <span style="font-size:11px;width:20px!important;min-height:20px;display:inline-block!important;padding:0px 2px">
+                                                                            <a style="color:#2ba6cb;text-decoration:none" target="_blank" href="http://www.transportesejecutivos.com/survey/rating.php?id=' . $data->id . '&rating=1">
+                                                                                <img style="outline:none;text-decoration:none;float:left;clear:both;display:block;width:20px;border:none" align="left" src="http://www.transportesejecutivos.com/images/rating.png">
+                                                                            </a>
+                                                                        </span>
+
+                                                                        <span style="font-size:11px;width:20px!important;min-height:20px;display:inline-block!important;padding:0px 2px">
+                                                                            <a style="color:#2ba6cb;text-decoration:none" target="_blank" href="http://www.transportesejecutivos.com/survey/rating.php?id=' . $data->id . '&rating=2">
+                                                                                <img style="outline:none;text-decoration:none;float:left;clear:both;display:block;width:20px;border:none" align="left" src="http://www.transportesejecutivos.com/images/rating.png">
+                                                                            </a>
+                                                                        </span>
+
+                                                                        <span style="font-size:11px;width:20px!important;min-height:20px;display:inline-block!important;padding:0px 2px">
+                                                                            <a style="color:#2ba6cb;text-decoration:none" target="_blank" href="http://www.transportesejecutivos.com/survey/rating.php?id=' . $data->id . '&rating=3">
+                                                                                <img style="outline:none;text-decoration:none;float:left;clear:both;display:block;width:20px;border:none" align="left" src="http://www.transportesejecutivos.com/images/rating.png">
+                                                                            </a>
+                                                                        </span>
+
+                                                                        <span style="font-size:11px;width:20px!important;min-height:20px;display:inline-block!important;padding:0px 2px">
+                                                                            <a style="color:#2ba6cb;text-decoration:none" target="_blank" href="http://www.transportesejecutivos.com/survey/rating.php?id=' . $data->id . '&rating=4">
+                                                                                <img style="outline:none;text-decoration:none;float:left;clear:both;display:block;width:20px;border:none" align="left" src="http://www.transportesejecutivos.com/images/rating.png">
+                                                                            </a>
+                                                                        </span>
+
+                                                                        <span style="font-size:11px;width:20px!important;min-height:20px;display:inline-block!important;padding:0px 2px">
+                                                                            <a style="color:#2ba6cb;text-decoration:none" target="_blank" href="http://www.transportesejecutivos.com/survey/rating.php?id=' . $data->id . '&rating=5">
+                                                                                <img style="outline:none;text-decoration:none;float:left;clear:both;display:block;width:20px;border:none" align="left" src="http://www.transportesejecutivos.com/images/rating.png">
+                                                                            </a>
+                                                                        </span>
                                                                     </td>
                                                                  </tr>
                                                               </tbody>
