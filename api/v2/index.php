@@ -239,8 +239,8 @@ $app->post('/traceservice/:id', 'authenticate', function($id) use($app) {
     global $user;    
     
     // check for required params
-    verifyRequiredParams(array("start", "end", "image"));
-    verifyNotRequiredParams(array('observations'));
+    verifyRequiredParams(array("image"));
+    verifyNotRequiredParams(array("start", "end", 'observations'));
 
     // reading post params
     $start = $app->request()->post('start');
@@ -252,27 +252,26 @@ $app->post('/traceservice/:id', 'authenticate', function($id) use($app) {
         $db = new DbHandlerDriver();
         $response = array();
         
-        $result = $db->traceService($id, $user, $start, $end, $image, $observations);
-        if ($result) {
+        if ($db->traceService($id, $user, $start, $end, $image, $observations)) {
             $response["error"] = false;
-            $response["message"] = "Tracing service success";
+            $response["message"] = "Se ha hecho el seguimiento exitosamente";
         } else {
             $response["error"] = true;
-            $response["message"] = "Tracing service failed. Please try again!";
+            $response["message"] = "Ocurrió un error, por favor intenta de nuevo";
         }
         echoRespnse(200, $response);
     }
     catch (InvalidArgumentException $ex) {
         $response["error"] = true;
         $response["message"] = $ex->getMessage();
-        echoRespnse(400, $response);
+        echoRespnse(200, $response);
     }
     catch (Exception $ex) {
         $log = new LoggerHandler();
         $log->writeString("Exception while tracing service: " . $ex->getMessage());
         $log->writeArray($ex->getTraceAsString());
         $response["error"] = true;
-        $response["message"] = "An error occurred, contact the administrator";
+        $response["message"] = "Ocurrió un error mientras se guardaba el segumiento";
         echoRespnse(500, $response);
     }
 });

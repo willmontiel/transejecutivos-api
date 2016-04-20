@@ -166,13 +166,13 @@ class DbHandlerDriver {
          */
         
         $stmt = $this->conn->prepare("SELECT 
-                                            o.id, o.fecha_s, o.hora_s1, o.hora_s2 
+                                            o.id, o.fecha_s, o.hora_s1, o.hora_s2, s.hora1, s.hora2
                                     FROM orden AS o 
                                             LEFT JOIN seguimiento AS s ON (s.referencia = o.referencia)
                                     WHERE o.conductor = ? 
                                             AND STR_TO_DATE(o.fecha_s, '%m/%d/%Y') BETWEEN STR_TO_DATE('{$prevdate}', '%m/%d/%Y') AND STR_TO_DATE('{$nextdate}', '%m/%d/%Y') 
                                             AND o.estado != 'cancelar'
-                                            AND s.referencia IS NULL
+                                            AND (s.referencia IS NULL OR s.hora1 IS NULL OR s.hora1 = '' OR s.hora2 = '' OR s.hora2 IS NULL)
                                     ORDER BY o.id ASC
                                     LIMIT 1");
       
@@ -181,7 +181,7 @@ class DbHandlerDriver {
         $service = array();
 
         if ($stmt->execute()) {
-            $stmt->bind_result($id, $fecha_s, $hora_s1, $hora_s2);
+            $stmt->bind_result($id, $fecha_s, $hora_s1, $hora_s2, $hora1, $hora2);
             $stmt->fetch();
             
             $fecha = "{$fecha_s} {$hora_s1}:{$hora_s2}";
@@ -202,7 +202,7 @@ class DbHandlerDriver {
             $service["service_id"] = $id;
             $service["old"] = $old;
 
-            $stmt->close();  
+            $stmt->close();
         } 
 
         return $service;
@@ -511,6 +511,8 @@ class DbHandlerDriver {
             $service["bls"] = null;
             $service["pab"] = null;
             $service["st"] = null;
+            $service["end_time"] = null;
+            $service["start_date"] = null;
             
             
             if (in_array($date, $dates)) {
@@ -566,18 +568,23 @@ class DbHandlerDriver {
      */
     public function traceService($id, $user, $start, $end, $image, $observations) {
         $log = new LoggerHandler();
-
+        $log->writeString("data: {$image}");
+        $log->writeString("data: {$id} {$user['code']}, {$start}, {$end} {$observations}");
+        
         //1. Validamos que el servicio exista, y si es asi tomamos la referencia
         $reference = $this->validateServiceExists($id, $user['code']);
         
-        //2. Validamos que el servicio no tenga seguimiento
-        $this->validateTraceExists($reference);
-
-        //3. Aceptamos el servicio
+        $log->writeString("Reference {$reference}");
+        
+        //2. Aceptamos el servicio
         $this->acceptService($id, $user['code']);
         
-        //4. Tomamos la placa del conductor
+        $log->writeString("1");
+        
+        //3. Tomamos la placa del conductor
         $carLicense = $this->getCarLicense($user['code']);
+        
+        $log->writeString("Licence {$carLicense}");
         
         $uploaddir = '../../admin/informes/os/';
         $path = $uploaddir . $reference .".jpg";
@@ -585,9 +592,24 @@ class DbHandlerDriver {
         if (!file_put_contents($path, base64_decode($image))) {
             throw new InvalidArgumentException('Error cargando la imagen al servidor, por favor contacta al administrador');
         }
+        
+        $log->writeString("2");
 
-        //5. Guardamos el seguimiento
-        return $this->setTrace($reference, $start, $end, $user, $observations, $carLicense);
+        $trace = $this->validateIfTraceExists($reference);
+        
+        $log->writeString("Trace {$trace}");
+        
+        //4. Validamos que el servicio no tenga seguimiento
+        if ($trace <= 0) {
+            $log->writeString("3");
+            //5. Guardamos el seguimiento
+            return $this->setTrace($reference, $start, $end, $user, $observations, $carLicense);
+        }
+        else if ($trace > 0) {
+            $log->writeString("4");
+            //5. Guardamos el seguimiento
+            return $this->setExistTrace($reference, $start, $end, $user, $observations, $carLicense);
+        }
     }
 
     private function validateServiceExists($id, $code) {
@@ -638,6 +660,21 @@ class DbHandlerDriver {
         } 
     }
 
+    private function validateIfTraceExists($reference) {
+        $stmt = $this->conn->prepare("SELECT id FROM seguimiento WHERE referencia = ?");
+        $stmt->bind_param("s", $reference);
+
+        if ($stmt->execute()) {
+            $stmt->bind_result($id);
+            $stmt->store_result();
+
+            $rows = $stmt->num_rows;
+            $stmt->close();
+            
+            return $rows;
+        }
+    }
+    
     private function validateTraceExists($reference) {
         $stmt = $this->conn->prepare("SELECT id FROM seguimiento WHERE referencia = ?");
         $stmt->bind_param("s", $reference);
@@ -663,11 +700,6 @@ class DbHandlerDriver {
         $stmt->bind_param("ssi", $estado, $code, $id);
         $stmt->execute();
         $num_affected_rows = $stmt->affected_rows;
-        if ($num_affected_rows > 0 == false) {
-            $stmt->close();
-            throw new InvalidArgumentException('No se encontró el servicio, por favor valida la información');
-        }
-        
         $stmt->close();
     }
 
@@ -712,6 +744,46 @@ class DbHandlerDriver {
         } else {
             return false;
         }
+    }
+    
+    private function setExistTrace($reference, $start, $end, $user, $observations, $carLicense) {
+        $log = new LoggerHandler();
+        
+        $times = "";
+        
+        $start = trim($start);
+        $end = trim($end);
+        
+        if (!empty($start) && !empty($end)) {
+            $times = "hora1 = '{$start}', hora2 = '{$end}',";
+        } 
+        else if (!empty($start)) {
+            $times = "hora1 = '{$start}',";
+        }
+        else if (!empty($end)) {
+            $times = "hora2 = '{$end}',";
+        }
+        
+        $sql = "UPDATE seguimiento SET {$times} conductor = ?, elaborado = ?, observaciones = ? WHERE referencia = ?";
+                
+        $log->writeString("sql {$sql}");
+        
+        $stmt = $this->conn->prepare($sql);
+        
+        $conductor = "{$user['name']} {$user['lastname']} ({$carLicense})";
+        $elaborado = date("D, F d Y, H:i:s");
+        $observations = (empty($observations) ? "SERVICIO SIN NOVEDAD" : $observations);
+
+        $stmt->bind_param("ssss", $conductor, $elaborado, $observations, $reference);
+        
+        
+        if (!$stmt->execute()) {
+            throw new Exception('Ocurrió un error, contacta al administrador');
+        } 
+        
+        $num_affected_rows = $stmt->affected_rows;
+        $stmt->close();
+        return $num_affected_rows > 0;
     }
     
     /**
