@@ -348,14 +348,8 @@ $app->post('/service', 'authenticate', function() use ($app) {
 $app->put('/updateprofile', 'authenticate', function() use ($app) {
     //$log = new LoggerHandler();
     // check for required params
-    verifyRequiredParams(array('name'));
-    verifyRequiredParams(array('lastName'));
-    verifyRequiredParams(array('email1'));
-    verifyNotRequiredParams(array('email2'));
-    verifyRequiredParams(array('phone1'));
-    verifyNotRequiredParams(array('phone2'));
-    verifyNotRequiredParams(array('password'));
-    verifyNotRequiredParams(array('notifications'));
+    verifyRequiredParams(array('name', 'lastName', 'email1', 'phone1'));
+    verifyNotRequiredParams(array('email2', 'phone2', 'password', 'notifications'));
 
     // reading post params
     $name = $app->request()->post('name');
