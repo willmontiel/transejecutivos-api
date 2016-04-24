@@ -512,7 +512,7 @@ class DbHandlerDriver {
             $service["pab"] = null;
             $service["st"] = null;
             $service["end_time"] = null;
-            $service["start_date"] = null;
+            $service["start_time"] = null;
             
             
             if (in_array($date, $dates)) {
