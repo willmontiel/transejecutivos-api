@@ -246,7 +246,7 @@ $app->post('/searchservice', 'authenticate', function() use($app) {
 
     try {
         $db = new DbHandlerDriver();
-        $response["services"] = $db->getServicesByDate($user, $date);
+        $response = $db->getServicesByDate($user, $date);
         $response["error"] = false;
         echoRespnse(200, $response);
     }

@@ -531,7 +531,7 @@ class DbHandlerDriver {
             $service["st"] = null;
             $service["end_time"] = null;
             $service["start_time"] = null;
-            
+            $service["b1haStatus"] = null;
             
             if (in_array($date, $dates)) {
                 $key = array_search($date, $dates);
