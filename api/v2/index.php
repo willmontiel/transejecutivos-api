@@ -228,6 +228,43 @@ $app->put('/acceptordeclineservice/:id', 'authenticate', function($id) use($app)
     }
 });
 
+
+/**
+ * Search a service by date
+ * method POST
+ * url - /searchservice
+ */
+$app->post('/searchservice', 'authenticate', function() use($app) {
+    $log = new LoggerHandler();
+    global $user;    
+    
+    // check for required params
+    verifyRequiredParams(array("date"));
+
+    // reading post params
+    $date = $app->request()->post('date');
+
+    try {
+        $db = new DbHandlerDriver();
+        $response["services"] = $db->getServicesByDate($user, $date);
+        $response["error"] = false;
+        echoRespnse(200, $response);
+    }
+    catch (InvalidArgumentException $ex) {
+        $response["error"] = true;
+        $response["message"] = $ex->getMessage();
+        echoRespnse(200, $response);
+    }
+    catch (Exception $ex) {
+        $log = new LoggerHandler();
+        $log->writeString("Exception while tracing service: " . $ex->getMessage());
+        $log->writeArray($ex->getTraceAsString());
+        $response["error"] = true;
+        $response["message"] = "Ocurrió un error mientras se guardaba el segumiento";
+        echoRespnse(500, $response);
+    }
+});
+
 /**
  * accept service
  * method POST

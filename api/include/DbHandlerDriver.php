@@ -353,6 +353,24 @@ class DbHandlerDriver {
         }
     }
     
+    
+    
+    public function getServicesByDate($user, $date) {
+        $sql = $this->getServicesSQL(true);
+        
+        $stmt = $this->conn->prepare($sql);
+        
+        $stmt->bind_param("sss", $date, $date, $user['code']);
+        $stmt->execute();
+
+        $services = $this->modelGroupedDataServices($stmt);
+
+        //$services = $stmt->get_result();
+        $stmt->close();
+        return $services;
+    }
+
+
     /**
      * 
      * @param type $pax2
