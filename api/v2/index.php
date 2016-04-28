@@ -19,6 +19,7 @@ $user = NULL;
 function authenticate(\Slim\Route $route) {
     // Getting request headers
     $headers = apache_request_headers2();
+    
     $response = array();
     $app = \Slim\Slim::getInstance();
 

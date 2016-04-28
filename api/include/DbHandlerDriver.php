@@ -546,6 +546,13 @@ class DbHandlerDriver {
         
         $data['dates'] = $dates;
 
+        //$reversed = array_reverse($input);
+        
+        $data = array(
+            'dates' => array_reverse($data['dates']),
+            'services' => array_reverse($data['services']),
+        );
+        
         return $data;
     }
     
