@@ -315,7 +315,7 @@ $app->get('/servicesgrouped', 'authenticate', function() {
  * url /service         
  */
 $app->post('/service', 'authenticate', function() use ($app) {
-    //$log = new LoggerHandler();
+    $log = new LoggerHandler();
     // check for required params
     verifyRequiredParams(array('date'));
     // reading post params
@@ -326,6 +326,7 @@ $app->post('/service', 'authenticate', function() use ($app) {
     
     try {
         global $user;
+        
         $db = new DbHandler();
         $response["services"] = $db->getServicesByDate($user['code'], $date);
         echoRespnse(200, $response);
