@@ -593,23 +593,15 @@ class DbHandlerDriver {
      */
     public function traceService($id, $user, $start, $end, $image, $observations) {
         $log = new LoggerHandler();
-        $log->writeString("data: {$image}");
-        $log->writeString("data: {$id} {$user['code']}, {$start}, {$end} {$observations}");
         
         //1. Validamos que el servicio exista, y si es asi tomamos la referencia
         $reference = $this->validateServiceExists($id, $user['code']);
         
-        $log->writeString("Reference {$reference}");
-        
         //2. Aceptamos el servicio
         $this->acceptService($id, $user['code']);
         
-        $log->writeString("1");
-        
         //3. Tomamos la placa del conductor
         $carLicense = $this->getCarLicense($user['code']);
-        
-        $log->writeString("Licence {$carLicense}");
         
         $uploaddir = '../../admin/informes/os/';
         $path = $uploaddir . $reference .".jpg";
@@ -618,20 +610,14 @@ class DbHandlerDriver {
             throw new InvalidArgumentException('Error cargando la imagen al servidor, por favor contacta al administrador');
         }
         
-        $log->writeString("2");
-
         $trace = $this->validateIfTraceExists($reference);
-        
-        $log->writeString("Trace {$trace}");
         
         //4. Validamos que el servicio no tenga seguimiento
         if ($trace <= 0) {
-            $log->writeString("3");
             //5. Guardamos el seguimiento
             return $this->setTrace($reference, $start, $end, $user, $observations, $carLicense);
         }
         else if ($trace > 0) {
-            $log->writeString("4");
             //5. Guardamos el seguimiento
             return $this->setExistTrace($reference, $start, $end, $user, $observations, $carLicense);
         }

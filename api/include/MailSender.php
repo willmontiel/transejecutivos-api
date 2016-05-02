@@ -14,8 +14,8 @@ class MailSender {
     
     const SMTP_TRANSPORT = "smtp.mandrillapp.com";
     const SMTP_PORT = 587;
-    const SMTP_USERNAME = "info@zonaenlinea.com";
-    const SMTP_PASSWORD = "xI9JscYclOD4QJ64vdbFRQ";
+    const SMTP_USERNAME = "info@transportesejecutivos.com";
+    const SMTP_PASSWORD = "GaFPvgFWNPYIUeT1Cq36Eg";
     
     public function __construct() {
         
