@@ -246,6 +246,7 @@ class DbHandlerDriver {
                         p.telefono2,
                         p.correo1,
                         p.correo2,
+                        p.empresa,
                         s.id as seguimiento_id,
                         s.b1ha,
                         s.bls,
@@ -265,7 +266,7 @@ class DbHandlerDriver {
         $stmt->bind_param("is", $id, $code);
 
         if ($stmt->execute()) {
-            $stmt->bind_result($orden_id, $referencia, $fecha_e, $hora_e, $fecha_s, $hora_s1, $hora_s2, $hora_s3, $vuelo, $aerolinea, $cant_pax, $pax2, $pax3, $pax4, $pax5, $ciudad_inicio, $dir_origen, $ciudad_destino, $dir_destino, $observaciones, $orden_estado, $cd, $passenger_id, $passenger_code, $name, $lastName, $phone1, $phone2, $email1, $email2, $trace_id, $b1ha, $bls, $pab, $st, $hora1, $hora2);
+            $stmt->bind_result($orden_id, $referencia, $fecha_e, $hora_e, $fecha_s, $hora_s1, $hora_s2, $hora_s3, $vuelo, $aerolinea, $cant_pax, $pax2, $pax3, $pax4, $pax5, $ciudad_inicio, $dir_origen, $ciudad_destino, $dir_destino, $observaciones, $orden_estado, $cd, $passenger_id, $passenger_code, $name, $lastName, $phone1, $phone2, $email1, $email2, $company, $trace_id, $b1ha, $bls, $pab, $st, $hora1, $hora2);
 
             $stmt->fetch();
             
@@ -337,6 +338,7 @@ class DbHandlerDriver {
             $service["email"] = trim($email1) . ", " . trim($email2);
             $service["email1"] = trim($email1);
             $service["email2"] = trim($email2);
+            $service["company"] = trim($company);
             $service["trace_id"] = (empty($trace_id) ? 0 : $trace_id);
             $service["b1ha"] = (empty($b1ha) ? null : $b1ha);
             $service["bls"] = (empty($bls) ? null : $bls);
@@ -462,13 +464,14 @@ class DbHandlerDriver {
                         p.telefono1,
                         p.telefono2,
                         p.correo1,
-                        p.correo2
+                        p.correo2,
+                        p.empresa
             FROM orden AS o
                 LEFT JOIN pasajeros AS p ON (p.codigo = o.persona_origen) 
             WHERE {$date}
             AND o.conductor = ? 
             AND o.estado != 'cancelar'
-            ORDER BY o.id DESC LIMIT 20";
+            ORDER BY STR_TO_DATE(o.fecha_s, '%m/%d/%Y') DESC";
             
             //AND (o.CD != null OR o.CD != '') ORDER BY o.id DESC LIMIT 20";
             
@@ -484,7 +487,7 @@ class DbHandlerDriver {
             'services' => array(),
         );
         
-        $stmt->bind_result($orden_id, $referencia, $fecha_e, $hora_e, $fecha_s, $hora_s1, $hora_s2, $hora_s3, $vuelo, $aerolinea, $cant_pax, $pax2, $pax3, $pax4, $pax5, $ciudad_inicio, $dir_origen, $ciudad_destino, $dir_destino, $observaciones, $orden_estado, $cd, $passenger_id, $passenger_code, $name, $lastName, $phone1, $phone2, $email1, $email2);
+        $stmt->bind_result($orden_id, $referencia, $fecha_e, $hora_e, $fecha_s, $hora_s1, $hora_s2, $hora_s3, $vuelo, $aerolinea, $cant_pax, $pax2, $pax3, $pax4, $pax5, $ciudad_inicio, $dir_origen, $ciudad_destino, $dir_destino, $observaciones, $orden_estado, $cd, $passenger_id, $passenger_code, $name, $lastName, $phone1, $phone2, $email1, $email2, $company);
 
         while ($stmt->fetch()) {
             $date = trim($fecha_s);
@@ -524,6 +527,7 @@ class DbHandlerDriver {
             $service["passenger_lastname"] = $lastName;
             $service["phone"] = trim($phone1) . ", " . trim($phone2);
             $service["email"] = trim($email1) . ", " . trim($email2);
+            $service["company"] = trim($company);
             $service["trace_id"] = 0;
             $service["b1ha"] = null;
             $service["bls"] = null;
@@ -603,11 +607,13 @@ class DbHandlerDriver {
         //3. Tomamos la placa del conductor
         $carLicense = $this->getCarLicense($user['code']);
         
-        $uploaddir = '../../admin/informes/os/';
-        $path = $uploaddir . $reference .".jpg";
-        
-        if (!file_put_contents($path, base64_decode($image))) {
-            throw new InvalidArgumentException('Error cargando la imagen al servidor, por favor contacta al administrador');
+        if (!empty($image)) {
+          $uploaddir = '../../admin/informes/os/';
+          $path = $uploaddir . $reference .".jpg";
+
+          if (!file_put_contents($path, base64_decode($image))) {
+              throw new InvalidArgumentException('Error cargando la imagen al servidor, por favor contacta al administrador');
+          }
         }
         
         $trace = $this->validateIfTraceExists($reference);

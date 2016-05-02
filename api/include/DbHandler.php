@@ -288,7 +288,7 @@ class DbHandler {
             WHERE {$date} 
             AND a.codigo = ? 
             AND o.estado != 'cancelar'
-            ORDER BY o.fecha_s ASC";
+            ORDER BY STR_TO_DATE(o.fecha_s, '%m/%d/%Y') ASC";
     return $sql;
   }
 

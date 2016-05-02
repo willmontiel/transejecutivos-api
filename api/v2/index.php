@@ -277,8 +277,7 @@ $app->post('/traceservice/:id', 'authenticate', function($id) use($app) {
     global $user;    
     
     // check for required params
-    verifyRequiredParams(array("image"));
-    verifyNotRequiredParams(array("start", "end", 'observations'));
+    verifyNotRequiredParams(array("start", "end", 'observations', 'image'));
 
     // reading post params
     $start = $app->request()->post('start');
