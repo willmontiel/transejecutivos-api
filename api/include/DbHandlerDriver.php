@@ -281,16 +281,14 @@ class DbHandlerDriver {
             //3. Le restamos una hora a la fecha de inicio del servicio y transformamos a timestamp
             $ohourb = ($sdhour == 0 ? $sdhour : $sdhour - 1);
             $oneHourBefore = mktime($ohourb, $sdminute, 0, $sdmonth, $sdday, $sdyear);
-       
-            $b1haStatus = 1;
             
-            /*
+            $fourHourLater = strtotime("+5 hours");
+            
             $b1haStatus = 0;
             
-            if ($now >= $oneHourBefore && $now <= $sd) {
+            if ($now >= $oneHourBefore && $now <= $fourHourLater) {
                 $b1haStatus = 1;
             }
-            */
             
             $b1ha = trim($b1ha);
             $bls = trim($bls);
@@ -299,18 +297,21 @@ class DbHandlerDriver {
 
             $old = 1;
             
-            /*
             if ($b1haStatus == 1 && $fecha_s == date('m/d/Y')) {
                 $old = 0;
             }
             else if ($b1haStatus == 0 && !empty($b1ha) && $fecha_s == date('m/d/Y')) {
                 $old = 0;
             }
-            */
+            else if ($now < $sd) {
+                $old = 0;
+            }
             
+            /*
             if ($fecha_s == date('m/d/Y')) {
                 $old = 0;
             }
+             */
             
             $service = array();
             $service["service_id"] = $orden_id;
@@ -825,7 +826,8 @@ class DbHandlerDriver {
     }
 
     private function reconfirmService($id) {
-        $stmt = $this->conn->prepare("UPDATE orden SET reconfirmacion = 1, reconfirmacion2 = 'si' WHERE id = ?");
+        $now = date("d/m/Y H:s");
+        $stmt = $this->conn->prepare("UPDATE orden SET reconfirmacion = 1, reconfirmacion2 = 'si', reconfirmacion_fecha = '{$now}' WHERE id = ?");
         $stmt->bind_param("i", $id);
         
         if (!$stmt->execute()) {
