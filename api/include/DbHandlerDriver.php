@@ -71,7 +71,7 @@ class DbHandlerDriver {
      * @return boolean
      */
     public function isValidApiKey($api_key) {
-        $stmt = $this->conn->prepare("SELECT id from admin WHERE api_key = ?");
+        $stmt = $this->conn->prepare("SELECT id from admin WHERE api_key = ? AND nivel_clte = 'conductor'");
         $stmt->bind_param("s", $api_key);
         $stmt->execute();
         $stmt->store_result();
@@ -111,7 +111,7 @@ class DbHandlerDriver {
      * @param String $username User username
      */
     public function getUserByUsername($username) {
-        $stmt = $this->conn->prepare("SELECT id, usuario, nombre, apellido, correo1, correo2, telefono1, telefono2, empresa, api_key, nivel_clte, codigo, first_time FROM admin WHERE usuario = ? AND estado = ?");
+        $stmt = $this->conn->prepare("SELECT id, usuario, nombre, apellido, correo1, correo2, telefono1, telefono2, empresa, api_key, nivel_clte, codigo, first_time FROM admin WHERE usuario = ? AND estado = ? AND nivel_clte = 'conductor'");
 
         $status = "activo";
         $stmt->bind_param("ss", $username, $status);
@@ -279,7 +279,7 @@ class DbHandlerDriver {
             $sd = mktime($sdhour, $sdminute, 0, $sdmonth, $sdday, $sdyear);
             
             //3. Le restamos una hora a la fecha de inicio del servicio y transformamos a timestamp
-            $ohourb = ($sdhour == 0 ? $sdhour : $sdhour - 1);
+            $ohourb = ($sdhour == 0 ? $sdhour : $sdhour - 3);
             $oneHourBefore = mktime($ohourb, $sdminute, 0, $sdmonth, $sdday, $sdyear);
             
             $fourHourLater = strtotime("+5 hours");

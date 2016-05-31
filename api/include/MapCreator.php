@@ -2,10 +2,6 @@
 
 require_once 'LoggerHandler.php';
 
-$m = new MapCreator();
-$points = $m->findLocationPoints();
-$m->createMap("W436983-1", $points);
-
 class MapCreator {
     const GOOGLE_MAPS_API_KEY = "AIzaSyDzjFoNaHh_kH4gAJ2JkoY3Xlr1AH8Nlyk";
     const GOOGLE_MAPS_ROUTE_COLOR = "0xff0000ff";
