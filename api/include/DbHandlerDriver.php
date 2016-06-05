@@ -147,6 +147,7 @@ class DbHandlerDriver {
      * @return type
      */
     public function searchPendingService($code) {
+		//$log = new LoggerHandler();
         //$prevdate = date('m/d/Y', strtotime(date('Y-m-d'). ' -10 days'));
         //$nextdate = date('m/d/Y', strtotime(date('Y-m-d'). ' +30 days'));
         
@@ -184,24 +185,28 @@ class DbHandlerDriver {
             $stmt->bind_result($id, $fecha_s, $hora_s1, $hora_s2, $hora1, $hora2);
             $stmt->fetch();
             
-            $fecha = "{$fecha_s} {$hora_s1}:{$hora_s2}";
-            $hoy = date("m/d/Y H:i");
-            
-            list($fmonth, $fday, $fyear, $fhour, $fminute) = split('[/ :]', $fecha);
-            $d = mktime($fhour, $fminute, 0, $fmonth, $fday, $fyear);
-            
-            list($tmonth, $tday, $tyear, $thour, $tminute) = split('[/ :]', $hoy);
-            $t = mktime($thour, $tminute, 0, $tmonth, $tday, $tyear);
-            
-            $old = 1;
-            
-            if ($d > $t) {
-                $old = 0;
-            }
-            
-            $service["service_id"] = $id;
-            $service["old"] = $old;
-
+			$old = 1;
+			
+			if ($id != 0) {
+				$fecha = "{$fecha_s} {$hora_s1}:{$hora_s2}";
+				
+				$hoy = date("m/d/Y H:i");
+				
+				list($fmonth, $fday, $fyear, $fhour, $fminute) = split('[/ :]', $fecha);
+				
+				$d = mktime($fhour, $fminute, 0, $fmonth, $fday, $fyear);
+				
+				list($tmonth, $tday, $tyear, $thour, $tminute) = split('[/ :]', $hoy);
+				$t = mktime($thour, $tminute, 0, $tmonth, $tday, $tyear);
+				
+				if ($d > $t) {
+					$old = 0;
+				}
+			}
+			
+			$service["service_id"] = $id;
+			$service["old"] = $old;
+			
             $stmt->close();
         } 
 
