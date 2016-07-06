@@ -29,6 +29,17 @@ class MapCreator {
         }
     }
     
+    public function getMapUrl($name, $points) {
+        $url = "https://maps.googleapis.com/maps/api/staticmap?path=color:" . MapCreator::GOOGLE_MAPS_ROUTE_COLOR . "|weight:" . MapCreator::GOOGLE_MAPS_ROUTE_WEIGHT . "|" . $points . "&size=" . MapCreator::GOOGLE_MAPS_SIZE . "&key=" . MapCreator::GOOGLE_MAPS_API_KEY;
+
+        $log = new LoggerHandler();
+        $log->writeString("URL: {$url}");
+        $log->writeString("points: {$points}");
+        $log->writeString("name: {$name}");
+        
+        return $url;
+    }
+    
     public function findLocationPoints($id) {
         $points = array();
         
@@ -54,7 +65,7 @@ class MapCreator {
                     $points[] = "{$latitude},{$longitude}";
                     $f = false;
                 }
-                else if ($i == 18) {
+                else if ($i == 10) {
                     $i = 0;
                     $points[] = "{$latitude},{$longitude}";
                 }
@@ -72,6 +83,7 @@ class MapCreator {
         
         $stmt->close(); 
         
-        return implode("|", $points);
+        //return implode("|", $points);
+        return $points;
     }
 }

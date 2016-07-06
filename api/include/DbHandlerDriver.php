@@ -602,7 +602,7 @@ class DbHandlerDriver {
      * @param type $observations
      */
     public function traceService($id, $user, $start, $end, $image, $observations) {
-        $log = new LoggerHandler();
+//        $log = new LoggerHandler();
         
         //1. Validamos que el servicio exista, y si es asi tomamos la referencia
         $reference = $this->validateServiceExists($id, $user['code']);
@@ -622,17 +622,11 @@ class DbHandlerDriver {
           }
         }
         
-        $trace = $this->validateIfTraceExists($reference);
+        if ($this->validateTraceExists($reference)) {
+          return $this->setExistTrace($reference, $start, $end, $user, $observations, $carLicense);
+        }
         
-        //4. Validamos que el servicio no tenga seguimiento
-        if ($trace <= 0) {
-            //5. Guardamos el seguimiento
-            return $this->setTrace($reference, $start, $end, $user, $observations, $carLicense);
-        }
-        else if ($trace > 0) {
-            //5. Guardamos el seguimiento
-            return $this->setExistTrace($reference, $start, $end, $user, $observations, $carLicense);
-        }
+        return $this->setTrace($reference, $start, $end, $user, $observations, $carLicense);
     }
 
     private function validateServiceExists($id, $code) {
@@ -702,19 +696,16 @@ class DbHandlerDriver {
         $stmt = $this->conn->prepare("SELECT id FROM seguimiento WHERE referencia = ?");
         $stmt->bind_param("s", $reference);
 
-        if ($stmt->execute()) {
-            $stmt->bind_result($id);
-            $stmt->store_result();
+        $stmt->execute();
+		$stmt->bind_result($id);
+		$stmt->store_result();
 
-            if ($stmt->num_rows > 0) {
-                $stmt->close();
-                throw new InvalidArgumentException('El servicio ya tiene seguimiento');
-            }
-        } 
-        else {
-            $stmt->close(); 
-            throw new InvalidArgumentException('El servicio ya tiene seguimiento');
-        }
+		if ($stmt->num_rows > 0) {
+			$stmt->close();
+			return true;
+		}
+		$stmt->close();
+		return false;
     }
 
     private function acceptService($id, $code) {
@@ -750,23 +741,29 @@ class DbHandlerDriver {
             throw new InvalidArgumentException('No se encontró el servicio, por favor valida la información');
         }
     }
-
+	
     private function setTrace($reference, $start, $end, $user, $observations, $carLicense) {
-        $stmt = $this->conn->prepare("INSERT INTO seguimiento(referencia, hora1, hora2, conductor, elaborado, observaciones) VALUES(?, ?, ?, ?, ?, ?)");
-        
         $conductor = "{$user['name']} {$user['lastname']} ({$carLicense})";
         $elaborado = date("D, F d Y, H:i:s");
         $observations = (empty($observations) ? "SERVICIO SIN NOVEDAD" : $observations);
-
-        $stmt->bind_param("ssssss", $reference, $start, $end, $conductor, $elaborado, $observations);
+            
+        if ($this->validateTraceExists($reference)) {
+			$stmt = $this->conn->prepare("UPDATE seguimiento SET hora1 = ?, hora2 = ?, conductor = ?, elaborado = ?, observaciones = ? WHERE referencia = ?");
+			$stmt->bind_param("ssssss", $start, $end, $conductor, $elaborado, $observations, $reference);
+		} 
+		else {
+            $stmt = $this->conn->prepare("INSERT INTO seguimiento(referencia, hora1, hora2, conductor, elaborado, observaciones) VALUES(?, ?, ?, ?, ?, ?)");
+			$stmt->bind_param("ssssss", $reference, $start, $end, $conductor, $elaborado, $observations);
+		}
+        
         $result = $stmt->execute();
         $stmt->close();
- 
-        if ($result) {
-            return true;
-        } else {
-            return false;
-        }
+		
+		if ($result) {
+			return true;
+		} else {
+			return false;
+		}        
     }
     
     private function setExistTrace($reference, $start, $end, $user, $observations, $carLicense) {
@@ -789,7 +786,7 @@ class DbHandlerDriver {
         
         $sql = "UPDATE seguimiento SET {$times} conductor = ?, elaborado = ?, observaciones = ? WHERE referencia = ?";
                 
-        $log->writeString("sql {$sql}");
+        //$log->writeString("sql {$sql}");
         
         $stmt = $this->conn->prepare($sql);
         
@@ -799,10 +796,7 @@ class DbHandlerDriver {
 
         $stmt->bind_param("ssss", $conductor, $elaborado, $observations, $reference);
         
-        
-        if (!$stmt->execute()) {
-            throw new Exception('Ocurrió un error, contacta al administrador');
-        } 
+        $stmt->execute();
         
         $num_affected_rows = $stmt->affected_rows;
         $stmt->close();
@@ -845,20 +839,39 @@ class DbHandlerDriver {
     }
     
     private function saveB1HAStatus($reference, $user, $carLicense) {
-        $stmt = $this->conn->prepare("INSERT INTO seguimiento(referencia, conductor, b1ha) VALUES(?, ?, ?)");
-        
-        $conductor = "{$user['name']} {$user['lastname']} ({$carLicense})";
-        $b1ha = date("d/m/Y H:i:s");
+		if (!$this->validateTraceExists($reference)) {
+			$stmt = $this->conn->prepare("INSERT INTO seguimiento(referencia, conductor, b1ha) VALUES(?, ?, ?)");
+			
+			$conductor = "{$user['name']} {$user['lastname']} ({$carLicense})";
+			$b1ha = date("d/m/Y H:i:s");
 
-        $stmt->bind_param("sss", $reference, $conductor, $b1ha);
-        $result = $stmt->execute();
-        $stmt->close();
- 
-        if ($result) {
-            return true;
-        } 
+			$stmt->bind_param("sss", $reference, $conductor, $b1ha);
+			$result = $stmt->execute();
+			$stmt->close();
+	 
+			if ($result) {
+				return true;
+			} 
+			else {
+				return false;
+			}
+		}
         else {
-            return false;
+          $stmt = $this->conn->prepare("UPDATE seguimiento SET conductor = ?, b1ha = ? WHERE referencia = ?");
+			
+          $conductor = "{$user['name']} {$user['lastname']} ({$carLicense})";
+          $b1ha = date("d/m/Y H:i:s");
+
+          $stmt->bind_param("sss", $conductor, $b1ha, $reference);
+          $result = $stmt->execute();
+          $stmt->close();
+
+          if ($result) {
+              return true;
+          } 
+          else {
+              return false;
+          }
         }
     }
 
@@ -999,7 +1012,12 @@ class DbHandlerDriver {
                 }
                 
                 $mapCreator = new MapCreator();
-                $mapCreator->createMap($reference, $mapCreator->findLocationPoints($id));
+                $points = $mapCreator->findLocationPoints($id);
+                if (count($points) > 0) {
+                  $p = implode("|", $points);
+                  $mapCreator->createMap($reference, $p);
+                }
+                
 
                 $serviceArray = $this->getService($id, $user['code']);
 

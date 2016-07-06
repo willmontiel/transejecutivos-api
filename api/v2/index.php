@@ -277,7 +277,8 @@ $app->post('/traceservice/:id', 'authenticate', function($id) use($app) {
     global $user;    
     
     // check for required params
-    verifyNotRequiredParams(array("start", "end", 'observations', 'image'));
+    verifyRequiredParams(array("image"));
+    verifyNotRequiredParams(array("start", "end", 'observations'));
 
     // reading post params
     $start = $app->request()->post('start');
@@ -304,7 +305,6 @@ $app->post('/traceservice/:id', 'authenticate', function($id) use($app) {
         echoRespnse(200, $response);
     }
     catch (Exception $ex) {
-        $log = new LoggerHandler();
         $log->writeString("Exception while tracing service: " . $ex->getMessage());
         $log->writeArray($ex->getTraceAsString());
         $response["error"] = true;
