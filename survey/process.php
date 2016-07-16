@@ -8,11 +8,10 @@ $db = new DbHandlerDriver();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $comments = $_POST['comments'];
-    $ref = $_POST['ref'];
     $id = $_POST['id'];
     $rating = $_POST['rating'];
     
-    $res = $db->setQualify($id, $ref, $rating, $comments);
+    $res = $db->updateQualify($id, $rating, $comments);
  
     header("Location: success.html");
     die();

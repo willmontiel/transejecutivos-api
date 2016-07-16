@@ -7,7 +7,9 @@
  * @author Will Montiel
  */
 class LoggerHandler {
-	public $file = '../v1/error.log';
+	//public $file = '../v1/error.log';
+	//public $file = 'error.log';
+	public $file = '/home2/carros2/public_html/api/include/error.log';
 	public function writeArray($array) {
 	    // Abre el fichero para obtener el contenido existente
 	    $actual = file_get_contents($this->file);

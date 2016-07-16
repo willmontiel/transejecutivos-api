@@ -94,27 +94,7 @@ class MailCreator {
                                                            </table>
                                                         </td>
                                                      </tr>
-                                                     <tr>
-                                                        <td style="padding-left:0px;padding-right:0px">
-                                                           <table style="border-color:#ffffff;border-style:none;border-width:0px;background-color:transparent;border-top-left-radius:0px;border-top-right-radius:0px;border-bottom-right-radius:0px;border-bottom-left-radius:0px;margin-top:0px;margin-bottom:0px;width:100%;border-spacing:0px" cellpadding="0" width="100%">
-                                                              <tbody>
-                                                                 <tr>
-                                                                    <td style="padding-left:0px;padding-right:0px">
-                                                                       <table style="border-color:#ffffff;border-style:none;border-width:0px;background-color:transparent;border-top-left-radius:0px;border-top-right-radius:0px;border-bottom-right-radius:0px;border-bottom-left-radius:0px;margin-top:0px;margin-bottom:0px;width:100%" cellpadding="0" width="100%">
-                                                                          <tbody>
-                                                                             <tr>
-                                                                                <td>
-                                                                                   <hr>
-                                                                                </td>
-                                                                             </tr>
-                                                                          </tbody>
-                                                                       </table>
-                                                                    </td>
-                                                                 </tr>
-                                                              </tbody>
-                                                           </table>
-                                                        </td>
-                                                     </tr>
+                                                    
                                                      <tr>
                                                         <td style="padding-left:0px;padding-right:0px">
                                                            <table style="border-color:#ffffff;border-style:none;border-width:0px;background-color:transparent;border-top-left-radius:0px;border-top-right-radius:0px;border-bottom-right-radius:0px;border-bottom-left-radius:0px;margin-top:0px;margin-bottom:0px;width:100%;border-spacing:0px" cellpadding="0" width="100%">
@@ -153,7 +133,7 @@ class MailCreator {
                                                                        <table style="border-color:#ffffff;border-style:none;border-width:0px;background-color:transparent;border-top-left-radius:0px;border-top-right-radius:0px;border-bottom-right-radius:0px;border-bottom-left-radius:0px;margin-top:0px;margin-bottom:0px;width:100%;border-spacing:0px" cellpadding="0" width="100%">
                                                                           <tbody>
                                                                              <tr>
-                                                                                <td align="center" style="width:300px" width="300px"><img src="http://transportesejecutivos.com/maps/' . $data->reference . '.png" alt="map_b256658b-4442-44db-9a39-e887775d9c78.jpg" style="min-height:228px;width:300px" height="228" width="300" class="CToWUd"></td>
+                                                                                <td align="center" style="width:300px" width="300px"><img src="' . $data->mapUrl . '" alt="map_b256658b-4442-44db-9a39-e887775d9c78.jpg" style="min-height:228px;width:300px" height="228" width="300" class="CToWUd"></td>
                                                                              </tr>
                                                                           </tbody>
                                                                        </table>
@@ -163,11 +143,11 @@ class MailCreator {
                                                                           <tbody>
                                                                              <tr>
                                                                                 <td style="word-break:break-word;padding:15px 15px;font-family:Helvetica,Arial,sans-serif">
-                                                                                   <p>Fecha: ' . $data->date . '</p>
-                                                                                   <p>Hora de inicio: ' . $data->startTime . '</p>
-                                                                                   <p>Origen: ' . $data->source . '</p>
-                                                                                   <p>Destino: ' . $data->destiny . ' </p>
-                                                                                   <p>Hora de finalización: ' . $data->endTime . '</p>
+                                                                                   <p><strong>Fecha:</strong> ' . $data->date . '</p>
+                                                                                   <p><strong>Hora de inicio:</strong> ' . $data->startTime . '</p>
+                                                                                   <p><strong>Origen:</strong> ' . $data->source . '</p>
+                                                                                   <p><strong>Destino:</strong> ' . $data->destiny . ' </p>
+                                                                                   <p><strong>Hora de finalización:</strong> ' . $data->endTime . '</p>
                                                                                 </td>
                                                                              </tr>
                                                                           </tbody>
@@ -178,27 +158,7 @@ class MailCreator {
                                                            </table>
                                                         </td>
                                                      </tr>
-                                                     <tr>
-                                                        <td style="padding-left:0px;padding-right:0px">
-                                                           <table style="border-color:#ffffff;border-style:none;border-width:0px;background-color:transparent;border-top-left-radius:0px;border-top-right-radius:0px;border-bottom-right-radius:0px;border-bottom-left-radius:0px;margin-top:0px;margin-bottom:0px;width:100%;border-spacing:0px" cellpadding="0" width="100%">
-                                                              <tbody>
-                                                                 <tr>
-                                                                    <td style="padding-left:0px;padding-right:0px">
-                                                                       <table style="border-color:#ffffff;border-style:none;border-width:0px;background-color:transparent;border-top-left-radius:0px;border-top-right-radius:0px;border-bottom-right-radius:0px;border-bottom-left-radius:0px;margin-top:0px;margin-bottom:0px;width:100%" cellpadding="0" width="100%">
-                                                                          <tbody>
-                                                                             <tr>
-                                                                                <td>
-                                                                                   <hr>
-                                                                                </td>
-                                                                             </tr>
-                                                                          </tbody>
-                                                                       </table>
-                                                                    </td>
-                                                                 </tr>
-                                                              </tbody>
-                                                           </table>
-                                                        </td>
-                                                     </tr>
+                                                     
                                                      <tr>
                                                         <td style="padding-left:0px;padding-right:0px">
                                                            <table style="border-color:#ffffff;border-style:none;border-width:0px;background-color:transparent;border-top-left-radius:0px;border-top-right-radius:0px;border-bottom-right-radius:0px;border-bottom-left-radius:0px;margin-top:20px;margin-bottom:0px;width:100%;border-spacing:0px" cellpadding="0" width="100%">
@@ -229,8 +189,8 @@ class MailCreator {
                                                                        <table style="border-color:#ffffff;border-style:none;border-width:0px;background-color:transparent;border-top-left-radius:0px;border-top-right-radius:0px;border-bottom-right-radius:0px;border-bottom-left-radius:0px;margin-top:0px;margin-bottom:0px;width:100%;border-spacing:0px" cellpadding="0" width="100%">
                                                                           <tbody>
                                                                              <tr>
-                                                                                <td align="center" style="width:186px" width="186px"><img src="http://www.transportesejecutivos.com/app/conductores/logos/redimensionar_logo.php?imagen=cara' . $data->driverCode . '.jpg&amp;ancho=100" alt="x.png" style="min-height:79px;width:186px" height="79" width="186" class="CToWUd"></td>
-                                                                                <td align="center" style="width:186px" width="186px"><img src="http://www.transportesejecutivos.com/app/conductores/logos/redimensionar_logo.php?imagen=carro' . $data->driverCode . '.jpg&amp;ancho=100" alt="x.png" style="min-height:79px;width:186px" height="79" width="186" class="CToWUd"></td>
+                                                                                <td align="center" style="width:80px; border-radius: 50%;" width="80px"><img src="http://www.transportesejecutivos.com/app/conductores/logos/redimensionar_logo.php?imagen=cara' . $data->driverCode . '.jpg&amp;ancho=80" alt="x.png" style="min-height:80px;width:80px;border-radius: 50%;" height="80" width="80" class="CToWUd"></td>
+                                                                                <td align="center" style="width:80px; border-radius: 50%;" width="80px"><img src="http://www.transportesejecutivos.com/app/conductores/logos/redimensionar_logo.php?imagen=carro' . $data->driverCode . '.jpg&amp;ancho=80" alt="x.png" style="min-height:80px;width:80px;border-radius: 50%;" height="80" width="80" class="CToWUd"></td>
                                                                              </tr>
                                                                           </tbody>
                                                                        </table>
