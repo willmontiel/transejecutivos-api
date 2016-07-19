@@ -1004,12 +1004,12 @@ class DbHandlerDriver {
 
         $mapCreator = new MapCreator();
         $points = $mapCreator->findLocationPoints($id);
-        if (count($points) > 0) {
+        //if (count($points) > 0) {
           $p = implode("|", $points);
-		  $start = $points[0];
-		  $end = $points[count($points)-1];
+          $start = $points[0];
+          $end = $points[count($points)-1];
           $url = $mapCreator->getMapUrl($start, $end, $p);
-        }
+        //}
 
 
         $serviceArray = $this->getService($id, $user['code']);
