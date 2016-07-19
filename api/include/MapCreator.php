@@ -5,8 +5,10 @@ require_once 'LoggerHandler.php';
 class MapCreator {
 
   const GOOGLE_MAPS_API_KEY = "AIzaSyDzjFoNaHh_kH4gAJ2JkoY3Xlr1AH8Nlyk";
-  const GOOGLE_MAPS_ROUTE_COLOR = "0xff0000ff";
-  const GOOGLE_MAPS_ROUTE_WEIGHT = "5";
+  const GOOGLE_MAPS_START_MARKER = "markers=color:blue|label:I|";
+  const GOOGLE_MAPS_END_MARKER = "markers=color:green|label:F|";
+  const GOOGLE_MAPS_ROUTE_COLOR = "0xff000090";
+  const GOOGLE_MAPS_ROUTE_WEIGHT = "2";
   const GOOGLE_MAPS_SIZE = "640x640";
 
   public function __construct() {
@@ -28,8 +30,8 @@ class MapCreator {
     }
   }
 
-  public function getMapUrl($points) {
-    $url = "https://maps.googleapis.com/maps/api/staticmap?path=color:" . MapCreator::GOOGLE_MAPS_ROUTE_COLOR . "|weight:" . MapCreator::GOOGLE_MAPS_ROUTE_WEIGHT . "|" . $points . "&size=" . MapCreator::GOOGLE_MAPS_SIZE . "&key=" . MapCreator::GOOGLE_MAPS_API_KEY;
+  public function getMapUrl($start, $end, $points) {
+    $url = "https://maps.googleapis.com/maps/api/staticmap?" . MapCreator::GOOGLE_MAPS_START_MARKER . $start . "&" . MapCreator::GOOGLE_MAPS_END_MARKER . $end . "&path=color:" . MapCreator::GOOGLE_MAPS_ROUTE_COLOR . "|weight:" . MapCreator::GOOGLE_MAPS_ROUTE_WEIGHT . "|" . $points . "&size=" . MapCreator::GOOGLE_MAPS_SIZE . "&key=" . MapCreator::GOOGLE_MAPS_API_KEY;
 
     $log = new LoggerHandler();
     $log->writeString("URL: {$url}");
