@@ -55,7 +55,7 @@ class MailCreator {
                                                                        <table style="border-color:#ffffff;border-style:none;border-width:0px;background-color:transparent;border-top-left-radius:0px;border-top-right-radius:0px;border-bottom-right-radius:0px;border-bottom-left-radius:0px;margin-top:0px;margin-bottom:0px;width:100%;border-spacing:0px" cellpadding="0" width="100%">
                                                                           <tbody>
                                                                              <tr>
-                                                                                <td align="center" style="width:432px" width="432px"><img src="https://ci5.googleusercontent.com/proxy/y7MS6w5cJZ4z1S_6BiN1tpl-W7lt7dkY8PJCl6_ipzquNtrcUR5QlsClStNdjlcPU_72fxGwH5KhfclAwNPBwNenid40K32R_3P28xYkvJrU=s0-d-e1-ft#http://transportesejecutivos.com/images/horizontal_logo.png" alt="horizontal_logo.png" style="min-height:63px;width:432px" height="63" width="432" class="CToWUd"></td>
+                                                                                <td align="center" style="width:432px" width="432px"><img src="http://transportesejecutivos.com/images/horizontal_logo.png" alt="horizontal_logo.png" style="min-height:63px;width:432px" height="63" width="432" class="CToWUd"></td>
                                                                              </tr>
                                                                           </tbody>
                                                                        </table>
@@ -124,32 +124,48 @@ class MailCreator {
                                             <td style="width:100%;vertical-align:top;padding:0;background-color:#ffffff;border-top-left-radius:0px;border-top-right-radius:0px;border-bottom-right-radius:0px;border-bottom-left-radius:0px;border-color:#ffffff;border-style:none;border-width:0px">
                                                <table style="table-layout:fixed;width:100%;border-spacing:0px" width="100%" cellpadding="0">
                                                   <tbody>
-                                                     <tr>
+													<tr>
+														<td style="width:100%;vertical-align:middle;padding-left:0px;padding-right:0px" width="100%">
+														   <table style="border-color:#dddddd;border-style:none;border-width:0px;background-color:transparent;border-top-left-radius:0px;border-top-right-radius:0px;border-bottom-right-radius:0px;border-bottom-left-radius:0px;margin-top:0px;margin-bottom:0px;width:100%;border-spacing:0px" cellpadding="0" width="100%">
+															  <tbody>
+																 <tr>
+																	<td align="center" style="width:600px" width="600px"><img src="' . $data->mapUrl . '" alt="' . $data->reference . '" style="min-height:600px;width:600px" height="600" width="600" class="CToWUd"></td>
+																 </tr>
+															  </tbody>
+														   </table>
+														</td>
+													</tr>
+													<tr>
                                                         <td style="padding-left:0px;padding-right:0px">
                                                            <table style="border-color:#ffffff;border-style:none;border-width:0px;background-color:transparent;border-top-left-radius:0px;border-top-right-radius:0px;border-bottom-right-radius:0px;border-bottom-left-radius:0px;margin-top:0px;margin-bottom:0px;width:100%;border-spacing:0px" cellpadding="0" width="100%">
                                                               <tbody>
                                                                  <tr>
-                                                                    <td style="width:50%;vertical-align:middle;padding-left:0px;padding-right:0px" width="50%">
-                                                                       <table style="border-color:#ffffff;border-style:none;border-width:0px;background-color:transparent;border-top-left-radius:0px;border-top-right-radius:0px;border-bottom-right-radius:0px;border-bottom-left-radius:0px;margin-top:0px;margin-bottom:0px;width:100%;border-spacing:0px" cellpadding="0" width="100%">
-                                                                          <tbody>
-                                                                             <tr>
-                                                                                <td align="center" style="width:300px" width="300px"><img src="' . $data->mapUrl . '" alt="map_b256658b-4442-44db-9a39-e887775d9c78.jpg" style="min-height:228px;width:300px" height="228" width="300" class="CToWUd"></td>
-                                                                             </tr>
-                                                                          </tbody>
-                                                                       </table>
-                                                                    </td>
-                                                                    <td style="width:50%;padding-left:0px;padding-right:0px" width="50%">
+                                                                    <td style="width:100%;padding-left:0px;padding-right:0px" width="100%">
                                                                        <table style="border-color:#ffffff;border-style:none;border-width:0px;background-color:transparent;border-top-left-radius:0px;border-top-right-radius:0px;border-bottom-right-radius:0px;border-bottom-left-radius:0px;margin-top:0px;margin-bottom:0px;width:100%" cellpadding="0" width="100%">
                                                                           <tbody>
                                                                              <tr>
-                                                                                <td style="word-break:break-word;padding:15px 15px;font-family:Helvetica,Arial,sans-serif">
-                                                                                   <p><strong>Fecha:</strong> ' . $data->date . '</p>
-                                                                                   <p><strong>Hora de inicio:</strong> ' . $data->startTime . '</p>
-                                                                                   <p><strong>Origen:</strong> ' . $data->source . '</p>
-                                                                                   <p><strong>Destino:</strong> ' . $data->destiny . ' </p>
-                                                                                   <p><strong>Hora de finalización:</strong> ' . $data->endTime . '</p>
+                                                                                <td style="width:15%;padding-left:0px;padding-right:0px" width="15%"></td>
+                                                                                <td style="width:70%;text-align:center;word-break:break-word;padding:15px 15px;font-family:Helvetica,Arial,sans-serif" width="70%">
+                                                                                   <p><strong>' . $data->date . '</strong></p>
                                                                                 </td>
+                                                                                <td style="width:15%;padding-left:0px;padding-right:0px" width="15%"></td>
                                                                              </tr>
+                                                                              <tr>
+                                                                                <td style="width:15%;padding-left:0px;padding-right:0px" width="15%"></td>
+                                                                                <td style="width:70%;text-align:left;word-break:break-word;padding:15px 15px;font-family:Helvetica,Arial,sans-serif" width="70%">
+                                                                                  <p><strong style="color:rgb(166,197,249);">' . $data->startTime . '</strong></p>
+                                                                                  <p>' . $data->source . '</p>
+                                                                                </td>
+                                                                                <td style="width:15%;padding-left:0px;padding-right:0px" width="15%"></td>
+                                                                              </tr>
+                                                                              <tr>
+                                                                                <td style="width:15%;padding-left:0px;padding-right:0px" width="15%"></td>
+                                                                                <td style="width:70%;text-align:left;word-break:break-word;padding:15px 15px;font-family:Helvetica,Arial,sans-serif" width="70%">
+                                                                                  <p><strong style="color:rgb(156,188,40);">' . $data->endTime . '</strong></p>
+                                                                                  <p>' . $data->destiny . '</p>
+                                                                                </td>
+                                                                                <td style="width:15%;padding-left:0px;padding-right:0px" width="15%"></td>
+                                                                              </tr>
                                                                           </tbody>
                                                                        </table>
                                                                     </td>
@@ -169,7 +185,7 @@ class MailCreator {
                                                                           <tbody>
                                                                              <tr>
                                                                                 <td style="word-break:break-word;padding:15px 15px;font-family:Helvetica,Arial,sans-serif">
-                                                                                   <p style="text-align:center">Viajó con ' . $data->driverName . '</p>
+                                                                                   <p style="text-align:center">Viaj&oacute; con ' . $data->driverName . '</p>
                                                                                 </td>
                                                                              </tr>
                                                                           </tbody>
