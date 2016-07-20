@@ -54,7 +54,7 @@ class MailSender {
               ->addPart($this->plaintext, 'text/plain');
 
       if (!$mailer->send($message)) {
-        throw new InvalidArgumentException("Se finalizó el servicio, pero no se pudo enviar el resumen por correo al cliente");
+//        throw new InvalidArgumentException("Se finalizó el servicio, pero no se pudo enviar el resumen por correo al cliente");
       }
     } catch (Exception $ex) {
       $log = new LoggerHandler();

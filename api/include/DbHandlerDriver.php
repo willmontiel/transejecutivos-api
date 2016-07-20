@@ -85,14 +85,15 @@ class DbHandlerDriver {
    * @param String $api_key user api key
    */
   public function getUser($api_key) {
-    $stmt = $this->conn->prepare("SELECT id, usuario, codigo, nombre, apellido FROM admin WHERE api_key = ? AND nivel_clte = 'conductor'");
+    $stmt = $this->conn->prepare("SELECT id, usuario, correo1, codigo, nombre, apellido FROM admin WHERE api_key = ? AND nivel_clte = 'conductor'");
     $stmt->bind_param("s", $api_key);
     if ($stmt->execute()) {
-      $stmt->bind_result($user_id, $username, $codigo, $nombre, $apellido);
+      $stmt->bind_result($user_id, $username, $email, $codigo, $nombre, $apellido);
       $stmt->fetch();
       $user = array();
       $user["user_id"] = $user_id;
       $user["username"] = $username;
+      $user["email"] = $email;
       $user["code"] = $codigo;
       $user["name"] = $nombre;
       $user["lastname"] = $apellido;
@@ -1043,11 +1044,10 @@ class DbHandlerDriver {
         $mail = new stdClass();
         $mail->html = $mailCreator->getHtml();
         $mail->plaintext = $mailCreator->getPlaintext();
-
+        
         $data = new stdClass();
         $data->subject = "Resumen de su servicio con Transportes Ejecutivos({$reference}) {$serviceArray['start_date']}";
         $data->from = array('info@transportesejecutivos.com' => 'Transportes Ejecutivos');
-
         $data->to = array($email1 => $service->name);
 
         $this->saveServiceResumeHtml($id, $reference, $mail->html);
@@ -1055,6 +1055,21 @@ class DbHandlerDriver {
         $mailSender = new MailSender();
         $mailSender->setMail($mail);
         $mailSender->sendMail($data);
+        
+        $mailCreator->createResumeNotificationForDriver($service);
+        
+        $mailDriver = new stdClass();
+        $mailDriver->html = $mailCreator->getHtml();
+        $mailDriver->plaintext = $mailCreator->getPlaintext();
+        
+        $data->subject = "Resumen del servicio con Transportes Ejecutivos({$reference}) {$serviceArray['start_date']}";
+        $data->from = array('info@transportesejecutivos.com' => 'Transportes Ejecutivos');
+        $data->to = array($user['email'] => $service->driverName);
+        
+        $mailSender->setMail($mail);
+        $mailSender->sendMail($data);
+
+        
       } else {
         throw new InvalidArgumentException("No se pudo finalizar el servicio, por favor intenta de nuevo");
       }
