@@ -199,9 +199,10 @@ class DbHandler {
     $nextdate = date('m/d/Y', strtotime(date('Y-m-d') . ' + 30 days'));
 
 //    $log = new LoggerHandler();
-    //$log->writeString("Current Day: {$currentDate}");
-    //$log->writeString("Next Day: {$nextdate}");
-    //$log->writeString("Code: {$code}");
+//    $log->writeString("Current Day: {$currentDate}");
+//    $log->writeString("Next Day: {$nextdate}");
+//    $log->writeString("Code: {$code}");
+//    $log->writeString("SQL: {$sql}");
 
     $stmt->bind_param("sss", $currentDate, $nextdate, $code);
     $stmt->execute();
@@ -239,7 +240,7 @@ class DbHandler {
     //$date = ($between ? 'o.fecha_s between ? AND ? ' : "o.fecha_s = ? ");
     $date = ($between ? "STR_TO_DATE(o.fecha_s, '%m/%d/%Y') BETWEEN STR_TO_DATE(?, '%m/%d/%Y') AND STR_TO_DATE(?, '%m/%d/%Y') " : "o.fecha_s = ? ");
 
-    $sql = "SELECT o.id AS orden_id, 
+    $sql = "SELECT DISTINCT o.id AS orden_id, 
                             o.referencia,
                             o.fecha_e,
                             o.hora_e,
@@ -337,7 +338,7 @@ class DbHandler {
   }
 
   private function modelGroupedDataServices($stmt) {
-    //$log = new LoggerHandler();
+//    $log = new LoggerHandler();
     $dates = array();
     $data = array(
         'dates' => array(),
@@ -355,9 +356,9 @@ class DbHandler {
       $bls = trim($bls);
       $pab = trim($pab);
       $st = trim($st);
-
-      if (!empty($seguimiento_id)) {
-        if (!empty($b1ha) && empty($bls)) {
+      
+      if ($seguimiento_id > 0) {
+        if (!empty($b1ha) && !empty($bls)) {
           $dlocation = 1;
         }
       }
@@ -394,7 +395,7 @@ class DbHandler {
       $tmp["car_license_plate"] = $placa;
       $tmp["driver_status"] = $estado;
       $tmp['driver_location'] = $dlocation;
-
+      
       if (in_array($date, $dates)) {
         $key = array_search($date, $dates);
         $data['services'][$key][] = $tmp;
