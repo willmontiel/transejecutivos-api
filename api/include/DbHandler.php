@@ -349,6 +349,7 @@ class DbHandler {
 
     while ($stmt->fetch()) {
       $dlocation = 0;
+      $slocation = 0;
       $date = trim($fecha_s);
 
       $seguimiento_id = trim($seguimiento_id);
@@ -358,8 +359,13 @@ class DbHandler {
       $st = trim($st);
       
       if ($seguimiento_id > 0) {
-        if (!empty($b1ha) && !empty($bls)) {
+        if (!empty($b1ha) && empty($bls)) {
+//        if (!empty($b1ha)) {
           $dlocation = 1;
+        }
+        
+        if (!empty($pab) && empty($st)) {
+          $slocation = 1;
         }
       }
 
@@ -395,6 +401,7 @@ class DbHandler {
       $tmp["car_license_plate"] = $placa;
       $tmp["driver_status"] = $estado;
       $tmp['driver_location'] = $dlocation;
+      $tmp['share_location'] = $slocation;
       
       if (in_array($date, $dates)) {
         $key = array_search($date, $dates);
@@ -583,7 +590,7 @@ class DbHandler {
         "longitude" => 0
     );
 
-    $stmt = $this->conn->prepare("SELECT latitude, longitude FROM prelocation WHERE idOrden = ? ORDER BY createdon DESC LIMIT 1");
+    $stmt = $this->conn->prepare("SELECT latitude, longitude FROM prelocation WHERE idOrden = ? ORDER BY idPrelocation DESC LIMIT 1");
     $stmt->bind_param("i", $id);
 
     if ($stmt->execute()) {
