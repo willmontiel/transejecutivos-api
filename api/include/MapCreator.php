@@ -2,6 +2,15 @@
 
 require_once 'LoggerHandler.php';
 
+//$map = new MapCreator();
+//$points = $map->findLocationPoints(411199);
+//$p = implode("|", $points);
+//$start = $points[0];
+//$end = $points[count($points)-1];
+//$url = $map->getMapUrl($start, $end, $p);
+//
+//echo $url;
+
 class MapCreator {
 
   const GOOGLE_MAPS_API_KEY = "AIzaSyDzjFoNaHh_kH4gAJ2JkoY3Xlr1AH8Nlyk";
@@ -59,21 +68,28 @@ class MapCreator {
     $f = true;
 
     while ($stmt->fetch()) {
-      if ($numResults > 20) {
-        if ($f) {
-          $points[] = "{$latitude},{$longitude}";
-          $f = false;
-        } else if ($i == 10) {
-          $i = 0;
-          $points[] = "{$latitude},{$longitude}";
-        } else if ($j == $numResults) {
-          $points[] = "{$latitude},{$longitude}";
-        }
+      $latLan = "{$latitude},{$longitude}";
+      
+      if ($numResults > 1900) {  
+        if (!in_array($latLan, $points)) {
+          if ($f) {
+            $points[] = $latLan;
+            $f = false;
+          } else if ($i == 10) {
+            $i = 0;
+            $points[] = $latLan;
+          } else if ($j == $numResults) {
+            $points[] = $latLan;
+          }
 
-        $j++;
-        $i++;
-      } else {
-        $points[] = "{$latitude},{$longitude}";
+          $j++;
+          $i++;
+        } 
+      }
+      else {
+        if (!in_array($latLan, $points)) {
+          $points[] = $latLan;
+        }
       }
     }
 
