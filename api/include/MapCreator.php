@@ -2,6 +2,15 @@
 
 require_once 'LoggerHandler.php';
 
+//$mapCreator = new MapCreator();
+//$points = $mapCreator->findLocationPoints(411186, true);
+//$p = implode("|", $points);
+//$start = $points[0];
+//$end = $points[count($points)-1];
+//$url = $mapCreator->getMapUrl($start, $end, $p);
+//
+//echo $url;
+
 class MapCreator {
 
   const GOOGLE_MAPS_API_KEY = "AIzaSyDzjFoNaHh_kH4gAJ2JkoY3Xlr1AH8Nlyk";
@@ -39,10 +48,20 @@ class MapCreator {
     return $url;
   }
 
-  public function findLocationPoints($id) {
+  public function findLocationPoints($id, $pre = false) {
+    echo $id;
+    echo " " . $pre;
+    
     $points = array();
-
-    $stmt = $this->conn->prepare("SELECT latitude, longitude FROM location WHERE idOrden = ?");
+    $table = "location";
+    $order = "idLocation";
+    if ($pre) {
+      $table = "prelocation";
+      $order = "idPrelocation";
+    }
+    echo " ". $table;
+    
+    $stmt = $this->conn->prepare("SELECT latitude, longitude FROM {$table} WHERE idOrden = ? ORDER BY {$order}");
 
     $stmt->bind_param("i", $id);
 
