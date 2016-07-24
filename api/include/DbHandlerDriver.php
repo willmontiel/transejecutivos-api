@@ -906,7 +906,48 @@ class DbHandlerDriver {
     $reference = $this->validateServiceExists($id, $user['code']);
 
     //2. Guardamos la latitud y longitud en la tabla location
-    return $this->savePreLocation($id, $reference, $lat, $lon);
+    if (!$this->savePreLocation($id, $reference, $lat, $lon)) {
+      return 0;
+    }
+
+    $obj = $this->getServiceStatus($reference);
+
+    if (empty($obj->b1ha) && empty($obj->bls) && empty($obj->pab) && empty($obj->st)) {
+      return 0;
+    }
+
+    if (!empty($obj->b1ha) && empty($obj->bls)) {
+      return 1;
+    }
+
+    return 0;
+  }
+
+  private function getServiceStatus($reference) {
+    $obj = new stdClass();
+    $obj->b1ha = "";
+    $obj->bls = "";
+    $obj->pab = "";
+    $obj->st = "";
+
+    $stmt = $this->conn->prepare("SELECT b1ha, bls, pab, st FROM seguimiento WHERE referencia = ?");
+    $stmt->bind_param("s", $reference);
+    if ($stmt->execute()) {
+      $stmt->bind_result($b1ha, $bls, $pab, $st);
+      $stmt->store_result();
+      if ($stmt->num_rows > 0) {
+        $stmt->fetch();
+        $stmt->close();
+
+        $obj->b1ha = $b1ha;
+        $obj->bls = $bls;
+        $obj->pab = $pab;
+        $obj->st = $st;
+
+        return $obj;
+      }
+    }
+    return $obj;
   }
 
   private function savePreLocation($id, $reference, $lat, $lon) {
@@ -958,11 +999,28 @@ class DbHandlerDriver {
    * @param type $lon
    */
   public function setLocation($user, $id, $lat, $lon) {
+//    $log = new LoggerHandler();
     //1. Validamos que el servicio exista, y si es asi tomamos la referencia
     $reference = $this->validateServiceExists($id, $user['code']);
 
     //2. Guardamos la latitud y longitud en la tabla location
-    return $this->saveLocation($id, $reference, $lat, $lon);
+    if (!$this->saveLocation($id, $reference, $lat, $lon)) {
+      return 0;
+    }
+
+    $obj = $this->getServiceStatus($reference);
+    
+    if (empty($obj->b1ha) && empty($obj->bls) && empty($obj->pab) && empty($obj->st)) {
+      return 0;
+    }
+
+    if (!empty($obj->pab) && empty($obj->st)) {
+      return 1;
+    }
+    
+    
+
+    return 0;
   }
 
   private function saveLocation($id, $reference, $lat, $lon) {
@@ -987,6 +1045,7 @@ class DbHandlerDriver {
    * @param type $observations
    */
   public function finishService($user, $id, $observations, $image) {
+//    $log = new LoggerHandler();
     try {
       //1. Validamos que el servicio exista, y si es asi tomamos la referencia
       $reference = $this->validateServiceExists($id, $user['code']);
@@ -1003,70 +1062,76 @@ class DbHandlerDriver {
           }
         }
 
+
         $serviceArray = $this->getService($id, $user['code']);
+        
+        $email1 = $serviceArray["email1"];
+        
         if (empty($email1)) {
-          throw new InvalidArgumentException("Se finalizó el servicio exitosamente, pero no se pudo enviar el resumen al cliente porque este no tiene correo");
-        }
+          $log = new LoggerHandler();
+          $log->writeString("Se finalizó el servicio exitosamente, pero no se pudo enviar el resumen al cliente porque este no tiene correo, {$reference}");
+//          throw new InvalidArgumentException("Se finalizó el servicio exitosamente, pero no se pudo enviar el resumen al cliente porque este no tiene correo");
+        } else if (!filter_var($email1, FILTER_VALIDATE_EMAIL)) {
+          $log = new LoggerHandler();
+          $log->writeString("Se finalizó el servicio exitosamente, pero no se pudo enviar el resumen al cliente porque este no tiene un correo valido, {$reference}");
+          //throw new InvalidArgumentException("Se finalizó el servicio exitosamente, pero no se pudo enviar el resumen al cliente, por correo invalido");
+        } else {
+          $service = new stdClass();
+          $service->id = $id;
+          $service->mapUrl = "";
+          $service->name = $serviceArray['passenger_name'] . " " . $serviceArray['passenger_lastname'];
+          $service->reference = $reference;
+          $service->date = $serviceArray['sdate'];
+          $service->startTime = $serviceArray['start_time'];
+          $service->source = $serviceArray['source'];
+          $service->destiny = $serviceArray['destiny'];
+          $service->endTime = $serviceArray['end_time'];
+          $service->driverName = $user['name'] . " " . $user['lastname'];
+          $service->driverCode = $user['code'];
 
-        if (!filter_var($email1, FILTER_VALIDATE_EMAIL)) {
-          throw new InvalidArgumentException("Se finalizó el servicio exitosamente, pero no se pudo enviar el resumen al cliente, por correo invalido");
-        }
+          $mailCreator = new MailCreator();
+          $mail = new stdClass();
+          $data = new stdClass();
 
-        $service = new stdClass();
-        $service->id = $id;
-        $service->mapUrl = "";
-        $service->name = $serviceArray['passenger_name'] . " " . $serviceArray['passenger_lastname'];
-        $service->reference = $reference;
-        $service->date = $serviceArray['sdate'];
-        $service->startTime = $serviceArray['start_time'];
-        $service->source = $serviceArray['source'];
-        $service->destiny = $serviceArray['destiny'];
-        $service->endTime = $serviceArray['end_time'];
-        $service->driverName = $user['name'] . " " . $user['lastname'];
-        $service->driverCode = $user['code'];
-        
-        $mailCreator = new MailCreator();
-        $mail = new stdClass();
-        $data = new stdClass();
-        
-        $mapCreator = new MapCreator();
-        $points = $mapCreator->findLocationPoints($id);
-        
-        if (count($points) > 0) {
-          $p = implode("|", $points);
-          $start = $points[0];
-          $end = $points[count($points)-1];
-          $url = $mapCreator->getMapUrl($start, $end, $p);
-          $email1 = $serviceArray["email1"];
+          $mapCreator = new MapCreator();
+          $points = $mapCreator->findLocationPoints($id);
 
-          $service->mapUrl = $url;
-          $mailCreator->createResumeNotification($service);
-          $mail->html = $mailCreator->getHtml();
-          $mail->plaintext = $mailCreator->getPlaintext();
-          
-          $data->subject = "Resumen de su servicio con Transportes Ejecutivos({$reference}) {$serviceArray['start_date']}";
+          if (count($points) > 0) {
+            $p = implode("|", $points);
+            $start = $points[0];
+            $end = $points[count($points) - 1];
+            $url = $mapCreator->getMapUrl($start, $end, $p);
+            $email1 = $serviceArray["email1"];
+
+            $service->mapUrl = $url;
+            $mailCreator->createResumeNotification($service);
+            $mail->html = $mailCreator->getHtml();
+            $mail->plaintext = $mailCreator->getPlaintext();
+
+            $data->subject = "Resumen de su servicio con Transportes Ejecutivos({$reference}) {$serviceArray['start_date']}";
+            $data->from = array('info@transportesejecutivos.com' => 'Transportes Ejecutivos');
+            $data->to = array($email1 => $service->name);
+
+            $this->saveServiceResumeHtml($id, $reference, $mail->html);
+
+            $mailSender = new MailSender();
+            $mailSender->setMail($mail);
+            $mailSender->sendMail($data);
+          }
+
+          $mailCreator->createResumeNotificationForDriver($service);
+
+          $mailDriver = new stdClass();
+          $mailDriver->html = $mailCreator->getHtml();
+          $mailDriver->plaintext = $mailCreator->getPlaintext();
+
+          $data->subject = "Resumen del servicio con Transportes Ejecutivos({$reference}) {$serviceArray['start_date']}";
           $data->from = array('info@transportesejecutivos.com' => 'Transportes Ejecutivos');
-          $data->to = array($email1 => $service->name);
+          $data->to = array($user['email'] => $service->driverName);
 
-          $this->saveServiceResumeHtml($id, $reference, $mail->html);
-
-          $mailSender = new MailSender();
-          $mailSender->setMail($mail);
+          $mailSender->setMail($mailDriver);
           $mailSender->sendMail($data);
         }
-
-        $mailCreator->createResumeNotificationForDriver($service);
-        
-        $mailDriver = new stdClass();
-        $mailDriver->html = $mailCreator->getHtml();
-        $mailDriver->plaintext = $mailCreator->getPlaintext();
-        
-        $data->subject = "Resumen del servicio con Transportes Ejecutivos({$reference}) {$serviceArray['start_date']}";
-        $data->from = array('info@transportesejecutivos.com' => 'Transportes Ejecutivos');
-        $data->to = array($user['email'] => $service->driverName);
-        
-        $mailSender->setMail($mailDriver);
-        $mailSender->sendMail($data);
       } else {
         throw new InvalidArgumentException("No se pudo finalizar el servicio, por favor intenta de nuevo");
       }
@@ -1096,43 +1161,43 @@ class DbHandlerDriver {
     $stmt = $this->conn->prepare("INSERT INTO service_resume(idServiceResume, idOrden, reference, mailContent, createdon) VALUES(null, ?, ?, ?, ?)");
     $createdon = date("d/m/Y H:i:s");
     $stmt->bind_param("isss", $idOrden, $ref, $content, $createdon);
-    
+
     if ($stmt->execute()) {
       $stmt->close();
       return true;
-    } 
-    
+    }
+
     $stmt->close();
     return false;
   }
-  
+
   public function setQualify($id, $ref, $points, $comments) {
     //$log = new LoggerHandler();
     $c = (empty($comments) ? "Sin comentarios" : $comments);
     $stmt = $this->conn->prepare("INSERT INTO survey(idOrden, referencia, puntos, comentarios, fecha) VALUES(?, ?, ?, ?, ?)");
     $createdon = date("d/m/Y H:i:s");
     $stmt->bind_param("isiss", $id, $ref, $points, $c, $createdon);
-    
+
     if ($stmt->execute()) {
       $stmt->close();
       return true;
-    } 
-    
+    }
+
     $stmt->close();
     return false;
   }
-  
+
   public function updateQualify($id, $points, $comments) {
     //$log = new LoggerHandler();
     $c = (empty($comments) ? "Sin comentarios" : $comments);
     $stmt = $this->conn->prepare("UPDATE survey SET puntos = ?, comentarios = ? WHERE idOrden = ?");
     $stmt->bind_param("isi", $points, $c, $id);
-    
+
     if ($stmt->execute()) {
       $stmt->close();
       return true;
-    } 
-    
+    }
+
     $stmt->close();
     return false;
   }

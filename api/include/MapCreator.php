@@ -2,14 +2,14 @@
 
 require_once 'LoggerHandler.php';
 
-//$map = new MapCreator();
-//$points = $map->findLocationPoints(411199);
+//$mapCreator = new MapCreator();
+//$points = $mapCreator->findLocationPoints(411186, true);
 //$p = implode("|", $points);
 //$start = $points[0];
 //$end = $points[count($points)-1];
-//$url = $map->getMapUrl($start, $end, $p);
-//
-//echo $url;
+//$url = $mapCreator->getMapUrl($start, $end, $p);
+
+echo $url;
 
 class MapCreator {
 
@@ -48,10 +48,16 @@ class MapCreator {
     return $url;
   }
 
-  public function findLocationPoints($id) {
+  public function findLocationPoints($id, $pre = false) {
     $points = array();
-
-    $stmt = $this->conn->prepare("SELECT latitude, longitude FROM location WHERE idOrden = ?");
+    $table = "location";
+    $order = "idLocation";
+    if ($pre) {
+      $table = "prelocation";
+      $order = "idPrelocation";
+    }
+    
+    $stmt = $this->conn->prepare("SELECT latitude, longitude FROM {$table} WHERE idOrden = ? ORDER BY {$order}");
 
     $stmt->bind_param("i", $id);
 

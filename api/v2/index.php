@@ -483,14 +483,8 @@ $app->post('/setlocation/:id', 'authenticate', function($id) use($app) {
 
         $db = new DbHandlerDriver();
         $response = array();
-        if ($db->setLocation($user, $id, $latitude, $longitude)) {
-            $response["error"] = false;
-            $response["message"] = "Location setted succesusfuly";
-        }
-        else {
-            $response["error"] = true;
-            $response["message"] = "Error while setting location, please try again";
-        }
+        $response["error"] = false;
+        $response["message"] = $db->setLocation($user, $id, $latitude, $longitude);
 
         echoRespnse(200, $response);
     }
@@ -570,14 +564,8 @@ $app->post('/setprelocation/:id', 'authenticate', function($id) use($app) {
         
         $db = new DbHandlerDriver();
         $response = array();
-        if ($db->setPreLocation($user, $id, $latitude, $longitude)) {
-            $response["error"] = false;
-            $response["message"] = "Prelocation setted succesusfuly";
-        }
-        else {
-            $response["error"] = true;
-            $response["message"] = "Error while setting prelocation, please try again";
-        }
+        $response["error"] = false;
+        $response["message"] = $db->setPreLocation($user, $id, $latitude, $longitude);
 
         echoRespnse(200, $response);
     }
