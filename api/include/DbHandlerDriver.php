@@ -1003,20 +1003,7 @@ class DbHandlerDriver {
           }
         }
 
-        $mapCreator = new MapCreator();
-        $points = $mapCreator->findLocationPoints($id);
-        //if (count($points) > 0) {
-          $p = implode("|", $points);
-          $start = $points[0];
-          $end = $points[count($points)-1];
-          $url = $mapCreator->getMapUrl($start, $end, $p);
-        //}
-
-
         $serviceArray = $this->getService($id, $user['code']);
-
-        $email1 = $serviceArray["email1"];
-
         if (empty($email1)) {
           throw new InvalidArgumentException("Se finalizó el servicio exitosamente, pero no se pudo enviar el resumen al cliente porque este no tiene correo");
         }
@@ -1027,7 +1014,7 @@ class DbHandlerDriver {
 
         $service = new stdClass();
         $service->id = $id;
-        $service->mapUrl = $url;
+        $service->mapUrl = "";
         $service->name = $serviceArray['passenger_name'] . " " . $serviceArray['passenger_lastname'];
         $service->reference = $reference;
         $service->date = $serviceArray['sdate'];
@@ -1037,25 +1024,37 @@ class DbHandlerDriver {
         $service->endTime = $serviceArray['end_time'];
         $service->driverName = $user['name'] . " " . $user['lastname'];
         $service->driverCode = $user['code'];
-
+        
         $mailCreator = new MailCreator();
-        $mailCreator->createResumeNotification($service);
-
         $mail = new stdClass();
-        $mail->html = $mailCreator->getHtml();
-        $mail->plaintext = $mailCreator->getPlaintext();
-        
         $data = new stdClass();
-        $data->subject = "Resumen de su servicio con Transportes Ejecutivos({$reference}) {$serviceArray['start_date']}";
-        $data->from = array('info@transportesejecutivos.com' => 'Transportes Ejecutivos');
-        $data->to = array($email1 => $service->name);
+        
+        $mapCreator = new MapCreator();
+        $points = $mapCreator->findLocationPoints($id);
+        
+        if (count($points) > 0) {
+          $p = implode("|", $points);
+          $start = $points[0];
+          $end = $points[count($points)-1];
+          $url = $mapCreator->getMapUrl($start, $end, $p);
+          $email1 = $serviceArray["email1"];
 
-        $this->saveServiceResumeHtml($id, $reference, $mail->html);
-        
-        $mailSender = new MailSender();
-        $mailSender->setMail($mail);
-        $mailSender->sendMail($data);
-        
+          $service->mapUrl = $url;
+          $mailCreator->createResumeNotification($service);
+          $mail->html = $mailCreator->getHtml();
+          $mail->plaintext = $mailCreator->getPlaintext();
+          
+          $data->subject = "Resumen de su servicio con Transportes Ejecutivos({$reference}) {$serviceArray['start_date']}";
+          $data->from = array('info@transportesejecutivos.com' => 'Transportes Ejecutivos');
+          $data->to = array($email1 => $service->name);
+
+          $this->saveServiceResumeHtml($id, $reference, $mail->html);
+
+          $mailSender = new MailSender();
+          $mailSender->setMail($mail);
+          $mailSender->sendMail($data);
+        }
+
         $mailCreator->createResumeNotificationForDriver($service);
         
         $mailDriver = new stdClass();
@@ -1066,10 +1065,8 @@ class DbHandlerDriver {
         $data->from = array('info@transportesejecutivos.com' => 'Transportes Ejecutivos');
         $data->to = array($user['email'] => $service->driverName);
         
-        $mailSender->setMail($mail);
+        $mailSender->setMail($mailDriver);
         $mailSender->sendMail($data);
-
-        
       } else {
         throw new InvalidArgumentException("No se pudo finalizar el servicio, por favor intenta de nuevo");
       }

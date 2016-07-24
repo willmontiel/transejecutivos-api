@@ -2,12 +2,12 @@
 
 require_once 'LoggerHandler.php';
 
-//$mapCreator = new MapCreator();
-//$points = $mapCreator->findLocationPoints(411186, true);
+//$map = new MapCreator();
+//$points = $map->findLocationPoints(411199);
 //$p = implode("|", $points);
 //$start = $points[0];
 //$end = $points[count($points)-1];
-//$url = $mapCreator->getMapUrl($start, $end, $p);
+//$url = $map->getMapUrl($start, $end, $p);
 //
 //echo $url;
 
@@ -48,20 +48,10 @@ class MapCreator {
     return $url;
   }
 
-  public function findLocationPoints($id, $pre = false) {
-    echo $id;
-    echo " " . $pre;
-    
+  public function findLocationPoints($id) {
     $points = array();
-    $table = "location";
-    $order = "idLocation";
-    if ($pre) {
-      $table = "prelocation";
-      $order = "idPrelocation";
-    }
-    echo " ". $table;
-    
-    $stmt = $this->conn->prepare("SELECT latitude, longitude FROM {$table} WHERE idOrden = ? ORDER BY {$order}");
+
+    $stmt = $this->conn->prepare("SELECT latitude, longitude FROM location WHERE idOrden = ?");
 
     $stmt->bind_param("i", $id);
 
@@ -78,21 +68,28 @@ class MapCreator {
     $f = true;
 
     while ($stmt->fetch()) {
-      if ($numResults > 20) {
-        if ($f) {
-          $points[] = "{$latitude},{$longitude}";
-          $f = false;
-        } else if ($i == 10) {
-          $i = 0;
-          $points[] = "{$latitude},{$longitude}";
-        } else if ($j == $numResults) {
-          $points[] = "{$latitude},{$longitude}";
-        }
+      $latLan = "{$latitude},{$longitude}";
+      
+      if ($numResults > 1900) {  
+        if (!in_array($latLan, $points)) {
+          if ($f) {
+            $points[] = $latLan;
+            $f = false;
+          } else if ($i == 10) {
+            $i = 0;
+            $points[] = $latLan;
+          } else if ($j == $numResults) {
+            $points[] = $latLan;
+          }
 
-        $j++;
-        $i++;
-      } else {
-        $points[] = "{$latitude},{$longitude}";
+          $j++;
+          $i++;
+        } 
+      }
+      else {
+        if (!in_array($latLan, $points)) {
+          $points[] = $latLan;
+        }
       }
     }
 
