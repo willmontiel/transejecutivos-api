@@ -1102,6 +1102,9 @@ class DbHandlerDriver {
             $end = $points[count($points) - 1];
 //            $url = $mapCreator->getMapUrl($start, $end, $p);
             $url = $mapCreator->createMap($reference, $start, $end, $p);
+            $service->source = ($mapCreator->getAddressByLatIng($points[0]) != null ? $mapCreator->getAddressByLatIng($points[0]) : $serviceArray['source']);
+            $service->destiny = ($mapCreator->getAddressByLatIng($points[count($points) - 1]) != null ? $mapCreator->getAddressByLatIng($points[count($points) - 1]) : $serviceArray['destiny']);
+            
             $email1 = $serviceArray["email1"];
 
             $service->mapUrl = $url;

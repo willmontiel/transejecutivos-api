@@ -3,13 +3,9 @@
 require_once 'LoggerHandler.php';
 
 //$mapCreator = new MapCreator();
-//$points = $mapCreator->findLocationPoints(411186, true);
-//$p = implode("|", $points);
-//$start = $points[0];
-//$end = $points[count($points)-1];
-//$url = $mapCreator->getMapUrl($start, $end, $p);
-
-echo $url;
+//$url = $mapCreator->getAddressByLatIng("3.407406,-76.5530109");
+//
+//echo $url;
 
 class MapCreator {
 
@@ -21,6 +17,10 @@ class MapCreator {
   const GOOGLE_MAPS_SIZE = "640x640";
   const GOOGLE_MAPS_URL = "https://maps.googleapis.com/maps/api/staticmap?";
   const MAP_URL = "http://www.transportesejecutivos.com/maps/";
+  
+  const GOOGLE_GEOCODE_URL = "https://maps.googleapis.com/maps/api/geocode/json?";
+  const GOOGLE_GEOCODE_LOCATION_TYPE = "ROOFTOP";
+  const GOOGLE_GEOCODE_LOCATION_STREET_ADDRESS = "street_address";
   
   public function __construct() {
     require_once dirname(__FILE__) . '/DbConnect.php';
@@ -51,6 +51,17 @@ class MapCreator {
     $log->writeString("URL: {$url}");
 
     return $url;
+  }
+  
+  public function getAddressByLatIng($latIng) {
+    $log = new LoggerHandler();
+    $url = MapCreator::GOOGLE_GEOCODE_URL . "latlng=" . $latIng . "&location_type=" . MapCreator::GOOGLE_GEOCODE_LOCATION_TYPE . "&result_type=" . MapCreator::GOOGLE_GEOCODE_LOCATION_STREET_ADDRESS ."&key=" . MapCreator::GOOGLE_MAPS_API_KEY;
+    $log->writeString("URL: {$url}");
+    $result = file_get_contents($url);
+    $res = json_decode($result);
+    $address = (isset($res->results[0]->formatted_address) ? $res->results[0]->formatted_address : null);
+    $log->writeString("Address: {$address}");
+    return $address;
   }
 
   public function findLocationPoints($id, $pre = false) {
