@@ -19,7 +19,9 @@ class MapCreator {
   const GOOGLE_MAPS_ROUTE_COLOR = "0xff000090";
   const GOOGLE_MAPS_ROUTE_WEIGHT = "2";
   const GOOGLE_MAPS_SIZE = "640x640";
-
+  const GOOGLE_MAPS_URL = "https://maps.googleapis.com/maps/api/staticmap?";
+  const MAP_URL = "http://www.transportesejecutivos.com/maps/";
+  
   public function __construct() {
     require_once dirname(__FILE__) . '/DbConnect.php';
     // opening db connection
@@ -27,9 +29,8 @@ class MapCreator {
     $this->conn = $db->connect();
   }
 
-  public function createMap($name, $points) {
-    //$url = urlencode("https://maps.googleapis.com/maps/api/staticmap?path=color:" . MapCreator::GOOGLE_MAPS_ROUTE_COLOR . "|weight:" . MapCreator::GOOGLE_MAPS_ROUTE_WEIGHT . "|" . $points . "&size=" . MapCreator::GOOGLE_MAPS_SIZE . "&key=" . MapCreator::GOOGLE_MAPS_API_KEY);
-    $url = "https://maps.googleapis.com/maps/api/staticmap?path=color:" . MapCreator::GOOGLE_MAPS_ROUTE_COLOR . "|weight:" . MapCreator::GOOGLE_MAPS_ROUTE_WEIGHT . "|" . $points . "&size=" . MapCreator::GOOGLE_MAPS_SIZE . "&key=" . MapCreator::GOOGLE_MAPS_API_KEY;
+  public function createMap($name, $start, $end, $points) {
+    $url = MapCreator::GOOGLE_MAPS_URL . MapCreator::GOOGLE_MAPS_START_MARKER . $start . "&" . MapCreator::GOOGLE_MAPS_END_MARKER . $end . "&path=color:" . MapCreator::GOOGLE_MAPS_ROUTE_COLOR . "|weight:" . MapCreator::GOOGLE_MAPS_ROUTE_WEIGHT . "|" . $points . "&size=" . MapCreator::GOOGLE_MAPS_SIZE . "&key=" . MapCreator::GOOGLE_MAPS_API_KEY;
 
     $log = new LoggerHandler();
     $log->writeString("URL: {$url}");
@@ -37,10 +38,14 @@ class MapCreator {
     if (!file_put_contents("../../maps/{$name}.png", file_get_contents($url))) {
       $log->writeString("No se pudo guardar la imagen de la ubicación de google maps, referncia: {$name}");
     }
+    
+    $url = MapCreator::MAP_URL . "{$name}.png";
+    $log->writeString("URL: {$url}");
+    return $url;
   }
 
   public function getMapUrl($start, $end, $points) {
-    $url = "https://maps.googleapis.com/maps/api/staticmap?" . MapCreator::GOOGLE_MAPS_START_MARKER . $start . "&" . MapCreator::GOOGLE_MAPS_END_MARKER . $end . "&path=color:" . MapCreator::GOOGLE_MAPS_ROUTE_COLOR . "|weight:" . MapCreator::GOOGLE_MAPS_ROUTE_WEIGHT . "|" . $points . "&size=" . MapCreator::GOOGLE_MAPS_SIZE . "&key=" . MapCreator::GOOGLE_MAPS_API_KEY;
+    $url = MapCreator::GOOGLE_MAPS_URL . MapCreator::GOOGLE_MAPS_START_MARKER . $start . "&" . MapCreator::GOOGLE_MAPS_END_MARKER . $end . "&path=color:" . MapCreator::GOOGLE_MAPS_ROUTE_COLOR . "|weight:" . MapCreator::GOOGLE_MAPS_ROUTE_WEIGHT . "|" . $points . "&size=" . MapCreator::GOOGLE_MAPS_SIZE . "&key=" . MapCreator::GOOGLE_MAPS_API_KEY;
 
     $log = new LoggerHandler();
     $log->writeString("URL: {$url}");

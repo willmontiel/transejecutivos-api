@@ -1100,7 +1100,8 @@ class DbHandlerDriver {
             $p = implode("|", $points);
             $start = $points[0];
             $end = $points[count($points) - 1];
-            $url = $mapCreator->getMapUrl($start, $end, $p);
+//            $url = $mapCreator->getMapUrl($start, $end, $p);
+            $url = $mapCreator->createMap($reference, $start, $end, $p);
             $email1 = $serviceArray["email1"];
 
             $service->mapUrl = $url;
