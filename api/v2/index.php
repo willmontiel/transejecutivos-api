@@ -137,11 +137,11 @@ $app->get('/searchpendingservice', 'authenticate', function() {
 });
 
 /**
- * Listing a pending service by id
+ * Search driver pending services 
  * method GET
- * url /getservice/:id         
+ * url /searchpendingservice          
  */
-$app->get('/getservice/:id', 'authenticate', function($id) {
+$app->get('/searchpendingservice', 'authenticate', function() {
     //$log = new LoggerHandler();
     $response = array();
     $response["error"] = false;
@@ -150,13 +150,41 @@ $app->get('/getservice/:id', 'authenticate', function($id) {
     try {
         global $user;
         $db = new DbHandlerDriver();
-        $response["service"] = $db->getService($id, $user['code']);
+        $response["service"] = $db->searchPendingService($user['code']);
 
         echoRespnse(200, $response);
     } 
     catch (Exception $ex) {
         $log = new LoggerHandler();
-        $log->writeString("Exception while getting data for pending service: " . $ex->getMessage());
+        $log->writeString("Exception while searching for pending service: " . $ex->getMessage());
+        $log->writeString($ex->getTraceAsString());
+        $response["error"] = true;
+        $response["message"] = "An error occurred, contact the administrator";
+        echoRespnse(500, $response);
+    }
+});
+
+/**
+ * Return a phone support list
+ * method GET
+ * url /getsupportphones         
+ */
+$app->get('/getsupportphones', 'authenticate', function() {
+    //$log = new LoggerHandler();
+    $response = array();
+    $response["error"] = false;
+    $response["response"] = array();
+    
+    try {
+        global $user;
+        $db = new DbHandlerDriver();
+        $response["response"] = array("3100000000","3200000000","3300000000"); 
+
+        echoRespnse(200, $response);
+    } 
+    catch (Exception $ex) {
+        $log = new LoggerHandler();
+        $log->writeString("Exception while getting data for support phones: " . $ex->getMessage());
         $log->writeString($ex->getTraceAsString());
         $response["error"] = true;
         $response["message"] = "An error occurred, contact the administrator";

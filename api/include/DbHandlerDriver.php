@@ -313,6 +313,14 @@ class DbHandlerDriver {
         $old = 0;
         }
        */
+      
+      if (!empty($hora1) && !empty($hora2)) {
+        $b1haStatus = 1;
+        $b1ha = 1;
+        $bls = 1;
+        $pab = 1;
+        $st = 1;
+      }
 
       $service = array();
       $service["service_id"] = $orden_id;
@@ -743,6 +751,11 @@ class DbHandlerDriver {
   }
 
   private function setTrace($reference, $start, $end, $user, $observations, $carLicense) {
+    if ($start == "0" && $end == "0") {
+      $start = date("H:i");
+      $end = date("H:i");
+    }
+    
     $conductor = "{$user['name']} {$user['lastname']} ({$carLicense})";
     $elaborado = date("D, F d Y, H:i:s");
     $observations = (empty($observations) ? "SERVICIO SIN NOVEDAD" : $observations);
@@ -773,13 +786,18 @@ class DbHandlerDriver {
     $start = trim($start);
     $end = trim($end);
 
+    if ($start == "0" && $end == "0") {
+      $start = date("H:i");
+      $end = date("H:i");
+    }
+    
     if (!empty($start) && !empty($end)) {
       $times = "hora1 = '{$start}', hora2 = '{$end}',";
     } else if (!empty($start)) {
       $times = "hora1 = '{$start}',";
     } else if (!empty($end)) {
       $times = "hora2 = '{$end}',";
-    }
+    } 
 
     $sql = "UPDATE seguimiento SET {$times} conductor = ?, elaborado = ?, observaciones = ? WHERE referencia = ?";
 
