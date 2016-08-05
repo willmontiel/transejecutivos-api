@@ -151,7 +151,7 @@ $app->get('/getsupportphones', 'authenticate', function() {
     try {
         global $user;
         $db = new DbHandlerDriver();
-        $response["response"] = array("3100000000","3200000000","3300000000"); 
+        $response["response"] = array("3113874082"); 
 
         echoRespnse(200, $response);
     } 
