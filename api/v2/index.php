@@ -136,33 +136,6 @@ $app->get('/searchpendingservice', 'authenticate', function() {
     }
 });
 
-/**
- * Search driver pending services 
- * method GET
- * url /searchpendingservice          
- */
-$app->get('/searchpendingservice', 'authenticate', function() {
-    //$log = new LoggerHandler();
-    $response = array();
-    $response["error"] = false;
-    $response["service"] = array();
-    
-    try {
-        global $user;
-        $db = new DbHandlerDriver();
-        $response["service"] = $db->searchPendingService($user['code']);
-
-        echoRespnse(200, $response);
-    } 
-    catch (Exception $ex) {
-        $log = new LoggerHandler();
-        $log->writeString("Exception while searching for pending service: " . $ex->getMessage());
-        $log->writeString($ex->getTraceAsString());
-        $response["error"] = true;
-        $response["message"] = "An error occurred, contact the administrator";
-        echoRespnse(500, $response);
-    }
-});
 
 /**
  * Return a phone support list
@@ -192,6 +165,32 @@ $app->get('/getsupportphones', 'authenticate', function() {
     }
 });
 
+/**
+ * Listing a pending service by id
+ * method GET
+ * url /getservice/:id         
+ */
+$app->get('/getservice/:id', 'authenticate', function($id) {
+    //$log = new LoggerHandler();
+    $response = array();
+    $response["error"] = false;
+    $response["service"] = array();
+    
+    try {
+        global $user;
+        $db = new DbHandlerDriver();
+        $response["service"] = $db->getService($id, $user['code']);
+        echoRespnse(200, $response);
+    } 
+    catch (Exception $ex) {
+        $log = new LoggerHandler();
+        $log->writeString("Exception while getting data for pending service: " . $ex->getMessage());
+        $log->writeString($ex->getTraceAsString());
+        $response["error"] = true;
+        $response["message"] = "An error occurred, contact the administrator";
+        echoRespnse(500, $response);
+    }
+});
 
 /**
  * Listing a pending service by id
@@ -342,12 +341,13 @@ $app->post('/traceservice/:id', 'authenticate', function($id) use($app) {
     $end = $app->request()->post('end');
     $observations = $app->request()->post('observations');
     $image = $app->request()->post('image');
+    $version = $app->request()->post('version');
 
     try {
         $db = new DbHandlerDriver();
         $response = array();
         
-        if ($db->traceService($id, $user, $start, $end, $image, $observations)) {
+        if ($db->traceService($id, $user, $start, $end, $image, $observations, $version)) {
             $response["error"] = false;
             $response["message"] = "Se ha hecho el seguimiento exitosamente";
         } else {

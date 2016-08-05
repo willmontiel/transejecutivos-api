@@ -601,7 +601,7 @@ class DbHandlerDriver {
    * @param type $image
    * @param type $observations
    */
-  public function traceService($id, $user, $start, $end, $image, $observations) {
+  public function traceService($id, $user, $start, $end, $image, $observations, $version) {
 //        $log = new LoggerHandler();
     //1. Validamos que el servicio exista, y si es asi tomamos la referencia
     $reference = $this->validateServiceExists($id, $user['code']);
@@ -622,10 +622,10 @@ class DbHandlerDriver {
     }
 
     if ($this->validateTraceExists($reference)) {
-      return $this->setExistTrace($reference, $start, $end, $user, $observations, $carLicense);
+      return $this->setExistTrace($reference, $start, $end, $user, $observations, $carLicense, $version);
     }
 
-    return $this->setTrace($reference, $start, $end, $user, $observations, $carLicense);
+    return $this->setTrace($reference, $start, $end, $user, $observations, $carLicense, $version);
   }
 
   /**
@@ -750,7 +750,7 @@ class DbHandlerDriver {
     }
   }
 
-  private function setTrace($reference, $start, $end, $user, $observations, $carLicense) {
+  private function setTrace($reference, $start, $end, $user, $observations, $carLicense, $version) {
     if ($start == "0" && $end == "0") {
       $start = date("H:i");
       $end = date("H:i");
@@ -761,11 +761,11 @@ class DbHandlerDriver {
     $observations = (empty($observations) ? "SERVICIO SIN NOVEDAD" : $observations);
 
     if ($this->validateTraceExists($reference)) {
-      $stmt = $this->conn->prepare("UPDATE seguimiento SET hora1 = ?, hora2 = ?, conductor = ?, elaborado = ?, observaciones = ? WHERE referencia = ?");
-      $stmt->bind_param("ssssss", $start, $end, $conductor, $elaborado, $observations, $reference);
+      $stmt = $this->conn->prepare("UPDATE seguimiento SET hora1 = ?, hora2 = ?, conductor = ?, elaborado = ?, observaciones = ?, version = ? WHERE referencia = ?");
+      $stmt->bind_param("sssssss", $start, $end, $conductor, $elaborado, $observations, $version, $reference);
     } else {
-      $stmt = $this->conn->prepare("INSERT INTO seguimiento(referencia, hora1, hora2, conductor, elaborado, observaciones) VALUES(?, ?, ?, ?, ?, ?)");
-      $stmt->bind_param("ssssss", $reference, $start, $end, $conductor, $elaborado, $observations);
+      $stmt = $this->conn->prepare("INSERT INTO seguimiento(referencia, hora1, hora2, conductor, elaborado, observaciones, version) VALUES(?, ?, ?, ?, ?, ?, ?)");
+      $stmt->bind_param("sssssss", $reference, $start, $end, $conductor, $elaborado, $observations, $version);
     }
 
     $result = $stmt->execute();
@@ -778,7 +778,7 @@ class DbHandlerDriver {
     }
   }
 
-  private function setExistTrace($reference, $start, $end, $user, $observations, $carLicense) {
+  private function setExistTrace($reference, $start, $end, $user, $observations, $carLicense, $version) {
     $log = new LoggerHandler();
 
     $times = "";
@@ -799,7 +799,7 @@ class DbHandlerDriver {
       $times = "hora2 = '{$end}',";
     } 
 
-    $sql = "UPDATE seguimiento SET {$times} conductor = ?, elaborado = ?, observaciones = ? WHERE referencia = ?";
+    $sql = "UPDATE seguimiento SET {$times} conductor = ?, elaborado = ?, observaciones = ?, version = ? WHERE referencia = ?";
 
     //$log->writeString("sql {$sql}");
 
@@ -809,7 +809,7 @@ class DbHandlerDriver {
     $elaborado = date("D, F d Y, H:i:s");
     $observations = (empty($observations) ? "SERVICIO SIN NOVEDAD" : $observations);
 
-    $stmt->bind_param("ssss", $conductor, $elaborado, $observations, $reference);
+    $stmt->bind_param("sssss", $conductor, $elaborado, $observations, $version, $reference);
 
     $stmt->execute();
 
