@@ -136,6 +136,35 @@ $app->get('/searchpendingservice', 'authenticate', function() {
     }
 });
 
+
+/**
+ * Return a phone support list
+ * method GET
+ * url /getsupportphones         
+ */
+$app->get('/getsupportphones', 'authenticate', function() {
+    //$log = new LoggerHandler();
+    $response = array();
+    $response["error"] = false;
+    $response["response"] = array();
+    
+    try {
+        global $user;
+        $db = new DbHandlerDriver();
+        $response["response"] = array("3113874082"); 
+
+        echoRespnse(200, $response);
+    } 
+    catch (Exception $ex) {
+        $log = new LoggerHandler();
+        $log->writeString("Exception while getting data for support phones: " . $ex->getMessage());
+        $log->writeString($ex->getTraceAsString());
+        $response["error"] = true;
+        $response["message"] = "An error occurred, contact the administrator";
+        echoRespnse(500, $response);
+    }
+});
+
 /**
  * Listing a pending service by id
  * method GET
@@ -151,7 +180,6 @@ $app->get('/getservice/:id', 'authenticate', function($id) {
         global $user;
         $db = new DbHandlerDriver();
         $response["service"] = $db->getService($id, $user['code']);
-
         echoRespnse(200, $response);
     } 
     catch (Exception $ex) {
@@ -163,7 +191,6 @@ $app->get('/getservice/:id', 'authenticate', function($id) {
         echoRespnse(500, $response);
     }
 });
-
 
 /**
  * Listing a pending service by id
@@ -314,12 +341,13 @@ $app->post('/traceservice/:id', 'authenticate', function($id) use($app) {
     $end = $app->request()->post('end');
     $observations = $app->request()->post('observations');
     $image = $app->request()->post('image');
+    $version = $app->request()->post('version');
 
     try {
         $db = new DbHandlerDriver();
         $response = array();
         
-        if ($db->traceService($id, $user, $start, $end, $image, $observations)) {
+        if ($db->traceService($id, $user, $start, $end, $image, $observations, $version)) {
             $response["error"] = false;
             $response["message"] = "Se ha hecho el seguimiento exitosamente";
         } else {
