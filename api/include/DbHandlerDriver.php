@@ -808,14 +808,18 @@ class DbHandlerDriver {
   public function confirmService($user, $id) {
     //1. Validamos que el servicio exista, y si es asi tomamos la referencia
     $reference = $this->validateServiceExists($id, $user['code']);
-
+    
     //2. Tomamos la placa del auto
     $carLicense = $this->getCarLicense($user['code']);
 
     //3. Cambiamos el estado de la orden a reconfirmacion = 1 y reconfirmacion2 = "si"
+    $this->reconfirmService($id);
+    /*
     if (!$this->reconfirmService($id)) {
+      $log->writeString("No se encontró el servicio: {$id}");
       throw new InvalidArgumentException('No se encontró el servicio, por favor valida la información');
     }
+    */
 
     //4. Guardamos el seguimiento con el estado B1HA
     return $this->saveB1HAStatus($reference, $user, $carLicense);
@@ -836,22 +840,26 @@ class DbHandlerDriver {
   }
 
   private function saveB1HAStatus($reference, $user, $carLicense) {
+    $log = new LoggerHandler();
     if (!$this->validateTraceExists($reference)) {
       $stmt = $this->conn->prepare("INSERT INTO seguimiento(referencia, conductor, b1ha) VALUES(?, ?, ?)");
 
       $conductor = "{$user['name']} {$user['lastname']} ({$carLicense})";
       $b1ha = date("d/m/Y H:i:s");
-
+      
       $stmt->bind_param("sss", $reference, $conductor, $b1ha);
       $result = $stmt->execute();
-      $stmt->close();
-
+      
       if ($result) {
+        $stmt->close();
         return true;
       } else {
+        $log->writeString("Error " . $stmt->error);
+        $stmt->close();
         return false;
       }
     } else {
+      $log->writeString("Nop");
       $stmt = $this->conn->prepare("UPDATE seguimiento SET conductor = ?, b1ha = ? WHERE referencia = ?");
 
       $conductor = "{$user['name']} {$user['lastname']} ({$carLicense})";
@@ -859,11 +867,13 @@ class DbHandlerDriver {
 
       $stmt->bind_param("sss", $conductor, $b1ha, $reference);
       $result = $stmt->execute();
-      $stmt->close();
 
       if ($result) {
+        $stmt->close();
         return true;
       } else {
+        $log->writeString("Error " . $stmt->error);
+        $stmt->close();
         return false;
       }
     }
@@ -937,12 +947,13 @@ class DbHandlerDriver {
       $stmt->store_result();
       if ($stmt->num_rows > 0) {
         $stmt->fetch();
-        $stmt->close();
-
+        
         $obj->b1ha = $b1ha;
         $obj->bls = $bls;
         $obj->pab = $pab;
         $obj->st = $st;
+        
+        $stmt->close();
 
         return $obj;
       }
@@ -951,16 +962,19 @@ class DbHandlerDriver {
   }
 
   private function savePreLocation($id, $reference, $lat, $lon) {
+    $log = new LoggerHandler();
     $stmt = $this->conn->prepare("INSERT INTO prelocation(idOrden, referencia, latitude, longitude, createdon) VALUES(?, ?, ?, ?, ?)");
 
     $createdon = date("d/m/Y H:i:s");
     $stmt->bind_param("issss", $id, $reference, $lat, $lon, $createdon);
     $result = $stmt->execute();
-    $stmt->close();
-
+    
     if ($result) {
+      $stmt->close();
       return true;
     } else {
+      $log->writeString("Error " . $stmt->error);
+      $stmt->close();
       return false;
     }
   }
@@ -1024,16 +1038,19 @@ class DbHandlerDriver {
   }
 
   private function saveLocation($id, $reference, $lat, $lon) {
+    $log = new LoggerHandler();
     $stmt = $this->conn->prepare("INSERT INTO location(idOrden, referencia, latitude, longitude, createdon) VALUES(?, ?, ?, ?, ?)");
 
     $createdon = date("d/m/Y H:i:s");
     $stmt->bind_param("issss", $id, $reference, $lat, $lon, $createdon);
     $result = $stmt->execute();
-    $stmt->close();
 
     if ($result) {
+      $stmt->close();
       return true;
     } else {
+      $log->writeString("Error " . $stmt->error);
+      $stmt->close();
       return false;
     }
   }
@@ -1049,6 +1066,7 @@ class DbHandlerDriver {
     try {
       //1. Validamos que el servicio exista, y si es asi tomamos la referencia
       $reference = $this->validateServiceExists($id, $user['code']);
+      $mailSender = new MailSender();
 
       //3. Actualizamos el seguimiento con la hora de finalización y demás datos
       if ($this->saveEndTimeService($reference, $user, $observations)) {
@@ -1118,7 +1136,6 @@ class DbHandlerDriver {
 
             $this->saveServiceResumeHtml($id, $reference, $mail->html);
 
-            $mailSender = new MailSender();
             $mailSender->setMail($mail);
             $mailSender->sendMail($data);
           }
@@ -1162,6 +1179,7 @@ class DbHandlerDriver {
   }
 
   public function saveServiceResumeHtml($idOrden, $ref, $content) {
+    $log = new LoggerHandler();
     $stmt = $this->conn->prepare("INSERT INTO service_resume(idServiceResume, idOrden, reference, mailContent, createdon) VALUES(null, ?, ?, ?, ?)");
     $createdon = date("d/m/Y H:i:s");
     $stmt->bind_param("isss", $idOrden, $ref, $content, $createdon);
@@ -1171,12 +1189,13 @@ class DbHandlerDriver {
       return true;
     }
 
+    $log->writeString("Error " . $stmt->error);
     $stmt->close();
     return false;
   }
 
   public function setQualify($id, $ref, $points, $comments) {
-    //$log = new LoggerHandler();
+    $log = new LoggerHandler();
     $c = (empty($comments) ? "Sin comentarios" : $comments);
     $stmt = $this->conn->prepare("INSERT INTO survey(idOrden, referencia, puntos, comentarios, fecha) VALUES(?, ?, ?, ?, ?)");
     $createdon = date("d/m/Y H:i:s");
@@ -1187,6 +1206,7 @@ class DbHandlerDriver {
       return true;
     }
 
+    $log->writeString("Error " . $stmt->error);
     $stmt->close();
     return false;
   }

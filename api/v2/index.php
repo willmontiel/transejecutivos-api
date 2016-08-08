@@ -296,7 +296,7 @@ $app->post('/searchservice', 'authenticate', function() use($app) {
 });
 
 /**
- * accept service
+ * complete a old service
  * method POST
  * params id
  * url - /traceservice/:id 
