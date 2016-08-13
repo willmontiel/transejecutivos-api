@@ -332,7 +332,7 @@ class DbHandlerDriver {
       $service["start_date"] = $fecha_s . " " . $hora_s1 . ":" . $hora_s2;
       $service["fly"] = $vuelo;
       $service["aeroline"] = $aerolinea;
-      $service["pax_cant"] = $cant_pax;
+      $service["pax_cant"] = (empty($cant_pax) ? 0 : $cant_pax);
       $service["pax"] = $this->getPassengers($pax2, $pax3, $pax4, $pax5);
       $service["source"] = trim($ciudad_inicio) . ", " . trim($dir_origen);
       $service["destiny"] = trim($ciudad_destino) . ", " . trim($dir_destino);
