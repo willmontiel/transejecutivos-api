@@ -9,7 +9,7 @@ if(isset($_POST['submit'])) {
     $message = $_POST['message'];
     if(isset($token) && isset($message)) {
         $notificationsManager = new NotificationsManager();
-        $pushStatus = $notificationsManager->send(array($token), array("message" => $message, "msgtitle" => "Transportes Ejecutivos", "criteria" => 430531));
+        $pushStatus = $notificationsManager->send(array($token), array("message" => $message, "msgtitle" => "Transportes Ejecutivos", "criteria" => ""));
     }   
 }
 ?>
