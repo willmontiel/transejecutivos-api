@@ -54,6 +54,26 @@ function authenticate(\Slim\Route $route) {
  * ----------- METHODS WITHOUT AUTHENTICATION ---------------------------------
  */
 
+ /**
+ * Test to Get the driver prelocation
+ * method GET
+ * url /getprelocationtest/:id          
+ */
+$app->get('/getprelocationtest/:id', function($id) {
+    //$log = new LoggerHandler();
+    $response = array();
+    $response["error"] = false;
+    $response["location"] = array(
+        "latitude" => 3.537972,
+        "longitude" => -76.297166
+    );
+    
+
+	echoRespnse(200, $response);
+    
+});
+ 
+ 
 /**
  * User recover password
  * url - /recoverpassword
@@ -347,10 +367,10 @@ $app->post('/service', 'authenticate', function() use ($app) {
  * url /updateprofile         
  */
 $app->put('/updateprofile', 'authenticate', function() use ($app) {
-    //$log = new LoggerHandler();
+    $log = new LoggerHandler();
     // check for required params
     verifyRequiredParams(array('name', 'lastName', 'email1', 'phone1'));
-    verifyNotRequiredParams(array('email2', 'phone2', 'password', 'notifications'));
+    verifyNotRequiredParams(array('email2', 'phone2', 'password', 'notifications', 'gcm_token'));
 
     // reading post params
     $name = $app->request()->post('name');
@@ -361,6 +381,7 @@ $app->put('/updateprofile', 'authenticate', function() use ($app) {
     $phone2 = $app->request()->post('phone2');
     $password = $app->request()->post('password');
     $notifications = $app->request()->post('notifications');
+    $token = $app->request()->post('gcm_token');
 
     validateEmail($email1);
     $email2 = trim($email2);
@@ -374,7 +395,7 @@ $app->put('/updateprofile', 'authenticate', function() use ($app) {
         $db = new DbHandler();
         $response = array();
         //Generating Api Key
-        $result = $db->updateProfile($user['username'], $name, $lastName, $email1, $email2, $phone1, $phone2, $password, $notifications);
+        $result = $db->updateProfile($user['username'], $name, $lastName, $email1, $email2, $phone1, $phone2, $password, $notifications, $token);
         if ($result) {
             $response = $db->getUserByUsername($user['username']);
             $response["error"] = false;

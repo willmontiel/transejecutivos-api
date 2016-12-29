@@ -68,12 +68,12 @@ class DbHandler {
    * @param String $username User username
    */
   public function getUserByUsername($username) {
-    $stmt = $this->conn->prepare("SELECT id, usuario, nombre, apellido, correo1, correo2, telefono1, telefono2, empresa, api_key, nivel_clte, codigo, first_time, notifications FROM admin WHERE usuario = ? AND estado = ?");
+    $stmt = $this->conn->prepare("SELECT id, usuario, nombre, apellido, correo1, correo2, telefono1, telefono2, empresa, api_key, device_token, nivel_clte, codigo, first_time, notifications FROM admin WHERE usuario = ? AND estado = ?");
 
     $status = "activo";
     $stmt->bind_param("ss", $username, $status);
     if ($stmt->execute()) {
-      $stmt->bind_result($id, $username, $name, $lastname, $email1, $email2, $phone1, $phone2, $company, $api_key, $type, $code, $first_time, $notifications);
+      $stmt->bind_result($id, $username, $name, $lastname, $email1, $email2, $phone1, $phone2, $company, $api_key, $device_token, $type, $code, $first_time, $notifications);
       $stmt->fetch();
       $user = array();
       $user["id"] = $id;
@@ -87,6 +87,7 @@ class DbHandler {
       $user["type"] = $type;
       $user["company"] = $company;
       $user["api_key"] = $api_key;
+      $user["device_token"] = $device_token;
       $user["first_time"] = $first_time;
       $user["notifications"] = $notifications;
       $user["code"] = $code;
@@ -478,24 +479,29 @@ class DbHandler {
    * update user profile
    * @param String $username user username
    */
-  public function updateProfile($username, $name, $lastname, $email1, $email2, $phone1, $phone2, $password, $notifications) {
+  public function updateProfile($username, $name, $lastname, $email1, $email2, $phone1, $phone2, $password, $notifications, $token) {
     $log = new LoggerHandler();
     $pass = trim($password);
     $email2 = trim($email2);
     $phone2 = trim($phone2);
     $passSQL = (empty($pass) ? "" : ", clave = ?");
+    $tokenSQL = (empty($token) ? "" : ", device_token = ?");
     $notifications = (empty($notifications) ? 0 : $notifications);
     $now = date("d/M/Y H:i");
 
 
-    $sql = "UPDATE admin SET nombre = ?, apellido = ?, correo1 = ? , correo2 = ?, telefono1 = ?, telefono2 = ?, notifications = ?, fecha_edicion = '{$now}' {$passSQL} WHERE usuario = ?";
+    $sql = "UPDATE admin SET nombre = ?, apellido = ?, correo1 = ? , correo2 = ?, telefono1 = ?, telefono2 = ?, notifications = ?, fecha_edicion = '{$now}' {$passSQL} {$tokenSQL} WHERE usuario = ?";
 
     $stmt = $this->conn->prepare($sql);
 
-    if (empty($pass)) {
+    if (empty($pass) && empty($token)) {
       $stmt->bind_param("ssssssss", $name, $lastname, $email1, $email2, $phone1, $phone2, $notifications, $username);
-    } else {
+    } else if (!empty($pass) && empty($token)) {
       $stmt->bind_param("sssssssss", $name, $lastname, $email1, $email2, $phone1, $phone2, $notifications, $pass, $username);
+    } else if (!empty($token) && empty($pass)) {
+      $stmt->bind_param("sssssssss", $name, $lastname, $email1, $email2, $phone1, $phone2, $notifications, $token, $username);
+    } else if (!empty($token) && !empty($pass)) {
+      $stmt->bind_param("sssssssss", $name, $lastname, $email1, $email2, $phone1, $phone2, $notifications, $pass, $token, $username);
     }
 
     $stmt->execute();
