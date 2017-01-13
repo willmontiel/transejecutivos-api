@@ -62,20 +62,18 @@ function authenticate(\Slim\Route $route) {
 $app->get('/appversion', function() {
     $response = array(
         "is_run_mode" => "true",
-        "name" => "Conductores TE",
+        "name" => "Conductores Transejecutivos",
         "uri_current" => "com.development.transejecutivosdrivers",
-        "version_code_current" => "17",
-        "version_code_min" => "17",
-        "update_info" => "New versión 1.2.4",
+        "version_code_current" => "16",
+        "version_code_min" => "16",
+        "update_info" => "Nueva versión 1.2.3",
         "update_date" => "13/02/2016",
     );
-    
     try {
-        
-        //$db = new DbHandlerDriver();
-        //if ($db->getAppVersion()) {
-          //$response = $db->getResponse();
-        //}
+        $db = new DbHandlerDriver();
+        if ($db->findAppVersion()) {
+          $response = $db->getAppVersion();
+        }
         
         echoRespnse(200, $response);
     } 
@@ -83,9 +81,7 @@ $app->get('/appversion', function() {
         $log = new LoggerHandler();
         $log->writeString("Exception while fetching app version: " . $ex->getMessage());
         $log->writeString($ex->getTraceAsString());
-        $response["error"] = true;
-        $response["message"] = "Ocurrió un error, contacta a soporte";
-        echoRespnse(500, $response);
+        echoRespnse(500, array("error" => true, message => "Ocurrió un error, contacta a soporte"));
     }
 });
 
