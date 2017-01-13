@@ -55,6 +55,41 @@ function authenticate(\Slim\Route $route) {
  */
 
 /**
+ * Get the transportes ejecutivos version
+ * method GET
+ * url /appversion     
+ */
+$app->get('/appversion', function() {
+    $response = array(
+        "is_run_mode" => "true",
+        "name" => "Conductores TE",
+        "uri_current" => "com.development.transejecutivosdrivers",
+        "version_code_current" => "17",
+        "version_code_min" => "17",
+        "update_info" => "New versión 1.2.4",
+        "update_date" => "13/02/2016",
+    );
+    
+    try {
+        
+        //$db = new DbHandlerDriver();
+        //if ($db->getAppVersion()) {
+          //$response = $db->getResponse();
+        //}
+        
+        echoRespnse(200, $response);
+    } 
+    catch (Exception $ex) {
+        $log = new LoggerHandler();
+        $log->writeString("Exception while fetching app version: " . $ex->getMessage());
+        $log->writeString($ex->getTraceAsString());
+        $response["error"] = true;
+        $response["message"] = "Ocurrió un error, contacta a soporte";
+        echoRespnse(500, $response);
+    }
+});
+
+/**
  * Driver longin
  * url - /login
  * method - POST
@@ -323,7 +358,7 @@ $app->post('/searchservice', 'authenticate', function() use($app) {
 });
 
 /**
- * complete a old service
+ * accept service
  * method POST
  * params id
  * url - /traceservice/:id 
@@ -344,6 +379,7 @@ $app->post('/traceservice/:id', 'authenticate', function($id) use($app) {
     $version = $app->request()->post('version');
 
     try {
+        $log->writeString("Preparando seguimiento");
         $db = new DbHandlerDriver();
         $response = array();
         
@@ -354,6 +390,7 @@ $app->post('/traceservice/:id', 'authenticate', function($id) use($app) {
             $response["error"] = true;
             $response["message"] = "Ocurrió un error, por favor intenta de nuevo";
         }
+        $log->writeString("Seguimiento finalizado");
         echoRespnse(200, $response);
     }
     catch (InvalidArgumentException $ex) {

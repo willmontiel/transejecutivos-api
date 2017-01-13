@@ -33,14 +33,14 @@ class MapCreator {
     $url = MapCreator::GOOGLE_MAPS_URL . MapCreator::GOOGLE_MAPS_START_MARKER . $start . "&" . MapCreator::GOOGLE_MAPS_END_MARKER . $end . "&path=color:" . MapCreator::GOOGLE_MAPS_ROUTE_COLOR . "|weight:" . MapCreator::GOOGLE_MAPS_ROUTE_WEIGHT . "|" . $points . "&size=" . MapCreator::GOOGLE_MAPS_SIZE . "&key=" . MapCreator::GOOGLE_MAPS_API_KEY;
 
     $log = new LoggerHandler();
-    $log->writeString("URL: {$url}");
+//    $log->writeString("URL: {$url}");
 
     if (!file_put_contents("../../maps/{$name}.png", file_get_contents($url))) {
       $log->writeString("No se pudo guardar la imagen de la ubicación de google maps, referncia: {$name}");
     }
     
     $url = MapCreator::MAP_URL . "{$name}.png";
-    $log->writeString("URL: {$url}");
+//    $log->writeString("URL: {$url}");
     return $url;
   }
 
@@ -48,7 +48,7 @@ class MapCreator {
     $url = MapCreator::GOOGLE_MAPS_URL . MapCreator::GOOGLE_MAPS_START_MARKER . $start . "&" . MapCreator::GOOGLE_MAPS_END_MARKER . $end . "&path=color:" . MapCreator::GOOGLE_MAPS_ROUTE_COLOR . "|weight:" . MapCreator::GOOGLE_MAPS_ROUTE_WEIGHT . "|" . $points . "&size=" . MapCreator::GOOGLE_MAPS_SIZE . "&key=" . MapCreator::GOOGLE_MAPS_API_KEY;
 
     $log = new LoggerHandler();
-    $log->writeString("URL: {$url}");
+//    $log->writeString("URL: {$url}");
 
     return $url;
   }
@@ -56,11 +56,11 @@ class MapCreator {
   public function getAddressByLatIng($latIng) {
     $log = new LoggerHandler();
     $url = MapCreator::GOOGLE_GEOCODE_URL . "latlng=" . $latIng . "&location_type=" . MapCreator::GOOGLE_GEOCODE_LOCATION_TYPE . "&result_type=" . MapCreator::GOOGLE_GEOCODE_LOCATION_STREET_ADDRESS ."&key=" . MapCreator::GOOGLE_MAPS_API_KEY;
-    $log->writeString("URL: {$url}");
+//    $log->writeString("URL: {$url}");
     $result = file_get_contents($url);
     $res = json_decode($result);
     $address = (isset($res->results[0]->formatted_address) ? $res->results[0]->formatted_address : null);
-    $log->writeString("Address: {$address}");
+//    $log->writeString("Address: {$address}");
     return $address;
   }
 

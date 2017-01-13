@@ -602,7 +602,16 @@ class DbHandlerDriver {
    * @param type $observations
    */
   public function traceService($id, $user, $start, $end, $image, $observations, $version) {
-//        $log = new LoggerHandler();
+    $log = new LoggerHandler();
+    
+    $log->writeArray($user);
+    $log->writeString($id);
+    $log->writeString($start);
+    $log->writeString($end);
+    $log->writeString($image);
+    $log->writeString($observations);
+    $log->writeString("Version: {$version}");
+    
     //1. Validamos que el servicio exista, y si es asi tomamos la referencia
     $reference = $this->validateServiceExists($id, $user['code']);
 
@@ -872,12 +881,10 @@ class DbHandlerDriver {
         $stmt->close();
         return true;
       } else {
-        $log->writeString("Error " . $stmt->error);
         $stmt->close();
         return false;
       }
     } else {
-      $log->writeString("Nop");
       $stmt = $this->conn->prepare("UPDATE seguimiento SET conductor = ?, b1ha = ? WHERE referencia = ?");
 
       $conductor = "{$user['name']} {$user['lastname']} ({$carLicense})";
