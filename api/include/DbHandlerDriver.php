@@ -299,7 +299,7 @@ class DbHandlerDriver {
 
             $stmt->fetch();
 
-            if ($id != null) {
+            if ($id != null && !empty($startdate)) {
                 //1. Calculamos la fecha de hoy y la transformamos a timestamp
                 $now = time();
 
