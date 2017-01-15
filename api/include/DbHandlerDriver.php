@@ -295,11 +295,19 @@ class DbHandlerDriver {
         $service = array();
         
         if ($stmt->execute()) {
-            $stmt->bind_result($orden_id, $referencia, $fecha_e, $hora_e, $fecha_s, $hora_s1, $hora_s2, $hora_s3, $vuelo, $aerolinea, $cant_pax, $pax2, $pax3, $pax4, $pax5, $ciudad_inicio, $dir_origen, $ciudad_destino, $dir_destino, $observaciones, $orden_estado, $cd, $passenger_id, $passenger_code, $name, $lastName, $phone1, $phone2, $email1, $email2, $company, $trace_id, $b1ha, $bls, $pab, $st, $hora1, $hora2);
+            $stmt->bind_result($orden_id, $referencia, $fecha_e, $hora_e, $fecha_s, $hora_s1, $hora_s2, $hora_s3, $vuelo, $aerolinea, 
+                    $cant_pax, $pax2, $pax3, $pax4, $pax5, $ciudad_inicio, $dir_origen, $ciudad_destino, $dir_destino, $observaciones, 
+                    $orden_estado, $cd, $passenger_id, $passenger_code, $name, $lastName, $phone1, $phone2, $email1, $email2, $company, 
+                    $trace_id, $b1ha, $bls, $pab, $st, $hora1, $hora2);
 
             $stmt->fetch();
 
-            if ($id != null && !empty($startdate)) {
+            if ($id != null) {
+                $b1haTime = $b1ha;
+                $blsTime = $bls;
+                $pabTime = $pab;
+                $stTime = $st;
+                
                 //1. Calculamos la fecha de hoy y la transformamos a timestamp
                 $now = time();
 
@@ -377,10 +385,19 @@ class DbHandlerDriver {
                 $service["email2"] = trim($email2);
                 $service["company"] = trim($company);
                 $service["trace_id"] = (empty($trace_id) ? 0 : $trace_id);
+                
                 $service["b1ha"] = (empty($b1ha) ? null : $b1ha);
+                $service["b1haTime"] = $b1haTime;
+                
                 $service["bls"] = (empty($bls) ? null : $bls);
+                $service["blsTime"] = $blsTime;
+                
                 $service["pab"] = (empty($pab) ? null : $pab);
+                $service["pabTime"] = $pabTime;
+                
                 $service["st"] = (empty($st) ? null : $st);
+                $service["stTime"] = $stTime;
+                
                 $service["b1haStatus"] = $b1haStatus;
 
                 $stmt->close();
@@ -630,6 +647,7 @@ class DbHandlerDriver {
     public function traceService($id, $user, $start, $end, $image, $observations, $version) {
         $log = new LoggerHandler();
 
+        /*
         $log->writeArray($user);
         $log->writeString($id);
         $log->writeString($start);
@@ -637,6 +655,7 @@ class DbHandlerDriver {
         $log->writeString($image);
         $log->writeString($observations);
         $log->writeString("Version: {$version}");
+        */
 
         //1. Validamos que el servicio exista, y si es asi tomamos la referencia
         $reference = $this->validateServiceExists($id, $user['code']);
