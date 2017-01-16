@@ -280,7 +280,8 @@ class DbHandlerDriver {
                         s.pab,
                         s.st,
                         s.hora1,
-                        s.hora2
+                        s.hora2,
+                        s.observaciones
             FROM orden AS o
                 LEFT JOIN pasajeros AS p ON (p.codigo = o.persona_origen) 
                 LEFT JOIN seguimiento as s ON (s.referencia = o.referencia)
@@ -298,7 +299,7 @@ class DbHandlerDriver {
             $stmt->bind_result($orden_id, $referencia, $fecha_e, $hora_e, $fecha_s, $hora_s1, $hora_s2, $hora_s3, $vuelo, $aerolinea, 
                     $cant_pax, $pax2, $pax3, $pax4, $pax5, $ciudad_inicio, $dir_origen, $ciudad_destino, $dir_destino, $observaciones, 
                     $orden_estado, $cd, $passenger_id, $passenger_code, $name, $lastName, $phone1, $phone2, $email1, $email2, $company, 
-                    $trace_id, $b1ha, $bls, $pab, $st, $hora1, $hora2);
+                    $trace_id, $b1ha, $bls, $pab, $st, $hora1, $hora2, $sobs);
 
             $stmt->fetch();
 
@@ -399,6 +400,8 @@ class DbHandlerDriver {
                 $service["stTime"] = $stTime;
                 
                 $service["b1haStatus"] = $b1haStatus;
+                
+                $service["tobservations"] = $sobs;
 
                 $stmt->close();
             }

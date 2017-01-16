@@ -154,7 +154,7 @@ $app->get('/searchpendingservice', 'authenticate', function() {
         global $user;
         $db = new DbHandlerDriver();
         $response["service"] = $db->searchPendingService($user['code']);
-
+        
         echoRespnse(200, $response);
     } 
     catch (Exception $ex) {
