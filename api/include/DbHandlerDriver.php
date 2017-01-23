@@ -1244,7 +1244,7 @@ class DbHandlerDriver {
         $observations = (empty($observations) ? "SERVICIO SIN NOVEDAD" : $observations);
         $st = date("d/m/Y H:i:s");
 
-        $stmt->bind_param("sssss", $end, $elaborado, $observations, $st, $version, $reference);
+        $stmt->bind_param("ssssss", $end, $elaborado, $observations, $st, $version, $reference);
         $stmt->execute();
         $num_affected_rows = $stmt->affected_rows;
         $stmt->close();
