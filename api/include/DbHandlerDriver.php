@@ -1134,7 +1134,7 @@ class DbHandlerDriver {
      * @param type $id
      * @param type $observations
      */
-    public function finishService($user, $id, $observations, $image) {
+    public function finishService($user, $id, $observations, $image, $version) {
 //    $log = new LoggerHandler();
         try {
             //1. Validamos que el servicio exista, y si es asi tomamos la referencia
@@ -1142,7 +1142,7 @@ class DbHandlerDriver {
             $mailSender = new MailSender();
 
             //3. Actualizamos el seguimiento con la hora de finalización y demás datos
-            if ($this->saveEndTimeService($reference, $user, $observations)) {
+            if ($this->saveEndTimeService($reference, $user, $observations, $version)) {
 
                 if (!empty($image)) {
                     $uploaddir = '../../admin/informes/os/';
@@ -1236,15 +1236,15 @@ class DbHandlerDriver {
         }
     }
 
-    private function saveEndTimeService($reference, $user, $observations) {
-        $stmt = $this->conn->prepare("UPDATE seguimiento SET hora2 = ?, elaborado = ?, observaciones = ?, st = ? WHERE referencia = ?");
+    private function saveEndTimeService($reference, $user, $observations, $version) {
+        $stmt = $this->conn->prepare("UPDATE seguimiento SET hora2 = ?, elaborado = ?, observaciones = ?, st = ?, version = ? WHERE referencia = ?");
 
         $end = date("H:i");
         $elaborado = date("D, F d Y, H:i:s");
         $observations = (empty($observations) ? "SERVICIO SIN NOVEDAD" : $observations);
         $st = date("d/m/Y H:i:s");
 
-        $stmt->bind_param("sssss", $end, $elaborado, $observations, $st, $reference);
+        $stmt->bind_param("sssss", $end, $elaborado, $observations, $st, $version, $reference);
         $stmt->execute();
         $num_affected_rows = $stmt->affected_rows;
         $stmt->close();

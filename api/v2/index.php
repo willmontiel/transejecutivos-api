@@ -578,12 +578,13 @@ $app->post('/finishservice/:id', 'authenticate', function($id) use($app) {
     verifyNotRequiredParams(array('observations', 'image'));
     $image = $app->request()->post('image');
     $observations = $app->request()->post('observations');
+    $version = $app->request()->post('version');
 
     try {
         $db = new DbHandlerDriver();
         $response = array();
 
-        $db->finishService($user, $id, $observations, $image);
+        $db->finishService($user, $id, $observations, $image, $version);
         $response["error"] = false;
         $response["message"] = "Se ha finalizado el servicio exitosamente";
         
