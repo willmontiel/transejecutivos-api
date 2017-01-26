@@ -48,6 +48,7 @@ if (isset($_POST['submit'])) {
                             url: "change-update-status.php",
                             data: {idDriver: idD, val: s},
                             success: function (data) {
+                                console.log("lala");
                                 if (s) {
                                     notification("success", "Se ha activado {{resource}} exitosamante", 4500);
                                 } else {
@@ -78,7 +79,7 @@ if (isset($_POST['submit'])) {
         <title>Transportes Ejecutivos</title>
     </head>
     <body>
-        <div id="" class="effect mainnav-sm">
+        <div id="page" class="page effect mainnav-sm">
             <div id="content-container">
                 <div id="page-content">
                     <div class="row">
