@@ -63,17 +63,18 @@ class DbHandler {
     }
   }
 
+ 
   /**
    * Fetching user by username
    * @param String $username User username
    */
   public function getUserByUsername($username) {
-    $stmt = $this->conn->prepare("SELECT id, usuario, nombre, apellido, correo1, correo2, telefono1, telefono2, empresa, api_key, device_token, nivel_clte, codigo, first_time, notifications FROM admin WHERE usuario = ? AND estado = ?");
+    $stmt = $this->conn->prepare("SELECT id, usuario, nombre, apellido, correo1, correo2, telefono1, telefono2, empresa, api_key, device_token, nivel_clte, codigo, first_time, notifications, update_order FROM admin WHERE usuario = ? AND estado = ?");
 
     $status = "activo";
     $stmt->bind_param("ss", $username, $status);
     if ($stmt->execute()) {
-      $stmt->bind_result($id, $username, $name, $lastname, $email1, $email2, $phone1, $phone2, $company, $api_key, $device_token, $type, $code, $first_time, $notifications);
+      $stmt->bind_result($id, $username, $name, $lastname, $email1, $email2, $phone1, $phone2, $company, $api_key, $device_token, $type, $code, $first_time, $notifications, $update_order);
       $stmt->fetch();
       $user = array();
       $user["id"] = $id;
@@ -91,6 +92,7 @@ class DbHandler {
       $user["first_time"] = $first_time;
       $user["notifications"] = $notifications;
       $user["code"] = $code;
+      $user["update_order"] = $update_order;
       $stmt->close();
       return $user;
     } else {
@@ -459,6 +461,15 @@ class DbHandler {
     $apikey = $this->generateApiKey();
     $stmt = $this->conn->prepare("UPDATE admin SET api_key = ? WHERE usuario = ?");
     $stmt->bind_param("ss", $apikey, $username);
+    $stmt->execute();
+    $num_affected_rows = $stmt->affected_rows;
+    $stmt->close();
+    return $num_affected_rows > 0;
+  }
+  
+  public function updateOrderPermissionStatus($id, $val) {
+    $stmt = $this->conn->prepare("UPDATE admin SET update_order = ? WHERE id = ?");
+    $stmt->bind_param("ii", $val, $id);
     $stmt->execute();
     $num_affected_rows = $stmt->affected_rows;
     $stmt->close();
