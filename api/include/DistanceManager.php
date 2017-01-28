@@ -2,11 +2,16 @@
 
 require_once dirname(__FILE__) . '/DbConnect.php';
 
+$dm = new DistanceManager();
+$dm->setIdService(432891);
+$dm->getPoints();
+
+var_dump($dm->getDistance());
+
 class DistanceManager {
 
     public $idService;
     public $distance = array('distance' => 0, 'time' => 0);
-    public $points;
 
     public function __construct() {
         $db = new DbConnect();
@@ -46,10 +51,6 @@ class DistanceManager {
         $stmt->close();
     }
 
-    public function init() {
-        
-    }
-
     private function getDistanceBeetweenTwoPoints($coords) {
         $url = "https://maps.googleapis.com/maps/api/distancematrix/json?origins=" . $coords['startLat'] . "," . $coords['startLng'] . "&destinations=" . $coords['endLat'] . "," . $coords['endLng'] . "&mode=driving&language=pl-PL";
         $ch = curl_init();
@@ -72,7 +73,7 @@ class DistanceManager {
         );
     }
 
-    public function getDistante() {
+    public function getDistance() {
         return $this->distance;
     }
 
