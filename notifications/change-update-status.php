@@ -7,7 +7,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     if (!empty($idDriver)) {
         $db = new DbHandler();
-        $driver = $db->updateOrderPermissionStatus($id, $val);
+        $driver = $db->updateOrderPermissionStatus($idDriver, $val);
 
         if ($driver) {
             header('Content-Type: application/json');

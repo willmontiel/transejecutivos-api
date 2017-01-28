@@ -40,7 +40,7 @@ if (isset($_POST['submit'])) {
                         if (html.checked) {
                             s = 1;
                         }
-                        
+
                         var idD = $("#idDriver").val();
 
                         $.ajax({
@@ -48,15 +48,15 @@ if (isset($_POST['submit'])) {
                             url: "change-update-status.php",
                             data: {idDriver: idD, val: s},
                             success: function (data) {
-                                console.log("lala");
                                 if (s) {
-                                    notification("success", "Se ha activado {{resource}} exitosamante", 4500);
+                                    notification("success", "Se ha activado el permiso de editar seguimientos exitosamante", 4500);
+
                                 } else {
-                                    notification("warning", "Se ha desactivado {{resource}} exitosamante", 4500);
+                                    notification("warning", "Se ha desactivado el permiso de editar seguimientos exitosamante", 4500);
                                 }
                             },
                             error: function (data) {
-                                notification("warning", data.responseJSON.message, 4500);
+                                notification("danger", data.responseJSON.message, 4500);
                                 html.checked = true;
                             },
                         });
@@ -69,7 +69,7 @@ if (isset($_POST['submit'])) {
             function notification(type, msg, time) {
                 $.niftyNoty({
                     type: type,
-                    container: 'page',
+                    container: '#page-alert',
                     html: msg,
                     timer: time
                 });
@@ -121,6 +121,12 @@ if (isset($_POST['submit'])) {
                                         <h3 class="panel-title">Detalle de conductor</h3>
                                     </div>
                                     <div class="panel-body">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div id="page-alert"></div>
+                                            </div>
+                                        </div>
+
                                         <div class="row">
                                             <div class="col-md-12">
                                                 <div class="table-responsive">
