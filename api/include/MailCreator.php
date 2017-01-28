@@ -259,10 +259,10 @@ class MailCreator {
                                                                                                 <tr>
                                                                                                     <td style="width: 80px;" align="center" width="80px"><img class="CToWUd" style="min-height: 80px; width: 80px;" src="http://www.transportesejecutivos.com/app/conductores/logos/redimensionar_logo.php?imagen=cara' . $data->driverCode . '.jpg&ancho=80" alt="x.png" width="80" height="80" /></td>
                                                                                                     <td style="word-break: break-word; padding: 5px 5px; font-family: Helvetica,Arial,sans-serif; text-align: center;">
-                                                                                                        <p style="font-size: 24px; margin: 0px;">14 km</p>
-                                                                                                        <p style="font-size: 12px; margin: 1px;">Tiempo de recorrido: 20 min.</p>
+                                                                                                        <p style="font-size: 24px; margin: 0px;"><--! 14 km --> -- </p>
+                                                                                                        <p style="font-size: 12px; margin: 1px;"><--! Tiempo de recorrido: 20 min. --> -- </p>
                                                                                                     </td>
-                                                                                                    <td style="width: 80px;" align="center" width="80px"><img class="CToWUd" style="width: 90px; margin: 1px;" src="http://www.transportesejecutivos.com/app/conductores/logos/redimensionar_logo.php?imagen=' . $data->driverCode . '.jpg&ancho=80" alt="x.png" width="90" /></td>
+                                                                                                    <td style="width: 80px;" align="center" width="80px"><img style="width: 90px; margin: 1px;" src="http://www.transportesejecutivos.com/app/conductores/logos/redimensionar_logo.php?imagen=' . $data->driverCode . '.jpg&ancho=80" alt="x.png" width="90" /></td>
                                                                                                 </tr>
                                                                                             </tbody>
                                                                                         </table>
