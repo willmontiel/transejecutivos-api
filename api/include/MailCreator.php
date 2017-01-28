@@ -90,7 +90,7 @@ class MailCreator {
                                                                                                 <tr>
                                                                                                     <td style="word-break: break-word; padding: 5px 0px 0px 0px; font-family: Helvetica,Arial,sans-serif;">
                                                                                                         <p style="text-align: center; font-weight: 400; color: #7f7f7f;">Gracias por elegir nuestro servicio Sr(a)</p>
-                                                                                                        <h2 style="text-align: center;">Will Montiel</h2>
+                                                                                                        <h2 style="text-align: center;">' . $data->name . '</h2>
                                                                                                     </td>
                                                                                                 </tr>
                                                                                             </tbody>
@@ -111,7 +111,7 @@ class MailCreator {
                                                                                             <tbody>
                                                                                                 <tr>
                                                                                                     <td style="word-break: break-word; padding: 0px 0px; font-family: Helvetica,Arial,sans-serif;">
-                                                                                                        <p style="text-align: center;"><span style="color: #7f7f7f;">Este es el resumen del servicio de referencia <strong>U445678-1</strong> </span></p>
+                                                                                                        <p style="text-align: center;"><span style="color: #7f7f7f;">Este es el resumen del servicio de referencia <strong>' . $data->reference . '</strong> </span></p>
                                                                                                     </td>
                                                                                                 </tr>
                                                                                             </tbody>
@@ -135,7 +135,7 @@ class MailCreator {
                                                                         <table style="background-color: transparent; border-top-left-radius: 0px; border-top-right-radius: 0px; border-bottom-right-radius: 0px; border-bottom-left-radius: 0px; margin-top: 0px; margin-bottom: 0px; width: 100%; border-spacing: 0px; border: 0px none #ffffff;" width="100%" cellpadding="0">
                                                                             <tbody>
                                                                                 <tr>
-                                                                                    <td style="width: 600px;" align="center" width="600px"><img class="CToWUd" style="min-height: 600px; width: 600px;" src="http://www.transportesejecutivos.com/maps/U557068-7.png" alt="map" width="640" height="640" /></td>
+                                                                                    <td style="width: 600px;" align="center" width="600px"><img class="CToWUd" style="min-height: 600px; width: 600px;" src="' . $data->mapUrl . '" alt="' . $data->reference . '" width="640" height="640" /></td>
                                                                                 </tr>
                                                                             </tbody>
                                                                         </table>
@@ -151,7 +151,33 @@ class MailCreator {
                                                                                             <tbody>
                                                                                                 <tr>
                                                                                                     <td style="text-align: left; word-break: break-word; font-size: 11px; padding: 10px 10px; font-family: Helvetica,Arial,sans-serif;"><span style="color: black;"> Por favor, califique nuestro servicio </span></td>
-                                                                                                    <td style="text-align: right; padding: 0px 6px;"><span style="font-size: 11px; width: 20px!important; min-height: 20px; display: inline-block!important; padding: 0px 2px;"> <a style="color: #2ba6cb; text-decoration: none;" href="http://www.transportesejecutivos.com/survey/rating.php?id=' . $data->id . '&amp;rating=1" target="_blank"> <img style="outline: none; text-decoration: none; float: left; clear: both; display: block; width: 20px; border: none;" src="http://www.transportesejecutivos.com/images/rating.png" alt="" align="left" /> </a> </span> <span style="font-size: 11px; width: 20px!important; min-height: 20px; display: inline-block!important; padding: 0px 2px;"> <a style="color: #2ba6cb; text-decoration: none;" href="http://www.transportesejecutivos.com/survey/rating.php?id=' . $data->id . '&amp;rating=2" target="_blank"> <img style="outline: none; text-decoration: none; float: left; clear: both; display: block; width: 20px; border: none;" src="http://www.transportesejecutivos.com/images/rating.png" alt="" align="left" /> </a> </span> <span style="font-size: 11px; width: 20px!important; min-height: 20px; display: inline-block!important; padding: 0px 2px;"> <a style="color: #2ba6cb; text-decoration: none;" href="http://www.transportesejecutivos.com/survey/rating.php?id=' . $data->id . '&amp;rating=3" target="_blank"> <img style="outline: none; text-decoration: none; float: left; clear: both; display: block; width: 20px; border: none;" src="http://www.transportesejecutivos.com/images/rating.png" alt="" align="left" /> </a> </span> <span style="font-size: 11px; width: 20px!important; min-height: 20px; display: inline-block!important; padding: 0px 2px;"> <a style="color: #2ba6cb; text-decoration: none;" href="http://www.transportesejecutivos.com/survey/rating.php?id=' . $data->id . '&amp;rating=4" target="_blank"> <img style="outline: none; text-decoration: none; float: left; clear: both; display: block; width: 20px; border: none;" src="http://www.transportesejecutivos.com/images/rating.png" alt="" align="left" /> </a> </span> <span style="font-size: 11px; width: 20px!important; min-height: 20px; display: inline-block!important; padding: 0px 2px;"> <a style="color: #2ba6cb; text-decoration: none;" href="http://www.transportesejecutivos.com/survey/rating.php?id=' . $data->id . '&amp;rating=5" target="_blank"> <img style="outline: none; text-decoration: none; float: left; clear: both; display: block; width: 20px; border: none;" src="http://www.transportesejecutivos.com/images/rating.png" alt="" align="left" /> </a> </span></td>
+                                                                                                    <td style="text-align: right; padding: 0px 6px;">
+                                                                                                        <span style="font-size: 11px; width: 20px!important; min-height: 20px; display: inline-block!important; padding: 0px 2px;"> 
+                                                                                                            <a style="color: #2ba6cb; text-decoration: none;" href="http://www.transportesejecutivos.com/survey/rating.php?id=' . $data->id . '&rating=1" target="_blank"> '
+                    . '                                                                                         <img style="outline: none; text-decoration: none; float: left; clear: both; display: block; width: 20px; border: none;" src="http://www.transportesejecutivos.com/images/rating.png" alt="" align="left" /> '
+                    . '                                                                                     </a> '
+                    . '                                                                                 </span> '
+                    . '                                                                                 <span style="font-size: 11px; width: 20px!important; min-height: 20px; display: inline-block!important; padding: 0px 2px;"> '
+                    . '                                                                                     <a style="color: #2ba6cb; text-decoration: none;" href="http://www.transportesejecutivos.com/survey/rating.php?id=' . $data->id . '&rating=2" target="_blank"> '
+                    . '                                                                                         <img style="outline: none; text-decoration: none; float: left; clear: both; display: block; width: 20px; border: none;" src="http://www.transportesejecutivos.com/images/rating.png" alt="" align="left" /> '
+                    . '                                                                                     </a> '
+                    . '                                                                                 </span> '
+                    . '                                                                                 <span style="font-size: 11px; width: 20px!important; min-height: 20px; display: inline-block!important; padding: 0px 2px;"> '
+                    . '                                                                                     <a style="color: #2ba6cb; text-decoration: none;" href="http://www.transportesejecutivos.com/survey/rating.php?id=' . $data->id . '&rating=3" target="_blank"> '
+                    . '                                                                                         <img style="outline: none; text-decoration: none; float: left; clear: both; display: block; width: 20px; border: none;" src="http://www.transportesejecutivos.com/images/rating.png" alt="" align="left" /> '
+                    . '                                                                                     </a> '
+                    . '                                                                                 </span> '
+                    . '                                                                                 <span style="font-size: 11px; width: 20px!important; min-height: 20px; display: inline-block!important; padding: 0px 2px;"> '
+                    . '                                                                                     <a style="color: #2ba6cb; text-decoration: none;" href="http://www.transportesejecutivos.com/survey/rating.php?id=' . $data->id . '&rating=4" target="_blank"> '
+                    . '                                                                                         <img style="outline: none; text-decoration: none; float: left; clear: both; display: block; width: 20px; border: none;" src="http://www.transportesejecutivos.com/images/rating.png" alt="" align="left" /> '
+                    . '                                                                                     </a> '
+                    . '                                                                                 </span> '
+                    . '                                                                                 <span style="font-size: 11px; width: 20px!important; min-height: 20px; display: inline-block!important; padding: 0px 2px;"> '
+                    . '                                                                                     <a style="color: #2ba6cb; text-decoration: none;" href="http://www.transportesejecutivos.com/survey/rating.php?id=' . $data->id . '&rating=5" target="_blank"> 
+                                                                                                                <img style="outline: none; text-decoration: none; float: left; clear: both; display: block; width: 20px; border: none;" src="http://www.transportesejecutivos.com/images/rating.png" alt="" align="left" /> 
+                                                                                                            </a> 
+                                                                                                        </span>
+                                                                                                    </td>
                                                                                                 </tr>
                                                                                             </tbody>
                                                                                         </table>
@@ -172,23 +198,23 @@ class MailCreator {
                                                                                                 <tr>
                                                                                                     <td style="width: 15%; padding-left: 0px; padding-right: 0px;" width="15%">&nbsp;</td>
                                                                                                     <td style="width: 70%; text-align: center; font-size: 18px; font-weigth: light; color: #7f7f7f; word-break: break-word; padding: 10px 0px; font-family: Helvetica,Arial,sans-serif;" width="70%">
-                                                                                                        <p>27 de Noviembre de 2016</p>
+                                                                                                        <p>' . $data->date . '</p>
                                                                                                     </td>
                                                                                                     <td style="width: 15%; padding-left: 0px; padding-right: 0px;" width="15%">&nbsp;</td>
                                                                                                 </tr>
                                                                                                 <tr style="background-color: rgba(70,185,216,0.1);">
                                                                                                     <td style="width: 15%; padding-left: 0px; padding-right: 0px; text-align: right;" width="15%"><img src="http://www.transportesejecutivos.com/maps/start_marker.png" alt="Inicio" width="25px" /></td>
                                                                                                     <td style="width: 70%; text-align: left; word-break: break-word; padding: 15px 15px; font-family: Helvetica,Arial,sans-serif;" width="70%">
-                                                                                                        <p style="color: #46b9d8; font-size: 22px; margin: 0px;">08:00</p>
-                                                                                                        <p style="margin: 0px; font-size: 11px;">Cra. 59 #1-1 a 1-237, Cali, Valle del Cauca, Colombia</p>
+                                                                                                        <p style="color: #46b9d8; font-size: 22px; margin: 0px;">' . $data->startTime . '</p>
+                                                                                                        <p style="margin: 0px; font-size: 11px;">' . $data->source . '</p>
                                                                                                     </td>
                                                                                                     <td style="width: 15%; padding-left: 0px; padding-right: 0px;" width="15%">&nbsp;</td>
                                                                                                 </tr>
                                                                                                 <tr style="background-color: rgba(135,189,75,0.1);">
                                                                                                     <td style="width: 15%; padding-left: 0px; padding-right: 0px; text-align: right;" width="15%"><img src="http://www.transportesejecutivos.com/maps/end_marker.png" alt="Fin" width="25px" /></td>
                                                                                                     <td style="width: 70%; text-align: left; word-break: break-word; padding: 15px 15px; font-family: Helvetica,Arial,sans-serif;" width="70%">
-                                                                                                        <p style="color: #87bd4b; font-size: 22px; margin: 0px;">11:00</p>
-                                                                                                        <p style="margin: 0px; font-size: 11px;">Cl. 30 Nte. #2a Norte-52 a 2a Norte-102, Cali, Valle del Cauca, Colombia</p>
+                                                                                                        <p style="color: #87bd4b; font-size: 22px; margin: 0px;">' . $data->endTime . '</p>
+                                                                                                        <p style="margin: 0px; font-size: 11px;">' . $data->destiny . '</p>
                                                                                                     </td>
                                                                                                     <td style="width: 15%; padding-left: 0px; padding-right: 0px;" width="15%">&nbsp;</td>
                                                                                                 </tr>
@@ -211,7 +237,7 @@ class MailCreator {
                                                                                                 <tr>
                                                                                                     <td style="word-break: break-word; padding: 5px 5px; font-family: Helvetica,Arial,sans-serif;">
                                                                                                         <p style="text-align: center; font-size: 11px; color: #7f7f7f; margin: 0px;">Viaj&oacute; con</p>
-                                                                                                        <p style="text-align: center; font-size: 16px; margin: 0px;">Fulano rodriguez</p>
+                                                                                                        <p style="text-align: center; font-size: 16px; margin: 0px;">' . $data->driverName . '</p>
                                                                                                     </td>
                                                                                                 </tr>
                                                                                             </tbody>
