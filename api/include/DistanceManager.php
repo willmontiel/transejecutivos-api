@@ -73,7 +73,26 @@ class DistanceManager {
         );
     }
 
-    public function getDistance() {
+    public function getDistance() { 
+        $distance = ($this->distance['distance']/1000);
+        $time = ($this->distance['time']/60);
+        
+        $distance = round($distance, 1) . " km";
+        $time = round($time, 1);
+        
+        if ($time > 60) {
+            $time = ($time/60);
+            $t = explode(".", $time);
+            $time = $t[0] . " h" . (isset($t[1]) ? $t[1] . " min" : "");
+        } else {
+            $time = $time . " min";
+        }
+        
+        $this->distance = array(
+            "distance" => $distance,
+            "time" => $time,
+        );
+        
         return $this->distance;
     }
 
