@@ -1201,9 +1201,9 @@ class DbHandlerDriver {
                         
                         $distance = $mapCreator->getDistance();
                         
-                        $service->distance = $this->distance['distance'];
+                        $service->distance = $distance['distance'];
 //                        $service->distance = 1;
-                        $service->time = $this->distance['time'];
+                        $service->time = $distance['time'];
 //                        $service->time = 1;
                         
                         $service->mapUrl = $url;
