@@ -79,6 +79,7 @@ class DistanceManager {
     }
 
     public function saveDistanceAndTime() {
+        $this->getDistance();
         $stmt = $this->conn->prepare("UPDATE seguimiento SET distance = ?, time = ? WHERE referencia = ?");
         $stmt->bind_param("sss", $this->distance['distance'], $this->distance['time'], $this->reference);
 
