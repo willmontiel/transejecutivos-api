@@ -1198,7 +1198,14 @@ class DbHandlerDriver {
                         $service->destiny = ($mapCreator->getAddressByLatIng($points[count($points) - 1]) != null ? $mapCreator->getAddressByLatIng($points[count($points) - 1]) : $serviceArray['destiny']);
 
                         $email1 = $serviceArray["email1"];
-
+                        
+                        $distance = $mapCreator->getDistance();
+                        
+                        $service->distance = $this->distance['distance'];
+//                        $service->distance = 1;
+                        $service->time = $this->distance['time'];
+//                        $service->time = 1;
+                        
                         $service->mapUrl = $url;
                         $mailCreator->createResumeNotification($service);
                         $mail->html = $mailCreator->getHtml();

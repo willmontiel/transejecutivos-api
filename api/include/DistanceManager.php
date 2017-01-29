@@ -56,7 +56,7 @@ class DistanceManager {
         $stmt->close();
     }
 
-    private function getDistanceBeetweenTwoPoints($coords) {
+    public function getDistanceBeetweenTwoPoints($coords) {
         $url = "https://maps.googleapis.com/maps/api/distancematrix/json?origins=" . $coords['startLat'] . "," . $coords['startLng'] . "&destinations=" . $coords['endLat'] . "," . $coords['endLng'] . "&mode=driving&language=pl-PL";
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
@@ -79,7 +79,6 @@ class DistanceManager {
     }
 
     public function saveDistanceAndTime() {
-        $this->getDistance();
         $stmt = $this->conn->prepare("UPDATE seguimiento SET distance = ?, time = ? WHERE referencia = ?");
         $stmt->bind_param("sss", $this->distance['distance'], $this->distance['time'], $this->reference);
 

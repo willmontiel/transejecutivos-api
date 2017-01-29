@@ -14,6 +14,7 @@ require_once 'DistanceManager.php';
 
 class MapCreator {
     public $reference;
+    public $distance;
     const GOOGLE_MAPS_API_KEY = "AIzaSyBYVnIyRFZKK_nH_GZj4AFC9uNsjuBAH_4";
     const GOOGLE_MAPS_START_MARKER = "markers=color:blue|label:I|";
     const GOOGLE_MAPS_END_MARKER = "markers=color:green|label:F|";
@@ -140,7 +141,7 @@ class MapCreator {
                 $coords["endLat"] = $latitude;
                 $coords["endLng"] = $longitude;
 
-                $this->getDistanceBeetweenTwoPoints($coords);
+                $dm->getDistanceBeetweenTwoPoints($coords);
             }
             
             $m++;
@@ -167,12 +168,17 @@ class MapCreator {
             }
         }
         
+        $this->distance = $dm->getDistance();
         $dm->saveDistanceAndTime();
 
         $stmt->close();
 
         //return implode("|", $points);
         return $points;
+    }
+    
+    public function getDistance() {
+        return $this->distance;
     }
 
 }
