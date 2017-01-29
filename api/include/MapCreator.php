@@ -1,6 +1,7 @@
 <?php
 
 require_once 'LoggerHandler.php';
+require_once 'DistanceManager.php';
 
 //$mapCreator = new MapCreator();
 //$points = $mapCreator->findLocationPoints(431510);
@@ -12,7 +13,7 @@ require_once 'LoggerHandler.php';
 //echo $url;
 
 class MapCreator {
-
+    public $reference;
     const GOOGLE_MAPS_API_KEY = "AIzaSyBYVnIyRFZKK_nH_GZj4AFC9uNsjuBAH_4";
     const GOOGLE_MAPS_START_MARKER = "markers=color:blue|label:I|";
     const GOOGLE_MAPS_END_MARKER = "markers=color:green|label:F|";
@@ -30,6 +31,10 @@ class MapCreator {
         // opening db connection
         $db = new DbConnect();
         $this->conn = $db->connect();
+    }
+    
+    public function setReference($reference) {
+        $this->reference = $reference;
     }
 
     public function createMap($name, $start, $end, $points) {
@@ -109,24 +114,37 @@ class MapCreator {
         }
 
         $stmt = $this->conn->prepare("SELECT latitude, longitude FROM {$table} WHERE idOrden = ? ORDER BY {$order}");
-
         $stmt->bind_param("i", $id);
-
         $stmt->execute();
-
         $stmt->bind_result($latitude, $longitude);
-
         $stmt->store_result();
-
         $numResults = $stmt->num_rows;
 
         $j = 1;
         $i = 0;
+        $m = 1;
+        $coords = array("startLat" => 0, "startLng" => 0, "endLat" => 0, "endLng" => 0);
         $f = true;
+
+        $dm = new DistanceManager();
+        $dm->setReference($this->reference);
 
         while ($stmt->fetch()) {
             $latLan = "{$latitude},{$longitude}";
+            
+            if ($m == 1) {
+                $coords["startLat"] = $latitude;
+                $coords["startLng"] = $longitude;
+            } else if ($m == 10) {
+                $m = 0;
+                $coords["endLat"] = $latitude;
+                $coords["endLng"] = $longitude;
 
+                $this->getDistanceBeetweenTwoPoints($coords);
+            }
+            
+            $m++;
+            
             if ($numResults > 350) {
                 if (!in_array($latLan, $points)) {
                     if ($f) {
@@ -148,6 +166,8 @@ class MapCreator {
                 }
             }
         }
+        
+        $dm->saveDistanceAndTime();
 
         $stmt->close();
 

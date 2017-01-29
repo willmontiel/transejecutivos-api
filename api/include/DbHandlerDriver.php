@@ -1185,6 +1185,7 @@ class DbHandlerDriver {
                     $data = new stdClass();
 
                     $mapCreator = new MapCreator();
+                    $mapCreator->setReference($reference);
                     $points = $mapCreator->findLocationPoints($id);
 
                     if (count($points) > 0) {

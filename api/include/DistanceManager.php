@@ -2,15 +2,16 @@
 
 require_once dirname(__FILE__) . '/DbConnect.php';
 
-$dm = new DistanceManager();
-$dm->setIdService(432891);
-$dm->getPoints();
-
-var_dump($dm->getDistance());
+//$dm = new DistanceManager();
+//$dm->setIdService(432891);
+//$dm->getPoints();
+//
+//var_dump($dm->getDistance());
 
 class DistanceManager {
 
     public $idService;
+    public $reference;
     public $distance = array('distance' => 0, 'time' => 0);
 
     public function __construct() {
@@ -20,6 +21,10 @@ class DistanceManager {
 
     public function setIdService($idService) {
         $this->idService = $idService;
+    }
+    
+    public function setReference($reference) {
+        $this->reference = $reference;
     }
 
     public function getPoints() {
@@ -33,7 +38,7 @@ class DistanceManager {
         $numResults = $stmt->num_rows;
         $i = 1;
         $coords = array("startLat" => 0, "startLng" => 0, "endLat" => 0, "endLng" => 0);
-        
+
         while ($stmt->fetch()) {
             if ($i == 1) {
                 $coords["startLat"] = $latitude;
@@ -42,7 +47,7 @@ class DistanceManager {
                 $i = 0;
                 $coords["endLat"] = $latitude;
                 $coords["endLng"] = $longitude;
-                
+
                 $this->getDistanceBeetweenTwoPoints($coords);
             }
 
@@ -73,26 +78,39 @@ class DistanceManager {
         );
     }
 
-    public function getDistance() { 
-        $distance = ($this->distance['distance']/1000);
-        $time = ($this->distance['time']/60);
-        
+    public function saveDistanceAndTime() {
+        $stmt = $this->conn->prepare("UPDATE seguimiento SET distance = ?, time = ? WHERE referencia = ?");
+        $stmt->bind_param("sss", $this->distance['distance'], $this->distance['time'], $this->reference);
+
+        if ($stmt->execute()) {
+            $stmt->close();
+            return true;
+        }
+
+        $stmt->close();
+        return false;
+    }
+
+    public function getDistance() {
+        $distance = ($this->distance['distance'] / 1000);
+        $time = ($this->distance['time'] / 60);
+
         $distance = round($distance, 1) . " km";
         $time = round($time, 1);
-        
+
         if ($time > 60) {
-            $time = ($time/60);
+            $time = ($time / 60);
             $t = explode(".", $time);
             $time = $t[0] . " h" . (isset($t[1]) ? $t[1] . " min" : "");
         } else {
             $time = $time . " min";
         }
-        
+
         $this->distance = array(
             "distance" => $distance,
             "time" => $time,
         );
-        
+
         return $this->distance;
     }
 
