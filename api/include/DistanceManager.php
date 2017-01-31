@@ -96,10 +96,11 @@ class DistanceManager {
         $time = ($this->distance['time'] / 60);
 
         $distance = round($distance, 1) . " km";
-        $time = round($time, 1);
+        $time = round($time);
 
         if ($time > 60) {
             $time = ($time / 60);
+            $time = round($time, 1);
             $t = explode(".", $time);
             $time = $t[0] . " h" . (isset($t[1]) ? $t[1] . " min" : "");
         } else {
