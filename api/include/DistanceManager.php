@@ -19,11 +19,16 @@ class DistanceManager {
 
     public $idService;
     public $reference;
+    public $service;
     public $distance = array('distance' => 0, 'time' => 0);
 
     public function __construct() {
         $db = new DbConnect();
         $this->conn = $db->connect();
+    }
+    
+    public function setService($service) {
+        $this->service = $service;
     }
 
     public function setIdService($idService) {
