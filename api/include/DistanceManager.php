@@ -3,12 +3,19 @@
 require_once dirname(__FILE__) . '/DbConnect.php';
 
 //$dm = new DistanceManager();
-//$dm->setIdService(432891);
+//$dm->setIdService(433552);
 //$dm->getPoints();
 //
 //var_dump($dm->getDistance());
+//
+//echo PHP_EOL;
+//
+//echo $dm->getTimeDiff("04:36", "04:49");
 
 class DistanceManager {
+
+    const GOOGLE_MAPS_API_KEY = "AIzaSyBYVnIyRFZKK_nH_GZj4AFC9uNsjuBAH_4";
+    const GOOGLE_MAPS_URL = "https://maps.googleapis.com/maps/api/distancematrix/json?";
 
     public $idService;
     public $reference;
@@ -22,9 +29,33 @@ class DistanceManager {
     public function setIdService($idService) {
         $this->idService = $idService;
     }
-    
+
     public function setReference($reference) {
         $this->reference = $reference;
+    }
+
+    public function getTimeDiff($dtime, $atime) {
+        $nextDay = $dtime > $atime ? 1 : 0;
+        $dep = explode(':', $dtime);
+        $arr = explode(':', $atime);
+        $diff = abs(mktime($dep[0], $dep[1], 0, date('n'), date('j'), date('y')) - mktime($arr[0], $arr[1], 0, date('n'), date('j') + $nextDay, date('y')));
+        $hours = floor($diff / (60 * 60));
+        $mins = floor(($diff - ($hours * 60 * 60)) / (60));
+        $secs = floor(($diff - (($hours * 60 * 60) + ($mins * 60))));
+        if (strlen($hours) < 2) {
+            $hours = "0" . $hours;
+        }
+        if (strlen($mins) < 2) {
+            $mins = "0" . $mins;
+        }
+        if (strlen($secs) < 2) {
+            $secs = "0" . $secs;
+        }
+        
+        $mins = ($mins > 0 ? $mins . " min" : "");
+        $hours = ($hours > 0 ? $hours . " h " : "");
+        
+        return $hours . $mins;
     }
 
     public function getPoints() {
@@ -57,7 +88,7 @@ class DistanceManager {
     }
 
     public function getDistanceBeetweenTwoPoints($coords) {
-        $url = "https://maps.googleapis.com/maps/api/distancematrix/json?origins=" . $coords['startLat'] . "," . $coords['startLng'] . "&destinations=" . $coords['endLat'] . "," . $coords['endLng'] . "&mode=driving&language=pl-PL";
+        $url = DistanceManager::GOOGLE_MAPS_URL . "origins=" . $coords['startLat'] . "," . $coords['startLng'] . "&destinations=" . $coords['endLat'] . "," . $coords['endLng'] . "&mode=driving&language=pl-PL&key=" . DistanceManager::GOOGLE_MAPS_API_KEY;
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);

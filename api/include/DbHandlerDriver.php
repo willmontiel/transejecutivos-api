@@ -1203,7 +1203,8 @@ class DbHandlerDriver {
                         
                         $service->distance = $distance['distance'];
 //                        $service->distance = 1;
-                        $service->time = $distance['time'];
+//                        $service->time = $distance['time'];
+                        $service->time = $dm->getTimeDiff($service->startTime, $service->endTime);
 //                        $service->time = 1;
                         
                         $service->mapUrl = $url;
