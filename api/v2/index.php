@@ -260,6 +260,11 @@ $app->get('/resetservice/:id', 'authenticate', function($id) {
         $response["error"] = true;
         $response["message"] = "No se pudo eliminar el seguimiento";
         global $user;
+        
+        if (!$user['update']) {
+            echoRespnse(200, array("error" => true, "message" => "No tienes permiso para eliminar el segumiento"));
+        }
+        
         $db = new DbHandlerDriver();
         if ($db->deleteTrace($user, $id)) {
           $response["message"] = "Se eliminó el seguimiento exitosamente";

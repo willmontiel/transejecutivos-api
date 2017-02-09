@@ -110,10 +110,10 @@ class DbHandlerDriver {
      * @param String $api_key user api key
      */
     public function getUser($api_key) {
-        $stmt = $this->conn->prepare("SELECT id, usuario, correo1, codigo, nombre, apellido FROM admin WHERE api_key = ? AND nivel_clte = 'conductor'");
+        $stmt = $this->conn->prepare("SELECT id, usuario, correo1, codigo, nombre, apellido, update_order FROM admin WHERE api_key = ? AND nivel_clte = 'conductor'");
         $stmt->bind_param("s", $api_key);
         if ($stmt->execute()) {
-            $stmt->bind_result($user_id, $username, $email, $codigo, $nombre, $apellido);
+            $stmt->bind_result($user_id, $username, $email, $codigo, $nombre, $apellido, $update);
             $stmt->fetch();
             $user = array();
             $user["user_id"] = $user_id;
@@ -122,6 +122,7 @@ class DbHandlerDriver {
             $user["code"] = $codigo;
             $user["name"] = $nombre;
             $user["lastname"] = $apellido;
+            $user["update"] = $update;
             // TODO
             // $user_id = $stmt->get_result()->fetch_assoc();
             $stmt->close();
@@ -693,7 +694,7 @@ class DbHandlerDriver {
      */
     public function deleteTrace($user, $id) {
         $num_affected_rows = 0;
-
+        
 //      $log = new LoggerHandler();
         $reference = $this->validateServiceExists($id, $user['code']);
 
