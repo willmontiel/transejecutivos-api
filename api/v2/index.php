@@ -345,10 +345,10 @@ $app->post('/searchservice', 'authenticate', function() use($app) {
     }
     catch (Exception $ex) {
         $log = new LoggerHandler();
-        $log->writeString("Exception while tracing service: " . $ex->getMessage());
+        $log->writeString("Exception while searching service: " . $ex->getMessage());
         $log->writeArray($ex->getTraceAsString());
         $response["error"] = true;
-        $response["message"] = "Ocurrió un error mientras se guardaba el segumiento";
+        $response["message"] = "Ocurrió un error mientras se buscaba el seguimiento";
         echoRespnse(500, $response);
     }
 });

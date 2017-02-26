@@ -110,10 +110,10 @@ class DbHandlerDriver {
      * @param String $api_key user api key
      */
     public function getUser($api_key) {
-        $stmt = $this->conn->prepare("SELECT id, usuario, correo1, codigo, nombre, apellido FROM admin WHERE api_key = ? AND nivel_clte = 'conductor'");
+        $stmt = $this->conn->prepare("SELECT id, usuario, correo1, codigo, nombre, apellido, update_order FROM admin WHERE api_key = ? AND nivel_clte = 'conductor'");
         $stmt->bind_param("s", $api_key);
         if ($stmt->execute()) {
-            $stmt->bind_result($user_id, $username, $email, $codigo, $nombre, $apellido);
+            $stmt->bind_result($user_id, $username, $email, $codigo, $nombre, $apellido, $update);
             $stmt->fetch();
             $user = array();
             $user["user_id"] = $user_id;
@@ -122,6 +122,7 @@ class DbHandlerDriver {
             $user["code"] = $codigo;
             $user["name"] = $nombre;
             $user["lastname"] = $apellido;
+            $user["update"] = $update;
             // TODO
             // $user_id = $stmt->get_result()->fetch_assoc();
             $stmt->close();
@@ -212,22 +213,26 @@ class DbHandlerDriver {
             $old = 1;
 
             if ($id != 0) {
-                $fecha = "{$fecha_s} {$hora_s1}:{$hora_s2}";
+                $date = trim($fecha_s);
+
                 $hoy = date("m/d/Y H:i");
+                $thoy = date("H:i");
 
-                list($fmonth, $fday, $fyear, $fhour, $fminute) = split('[/ :]', $fecha);
+                $listD = explode("/", $date);
 
-                $d = mktime($fhour, $fminute, 0, $fmonth, $fday, $fyear);
+                $d = mktime($hora_s1, $hora_s2, 0, $listD[0], $listD[1], $listD[2]);
 
-                list($tmonth, $tday, $tyear, $thour, $tminute) = split('[/ :]', $hoy);
-                $t = mktime($thour, $tminute, 0, $tmonth, $tday, $tyear);
+                $listD = explode("/", $hoy);
+                $listT = explode(":", $thoy);
+                $t = mktime($listT[0], $listT[1], 0, $listD[0], $listD[1], $listD[2]);
+                
 
                 if ($d > $t) {
                     $old = 0;
                 }
             }
 
-            $service["service_id"] = $id;
+            $service["service_id"] = (empty($id) ? 0 : $id);
             $service["old"] = $old;
 
             $stmt->close();
@@ -314,10 +319,9 @@ class DbHandlerDriver {
                 $now = time();
 
                 //2. Transformamos la fecha de inicio del servicio a timestamp
-                $startdate = "{$fecha_s} {$hora_s1}:{$hora_s2}";
+                $startdate = explode("/", $fecha_s);
 
-                list($sdmonth, $sdday, $sdyear, $sdhour, $sdminute) = split('[/ :]', $startdate);
-                $sd = mktime($sdhour, $sdminute, 0, $sdmonth, $sdday, $sdyear);
+                $sd = mktime($hora_s1, $hora_s2, 0, $startdate[0], $startdate[1], $startdate[2]);
 
                 //3. Le restamos una hora a la fecha de inicio del servicio y transformamos a timestamp
                 $ohourb = ($sdhour == 0 ? $sdhour : $sdhour - 3);
@@ -535,7 +539,7 @@ class DbHandlerDriver {
     }
 
     private function modelGroupedDataServices($stmt) {
-        //$log = new LoggerHandler();
+        $log = new LoggerHandler();
         $dates = array();
         $data = array(
             'dates' => array(),
@@ -547,13 +551,16 @@ class DbHandlerDriver {
         while ($stmt->fetch()) {
             $date = trim($fecha_s);
 
-            $fecha = "{$date} {$hora_s1}:{$hora_s2}";
             $hoy = date("m/d/Y H:i");
-            list($fmonth, $fday, $fyear, $fhour, $fminute) = split('[/ :]', $fecha);
-            $d = mktime($fhour, $fminute, 0, $fmonth, $fday, $fyear);
+            $thoy = date("H:i");
+            
+            $listD = explode("/", $date);
+            
+            $d = mktime($hora_s1, $hora_s2, 0, $listD[0], $listD[1], $listD[2]);
 
-            list($tmonth, $tday, $tyear, $thour, $tminute) = split('[/ :]', $hoy);
-            $t = mktime($thour, $tminute, 0, $tmonth, $tday, $tyear);
+            $listD = explode("/", $hoy);
+            $listT = explode(":", $thoy);
+            $t = mktime($listT[0], $listT[1], 0, $listD[0], $listD[1], $listD[2]);
 
             $old = 1;
 
@@ -693,7 +700,7 @@ class DbHandlerDriver {
      */
     public function deleteTrace($user, $id) {
         $num_affected_rows = 0;
-
+        
 //      $log = new LoggerHandler();
         $reference = $this->validateServiceExists($id, $user['code']);
 
