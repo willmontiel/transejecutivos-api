@@ -320,7 +320,9 @@ class DbHandlerDriver {
 
                 //2. Transformamos la fecha de inicio del servicio a timestamp
                 $startdate = explode("/", $fecha_s);
-
+                
+                $log->writeString("Datetime: {$hora_s1}, {$hora_s2}, 0, {$startdate[0]}, {$startdate[1]}, {$startdate[2]}");
+                
                 $sd = mktime($hora_s1, $hora_s2, 0, $startdate[0], $startdate[1], $startdate[2]);
 
                 //3. Le restamos una hora a la fecha de inicio del servicio y transformamos a timestamp
@@ -1229,8 +1231,8 @@ class DbHandlerDriver {
 
                         $this->saveServiceResumeHtml($id, $reference, $mail->html);
 
-                        $mailSender->setMail($mail);
-                        $mailSender->sendMail($data);
+//                        $mailSender->setMail($mail);
+//                        $mailSender->sendMail($data);
                     }
 
                     $mailCreator->createResumeNotificationForDriver($service);
@@ -1243,8 +1245,8 @@ class DbHandlerDriver {
                     $data->from = array('info@transportesejecutivos.com' => 'Transportes Ejecutivos');
                     $data->to = array($user['email'] => $service->driverName);
 
-                    $mailSender->setMail($mailDriver);
-                    $mailSender->sendMail($data);
+//                    $mailSender->setMail($mailDriver);
+//                    $mailSender->sendMail($data);
                 }
             } else {
                 throw new InvalidArgumentException("No se pudo finalizar el servicio, por favor intenta de nuevo");
