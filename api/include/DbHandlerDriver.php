@@ -320,7 +320,9 @@ class DbHandlerDriver {
 
                 //2. Transformamos la fecha de inicio del servicio a timestamp
                 $startdate = explode("/", $fecha_s);
-
+                
+                $log->writeString("Datetime: {$hora_s1}, {$hora_s2}, 0, {$startdate[0]}, {$startdate[1]}, {$startdate[2]}");
+                
                 $sd = mktime($hora_s1, $hora_s2, 0, $startdate[0], $startdate[1], $startdate[2]);
 
                 //3. Le restamos una hora a la fecha de inicio del servicio y transformamos a timestamp
@@ -823,7 +825,7 @@ class DbHandlerDriver {
 
         $conductor = "{$user['name']} {$user['lastname']} ({$carLicense})";
         $elaborado = date("D, F d Y, H:i:s");
-        $observations = (empty($observations) ? "SERVICIO SIN NOVEDAD" : $observations);
+        $observations = (empty($observations) ? "SERVICIO SIN NOVEDAD" : $observations) . "(APP)";
 
         if ($this->validateTraceExists($reference)) {
             $stmt = $this->conn->prepare("UPDATE seguimiento SET hora1 = ?, hora2 = ?, conductor = ?, elaborado = ?, observaciones = ?, version = ? WHERE referencia = ?");
@@ -872,7 +874,7 @@ class DbHandlerDriver {
 
         $conductor = "{$user['name']} {$user['lastname']} ({$carLicense})";
         $elaborado = date("D, F d Y, H:i:s");
-        $observations = (empty($observations) ? "SERVICIO SIN NOVEDAD" : $observations);
+        $observations = (empty($observations) ? "SERVICIO SIN NOVEDAD" : $observations) . "(APP)";
 
         $stmt->bind_param("sssss", $conductor, $elaborado, $observations, $version, $reference);
 
@@ -1229,8 +1231,8 @@ class DbHandlerDriver {
 
                         $this->saveServiceResumeHtml($id, $reference, $mail->html);
 
-                        $mailSender->setMail($mail);
-                        $mailSender->sendMail($data);
+//                        $mailSender->setMail($mail);
+//                        $mailSender->sendMail($data);
                     }
 
                     $mailCreator->createResumeNotificationForDriver($service);
@@ -1243,8 +1245,8 @@ class DbHandlerDriver {
                     $data->from = array('info@transportesejecutivos.com' => 'Transportes Ejecutivos');
                     $data->to = array($user['email'] => $service->driverName);
 
-                    $mailSender->setMail($mailDriver);
-                    $mailSender->sendMail($data);
+//                    $mailSender->setMail($mailDriver);
+//                    $mailSender->sendMail($data);
                 }
             } else {
                 throw new InvalidArgumentException("No se pudo finalizar el servicio, por favor intenta de nuevo");
@@ -1261,7 +1263,7 @@ class DbHandlerDriver {
 
         $end = date("H:i");
         $elaborado = date("D, F d Y, H:i:s");
-        $observations = (empty($observations) ? "SERVICIO SIN NOVEDAD" : $observations);
+        $observations = (empty($observations) ? "SERVICIO SIN NOVEDAD" : $observations) . "(APP)";
         $st = date("d/m/Y H:i:s");
 
         $stmt->bind_param("ssssss", $end, $elaborado, $observations, $st, $version, $reference);
