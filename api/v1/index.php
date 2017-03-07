@@ -313,7 +313,7 @@ $app->get('/servicesgrouped', 'authenticate', function() {
     try {
         global $user;
         $db = new DbHandler();
-        $response = $db->getServicesGrouped($user['code']);
+        $response = $db->getServicesGrouped($user);
         $response["error"] = false;
 
         echoRespnse(200, $response);
@@ -348,7 +348,7 @@ $app->post('/service', 'authenticate', function() use ($app) {
         global $user;
         
         $db = new DbHandler();
-        $response["services"] = $db->getServicesByDate($user['code'], $date);
+        $response["services"] = $db->getServicesByDate($user, $date);
         echoRespnse(200, $response);
     } 
     catch (Exception $ex) {
