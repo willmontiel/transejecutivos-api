@@ -313,7 +313,7 @@ $app->get('/servicesgrouped', 'authenticate', function() {
     try {
         global $user;
         $db = new DbHandler();
-        $response = $db->getServicesGrouped($user['code']);
+        $response = $db->getServicesGrouped($user);
         $response["error"] = false;
 
         echoRespnse(200, $response);

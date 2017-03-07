@@ -193,8 +193,14 @@ class DbHandler {
    * Fetching all user services grouped by date
    * @param String $code user code
    */
-  public function getServicesGrouped($code) {
-    $sql = $this->getServicesSQL(true);
+  public function getServicesGrouped($user) {
+    $sql = $this->getServicesSQL(true);    
+    $query = $user['code'];
+
+    if ($user['type'] == "company") {
+        $sql = $this->getServicesSQLForCompany(true);    
+        $query = $user['company']; 
+    }
 
     $stmt = $this->conn->prepare($sql);
 
@@ -204,10 +210,10 @@ class DbHandler {
 //    $log = new LoggerHandler();
 //    $log->writeString("Current Day: {$currentDate}");
 //    $log->writeString("Next Day: {$nextdate}");
-//    $log->writeString("Code: {$code}");
+//    $log->writeString("Code: {$user['code']}");
 //    $log->writeString("SQL: {$sql}");
 
-    $stmt->bind_param("sss", $currentDate, $nextdate, $code);
+    $stmt->bind_param("sss", $currentDate, $nextdate, $query);
     $stmt->execute();
 
     $services = $this->modelGroupedDataServices($stmt);
@@ -237,6 +243,62 @@ class DbHandler {
     //$services = $stmt->get_result();
     $stmt->close();
     return $services;
+  }
+
+  private function getServicesSQLForCompany($between) {
+    $date = ($between ? "STR_TO_DATE(o.fecha_s, '%m/%d/%Y') BETWEEN STR_TO_DATE(?, '%m/%d/%Y') AND STR_TO_DATE(?, '%m/%d/%Y') " : "o.fecha_s = ? ");
+
+    $sql = "SELECT DISTINCT o.id AS orden_id, 
+                            o.referencia,
+                            o.fecha_e,
+                            o.hora_e,
+                            o.fecha_s,
+                            o.hora_s1,
+                            o.hora_s2,
+                            o.hora_s3,
+                            o.vuelo,
+                            o.aerolinea,
+                            o.empresa,
+                            o.cant_pax,
+                            o.pax2,
+                            o.pax3,
+                            o.pax4,
+                            o.pax5,
+                            o.ciudad_inicio,
+                            o.dir_origen,
+                            o.ciudad_destino,
+                            o.dir_destino,                                            
+                            o.obaservaciones,
+                            o.estado AS orden_estado,
+                            c.id AS conductor_id, 
+                            c.nombre AS conductor_nombre, 
+                            c.apellido AS conductor_apellido, 
+                            c.telefono1 AS conductor_telefono1, 
+                            c.telefono2 AS conductor_telefono2, 
+                            c.direccion AS conductor_direccion,
+                            c.ciudad AS conductor_ciudad,
+                            c.email1 AS conductor_email,
+                            c.codigo AS conductor_codigo, 
+                            c.carro_tipo,
+                            c.marca,
+                            c.modelo,
+                            c.color,
+                            c.placa,
+                            c.estado,
+                            s.id as seguimiento_id,
+                            s.b1ha,
+                            s.bls,
+                            s.pab,
+                            s.st
+            FROM admin AS a
+                    LEFT JOIN orden AS o ON (o.persona_origen = a.codigo)
+                    LEFT JOIN conductor AS c ON (c.codigo = o.conductor) 
+                    LEFT JOIN seguimiento as s ON (s.referencia = o.referencia)
+            WHERE {$date} 
+            AND a.empresa = ? 
+            AND o.estado != 'cancelar'
+            ORDER BY STR_TO_DATE(o.fecha_s, '%m/%d/%Y') ASC";
+    return $sql;
   }
 
   private function getServicesSQL($between) {
