@@ -232,17 +232,28 @@ class DbHandler {
      * @param String $date service date
      */
     public function getServicesByDate($user, $date) {
-        //$log = new LoggerHandler();
-
+        $log = new LoggerHandler();
         $sql = $this->getServicesSQL(false);
+        $query = $user['code'];
+        $pax = false;
+        
+        if ($user['type'] == "empresa") {
+            $sql = $this->getServicesSQLForCompany(false);
+            $query = $user['company'];
+            $pax = true;
+        }
 
+//        $log->writeString("SQL: " . $sql);
+//        $log->writeString("Query: " . $query);
+//        $log->writeString("DATE: " . $date);
+        
         $stmt = $this->conn->prepare($sql);
 
-        $stmt->bind_param("ss", $date, $user['code']);
+        $stmt->bind_param("ss", $date, $query);
 
         $stmt->execute();
 
-        $services = $this->modelDataServices($stmt);
+        $services = $this->modelGroupedDataServices($stmt, $pax);
         //$services = $stmt->get_result();
         $stmt->close();
         return $services;
