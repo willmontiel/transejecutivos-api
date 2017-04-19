@@ -393,7 +393,7 @@ class DbHandler {
             $tmp["fly"] = $vuelo;
             $tmp["aeroline"] = $aerolinea;
             $tmp["company"] = $empresa;
-            $tmp["pax_cant"] = $cant_pax;
+            $tmp["pax_cant"] = (is_numeric($cant_pax) ? $cant_pax : 1);
             $tmp["pax"] = $this->getPassengers($pax2, $pax3, $pax4, $pax5);
             $tmp["source"] = trim($ciudad_inicio) . ", " . trim($dir_origen);
             $tmp["destiny"] = trim($ciudad_destino) . ", " . trim($dir_destino);
@@ -474,7 +474,7 @@ class DbHandler {
             $tmp["fly"] = $vuelo;
             $tmp["aeroline"] = $aerolinea;
             $tmp["company"] = $empresa;
-            $tmp["pax_cant"] = $cant_pax;
+            $tmp["pax_cant"] = (is_numeric($cant_pax) ? $cant_pax : 1);
             $tmp["pax"] = $this->getPassengers($pax2, $pax3, $pax4, $pax5);
             $tmp["source"] = trim($ciudad_inicio) . ", " . trim($dir_origen);
             $tmp["destiny"] = trim($ciudad_destino) . ", " . trim($dir_destino);

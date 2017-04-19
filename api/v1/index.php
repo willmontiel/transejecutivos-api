@@ -341,14 +341,13 @@ $app->post('/service', 'authenticate', function() use ($app) {
     // reading post params
     $date = $app->request()->post('date');
     $response = array();
-    $response["error"] = false;
-    $response["services"] = array();
     
     try {
         global $user;
         
         $db = new DbHandler();
-        $response["services"] = $db->getServicesByDate($user, $date);
+        $response = $db->getServicesByDate($user, $date);
+        $response["error"] = false;
         echoRespnse(200, $response);
     } 
     catch (Exception $ex) {
