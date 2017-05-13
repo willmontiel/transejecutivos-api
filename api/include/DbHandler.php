@@ -209,12 +209,12 @@ class DbHandler {
         $currentDate = date('m/d/Y');
         $nextdate = date('m/d/Y', strtotime(date('Y-m-d') . ' + 30 days'));
 
-//    $log = new LoggerHandler();
-//    $log->writeArray($user);
-//    $log->writeString("Current Day: {$currentDate}");
-//    $log->writeString("Next Day: {$nextdate}");
-//    $log->writeString("Query: {$query}");
-//    $log->writeString("SQL: {$sql}");
+    //$log = new LoggerHandler();
+    //$log->writeArray($user);
+    //$log->writeString("Current Day: {$currentDate}");
+    //$log->writeString("Next Day: {$nextdate}");
+    //$log->writeString("Query: {$query}");
+    //$log->writeString("SQL: {$sql}");
 
         $stmt->bind_param("sss", $currentDate, $nextdate, $query);
         $stmt->execute();
@@ -243,9 +243,9 @@ class DbHandler {
             $pax = true;
         }
 
-//        $log->writeString("SQL: " . $sql);
-//        $log->writeString("Query: " . $query);
-//        $log->writeString("DATE: " . $date);
+        //$log->writeString("SQL: " . $sql);
+        //$log->writeString("Query: " . $query);
+        //$log->writeString("DATE: " . $date);
         
         $stmt = $this->conn->prepare($sql);
 
@@ -310,7 +310,7 @@ class DbHandler {
                             s.bls,
                             s.pab,
                             s.st
-            FROM admin AS a
+            FROM pasajeros AS a
                     LEFT JOIN orden AS o ON (o.persona_origen = a.codigo)
                     LEFT JOIN conductor AS c ON (c.codigo = o.conductor) 
                     LEFT JOIN seguimiento as s ON (s.referencia = o.referencia)
