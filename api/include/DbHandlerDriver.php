@@ -250,6 +250,7 @@ class DbHandlerDriver {
     public function getService($id, $code) {
         $log = new LoggerHandler();
         $sql = "SELECT o.id AS orden_id, 
+                        o.ordencliente,
                         o.referencia,
                         o.fecha_e,
                         o.hora_e,
@@ -302,7 +303,7 @@ class DbHandlerDriver {
         $service = array();
         
         if ($stmt->execute()) {
-            $stmt->bind_result($orden_id, $referencia, $fecha_e, $hora_e, $fecha_s, $hora_s1, $hora_s2, $hora_s3, $vuelo, $aerolinea, 
+            $stmt->bind_result($orden_id, $ordencliente, $referencia, $fecha_e, $hora_e, $fecha_s, $hora_s1, $hora_s2, $hora_s3, $vuelo, $aerolinea, 
                     $cant_pax, $pax2, $pax3, $pax4, $pax5, $ciudad_inicio, $dir_origen, $ciudad_destino, $dir_destino, $observaciones, 
                     $orden_estado, $cd, $passenger_id, $passenger_code, $name, $lastName, $phone1, $phone2, $email1, $email2, $company, 
                     $trace_id, $b1ha, $bls, $pab, $st, $hora1, $hora2, $sobs);
@@ -365,7 +366,13 @@ class DbHandlerDriver {
                     $pab = 1;
                     $st = 1;
                 }
-                
+
+                $db = $this->conn->prepare("SELECT placa FROM conductor WHERE codigo = ?");
+                $db->bind_param("s", $code);
+                if ($db->execute()) {
+                    $db->bind_result($license_plate);
+                }
+
                 $service["service_id"] = $orden_id;
                 $service["ref"] = $referencia;
                 $service["date"] = $fecha_e . " " . $hora_e;
@@ -391,7 +398,8 @@ class DbHandlerDriver {
                 $service["email"] = trim($email1) . ", " . trim($email2);
                 $service["email1"] = trim($email1);
                 $service["email2"] = trim($email2);
-                $service["company"] = trim($company);
+                $service["company"] = trim($company) . ", " . trim($ordencliente);
+                $service["license_plate"] =  trim($license_plate);
                 $service["trace_id"] = (empty($trace_id) ? 0 : $trace_id);
                 
                 $service["b1ha"] = (empty($b1ha) ? null : $b1ha);
@@ -497,6 +505,7 @@ class DbHandlerDriver {
         $date = ($between ? "STR_TO_DATE(o.fecha_s, '%m/%d/%Y') BETWEEN STR_TO_DATE(?, '%m/%d/%Y') AND STR_TO_DATE(?, '%m/%d/%Y') " : "o.fecha_s = ? ");
 
         $sql = "SELECT o.id AS orden_id, 
+                        o.ordencliente,
                         o.referencia,
                         o.fecha_e,
                         o.hora_e,
@@ -548,7 +557,7 @@ class DbHandlerDriver {
             'services' => array(),
         );
 
-        $stmt->bind_result($orden_id, $referencia, $fecha_e, $hora_e, $fecha_s, $hora_s1, $hora_s2, $hora_s3, $vuelo, $aerolinea, $cant_pax, $pax2, $pax3, $pax4, $pax5, $ciudad_inicio, $dir_origen, $ciudad_destino, $dir_destino, $observaciones, $orden_estado, $cd, $passenger_id, $passenger_code, $name, $lastName, $phone1, $phone2, $email1, $email2, $company, $s);
+        $stmt->bind_result($orden_id, $orden_cliente, $referencia, $fecha_e, $hora_e, $fecha_s, $hora_s1, $hora_s2, $hora_s3, $vuelo, $aerolinea, $cant_pax, $pax2, $pax3, $pax4, $pax5, $ciudad_inicio, $dir_origen, $ciudad_destino, $dir_destino, $observaciones, $orden_estado, $cd, $passenger_id, $passenger_code, $name, $lastName, $phone1, $phone2, $email1, $email2, $company, $s);
 
         while ($stmt->fetch()) {
             $date = trim($fecha_s);
@@ -591,7 +600,7 @@ class DbHandlerDriver {
             $service["passenger_lastname"] = $lastName;
             $service["phone"] = trim($phone1) . ", " . trim($phone2);
             $service["email"] = trim($email1) . ", " . trim($email2);
-            $service["company"] = trim($company);
+            $service["company"] = trim($company)  . " - " . trim($orden_cliente);
             $service["trace_id"] = 0;
             $service["b1ha"] = null;
             $service["bls"] = null;
@@ -1231,8 +1240,8 @@ class DbHandlerDriver {
 
                         $this->saveServiceResumeHtml($id, $reference, $mail->html);
 
-//                        $mailSender->setMail($mail);
-//                        $mailSender->sendMail($data);
+                        $mailSender->setMail($mail);
+                        $mailSender->sendMail($data);
                     }
 
                     $mailCreator->createResumeNotificationForDriver($service);
@@ -1245,8 +1254,8 @@ class DbHandlerDriver {
                     $data->from = array('info@transportesejecutivos.com' => 'Transportes Ejecutivos');
                     $data->to = array($user['email'] => $service->driverName);
 
-//                    $mailSender->setMail($mailDriver);
-//                    $mailSender->sendMail($data);
+                    $mailSender->setMail($mailDriver);
+                    $mailSender->sendMail($data);
                 }
             } else {
                 throw new InvalidArgumentException("No se pudo finalizar el servicio, por favor intenta de nuevo");
