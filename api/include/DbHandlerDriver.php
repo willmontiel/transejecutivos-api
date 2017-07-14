@@ -6,6 +6,8 @@ require_once 'MailCreator.php';
 require_once 'MapCreator.php';
 require_once 'DistanceManager.php';
 
+date_default_timezone_set('America/Bogota');
+
 /**
  * Class to handle all db operations
  * This class will have CRUD methods for database tables
@@ -249,6 +251,17 @@ class DbHandlerDriver {
      */
     public function getService($id, $code) {
         $log = new LoggerHandler();
+        $ls = "";
+        $db = $this->conn->prepare("SELECT placa FROM conductor WHERE codigo = '$code'");
+        if ($db->execute()) {
+            $db->bind_result($license_plate);
+            $db->fetch();
+            $ls = $license_plate;
+            $db->close();
+        }
+
+
+
         $sql = "SELECT o.id AS orden_id, 
                         o.ordencliente,
                         o.referencia,
@@ -310,40 +323,33 @@ class DbHandlerDriver {
 
             $stmt->fetch();
 
-            if ($id != null) {
-                $b1haTime = $b1ha;
-                $blsTime = $bls;
-                $pabTime = $pab;
-                $stTime = $st;
-                
-                //1. Calculamos la fecha de hoy y la transformamos a timestamp
+            if (!empty($orden_id)) {
+                $b1haStatus = 0;
+                $old = 1;
+                //1. Calculamos la fecha de hoy en timestamp
                 $now = time();
 
-                //2. Transformamos la fecha de inicio del servicio a timestamp
-                $startdate = explode("/", $fecha_s);
-                
-                $log->writeString("Datetime: {$hora_s1}, {$hora_s2}, 0, {$startdate[0]}, {$startdate[1]}, {$startdate[2]}");
-                
-                $sd = mktime($hora_s1, $hora_s2, 0, $startdate[0], $startdate[1], $startdate[2]);
+                if (!empty($fecha_s)) {
+                    //2. Transformamos la fecha de inicio del servicio a timestamp
+                    $startdate = explode("/", $fecha_s);
+                    $sd = mktime($hora_s1, $hora_s2, 0, $startdate[0], $startdate[1], $startdate[2]);
 
-                //3. Le restamos una hora a la fecha de inicio del servicio y transformamos a timestamp
-                $ohourb = ($sdhour == 0 ? $sdhour : $sdhour - 3);
-                $oneHourBefore = mktime($ohourb, $sdminute, 0, $sdmonth, $sdday, $sdyear);
+                    //3. Le restamos dos horas a la fecha de inicio del servicio y transformamos a timestamp
+                    $twoHoursBefore = $sd - 7200;
 
-                $fourHourLater = strtotime("+5 hours");
+                    //4. Le sumamos cuatro horas a la fecha de inicio del servicio y transformamos a timestamp
+                    $fourHoursLater = strtotime("+5 hours", $sd);
 
-                $b1haStatus = 0;
-
-                if ($now >= $oneHourBefore && $now <= $fourHourLater) {
-                    $b1haStatus = 1;
+                    if ($now >= $twoHoursBefore && $now <= $fourHoursLater) {
+                        $b1haStatus = 1;
+                    }
                 }
+
 
                 $b1ha = trim($b1ha);
                 $bls = trim($bls);
                 $pab = trim($pab);
                 $st = trim($st);
-
-                $old = 1;
 
                 if ($b1haStatus == 1 && $fecha_s == date('m/d/Y')) {
                     $old = 0;
@@ -367,11 +373,7 @@ class DbHandlerDriver {
                     $st = 1;
                 }
 
-                $db = $this->conn->prepare("SELECT placa FROM conductor WHERE codigo = ?");
-                $db->bind_param("s", $code);
-                if ($db->execute()) {
-                    $db->bind_result($license_plate);
-                }
+
 
                 $service["service_id"] = $orden_id;
                 $service["ref"] = $referencia;
@@ -399,7 +401,7 @@ class DbHandlerDriver {
                 $service["email1"] = trim($email1);
                 $service["email2"] = trim($email2);
                 $service["company"] = trim($company) . ", " . trim($ordencliente);
-                $service["license_plate"] =  trim($license_plate);
+                $service["license_plate"] = trim($ls);
                 $service["trace_id"] = (empty($trace_id) ? 0 : $trace_id);
                 
                 $service["b1ha"] = (empty($b1ha) ? null : $b1ha);
