@@ -324,6 +324,11 @@ class DbHandlerDriver {
             $stmt->fetch();
 
             if (!empty($orden_id)) {
+                $b1haTime = $b1ha;
+                $blsTime = $bls;
+                $pabTime = $pab;
+                $stTime = $st;
+                
                 $b1haStatus = 0;
                 $old = 1;
                 //1. Calculamos la fecha de hoy en timestamp
