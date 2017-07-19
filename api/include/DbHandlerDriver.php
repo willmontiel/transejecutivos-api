@@ -343,9 +343,9 @@ class DbHandlerDriver {
                     $twoHoursBefore = $sd - 7200;
 
                     //4. Le sumamos cuatro horas a la fecha de inicio del servicio y transformamos a timestamp
-                    $fourHoursLater = strtotime("+5 hours", $sd);
+                    $tenHoursLater = strtotime("+10 hours", $sd);
 
-                    if ($now >= $twoHoursBefore && $now <= $fourHoursLater) {
+                    if ($now >= $twoHoursBefore && $now <= $tenHoursLater) {
                         $b1haStatus = 1;
                     }
                 }

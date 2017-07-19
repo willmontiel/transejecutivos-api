@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="7ba3b673-66b5-4c46-be5a-e632fe7f2959" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-    </list>
+    <list default="true" id="7ba3b673-66b5-4c46-be5a-e632fe7f2959" name="Default" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -11,47 +9,59 @@
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="DatabaseView">
+    <option name="SHOW_INTERMEDIATE" value="true" />
+    <option name="GROUP_SCHEMA" value="true" />
+    <option name="GROUP_CONTENTS" value="false" />
+    <option name="SORT_POSITIONED" value="false" />
+    <option name="SHOW_TABLE_DETAILS" value="true" />
+    <option name="SHOW_EMPTY_GROUPS" value="false" />
+    <option name="AUTO_SCROLL_FROM_SOURCE" value="false" />
+  </component>
   <component name="ExecutionTargetManager" SELECTED_TARGET="default_target" />
+  <component name="FavoritesManager">
+    <favorites_list name="transejecutivos-api" />
+  </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file leaf-file-name="DbHandlerDriver.php" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/api/include/DbHandlerDriver.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="182">
-              <caret line="344" column="21" lean-forward="false" selection-start-line="344" selection-start-column="21" selection-end-line="344" selection-end-column="21" />
+            <state relative-caret-position="1066">
+              <caret line="302" column="32" lean-forward="true" selection-start-line="302" selection-start-column="32" selection-end-line="302" selection-end-column="32" />
               <folding>
-                <marker date="1500007630161" expanded="true" signature="786:977" ph="SELECT idAnd... android_app_version" />
-                <marker date="1500007630161" expanded="true" signature="2194:2264" ph="SELECT clave... admin" />
-                <marker date="1500007630161" expanded="true" signature="3264:3331" ph="SELECT id fr... admin" />
-                <marker date="1500007630161" expanded="true" signature="3706:3831" ph="SELECT id, u... admin" />
-                <marker date="1500007630161" expanded="true" signature="4720:4919" ph="SELECT id, u... admin" />
-                <marker date="1500007630161" expanded="true" signature="6891:7698" ph="SELECT o.id,... orden" />
-                <marker date="1500007630161" expanded="true" signature="8909:8959" ph="SELECT placa... conductor" />
-                <marker date="1500007630161" expanded="true" signature="9154:10929" ph="SELECT o.id orden" />
-                <marker date="1500007630161" expanded="true" signature="18024:19599" ph="SELECT o.id orden" />
-                <marker date="1500007630161" expanded="true" signature="23485:23536" ph="UPDATE orden... " />
-                <marker date="1500007630161" expanded="true" signature="25665:25709" ph="DELETE FROM " />
-                <marker date="1500007630161" expanded="true" signature="26025:26084" ph="SELECT refer... orden" />
-                <marker date="1500007630161" expanded="true" signature="26872:26913" ph="SELECT refer... orden" />
-                <marker date="1500007630161" expanded="true" signature="27232:27279" ph="SELECT id FR... seguimiento" />
-                <marker date="1500007630161" expanded="true" signature="27635:27682" ph="SELECT id FR... seguimiento" />
-                <marker date="1500007630161" expanded="true" signature="28103:28154" ph="UPDATE orden... " />
-                <marker date="1500007630161" expanded="true" signature="28403:28447" ph="SELECT placa... conductor" />
-                <marker date="1500007630161" expanded="true" signature="29631:29757" ph="UPDATE segui... " />
-                <marker date="1500007630161" expanded="true" signature="29937:30060" ph="INSERT INTO seguimiento... " />
-                <marker date="1500007630161" expanded="true" signature="31001:31114" ph="UPDATE segui... " />
-                <marker date="1500007630161" expanded="true" signature="32686:32791" ph="UPDATE orden... " />
-                <marker date="1500007630161" expanded="true" signature="33281:33349" ph="INSERT INTO seguimiento... " />
-                <marker date="1500007630161" expanded="true" signature="33830:33897" ph="UPDATE segui... " />
-                <marker date="1500007630161" expanded="true" signature="34880:34931" ph="UPDATE segui... " />
-                <marker date="1500007630161" expanded="true" signature="36180:36243" ph="SELECT b1ha,... seguimiento" />
-                <marker date="1500007630161" expanded="true" signature="36879:36977" ph="INSERT INTO prelocation... " />
-                <marker date="1500007630161" expanded="true" signature="37857:37919" ph="UPDATE segui... " />
-                <marker date="1500007630161" expanded="true" signature="39199:39294" ph="INSERT INTO location... " />
-                <marker date="1500007630161" expanded="true" signature="46177:46285" ph="UPDATE segui... " />
-                <marker date="1500007630161" expanded="true" signature="46887:46999" ph="INSERT INTO service_resume... " />
-                <marker date="1500007630161" expanded="true" signature="47523:47612" ph="INSERT INTO survey... " />
-                <marker date="1500007630161" expanded="true" signature="48134:48197" ph="UPDATE surve... " />
+                <marker date="1500159623716" expanded="true" signature="786:977" ph="SELECT idAnd... android_app_version" />
+                <marker date="1500159623716" expanded="true" signature="2194:2264" ph="SELECT clave... admin" />
+                <marker date="1500159623716" expanded="true" signature="3264:3331" ph="SELECT id fr... admin" />
+                <marker date="1500159623716" expanded="true" signature="3706:3831" ph="SELECT id, u... admin" />
+                <marker date="1500159623716" expanded="true" signature="4720:4919" ph="SELECT id, u... admin" />
+                <marker date="1500159623716" expanded="true" signature="6891:7698" ph="SELECT o.id,... orden" />
+                <marker date="1500159623716" expanded="true" signature="8909:8959" ph="SELECT placa... conductor" />
+                <marker date="1500159623716" expanded="true" signature="9154:10929" ph="SELECT o.id orden" />
+                <marker date="1500159623716" expanded="true" signature="18173:19748" ph="SELECT o.id orden" />
+                <marker date="1500159623716" expanded="true" signature="23634:23685" ph="UPDATE orden... " />
+                <marker date="1500159623716" expanded="true" signature="25814:25858" ph="DELETE FROM " />
+                <marker date="1500159623716" expanded="true" signature="26174:26233" ph="SELECT refer... orden" />
+                <marker date="1500159623716" expanded="true" signature="27021:27062" ph="SELECT refer... orden" />
+                <marker date="1500159623716" expanded="true" signature="27381:27428" ph="SELECT id FR... seguimiento" />
+                <marker date="1500159623716" expanded="true" signature="27784:27831" ph="SELECT id FR... seguimiento" />
+                <marker date="1500159623716" expanded="true" signature="28252:28303" ph="UPDATE orden... " />
+                <marker date="1500159623716" expanded="true" signature="28552:28596" ph="SELECT placa... conductor" />
+                <marker date="1500159623716" expanded="true" signature="29780:29906" ph="UPDATE segui... " />
+                <marker date="1500159623716" expanded="true" signature="30086:30209" ph="INSERT INTO seguimiento... " />
+                <marker date="1500159623716" expanded="true" signature="31150:31263" ph="UPDATE segui... " />
+                <marker date="1500159623716" expanded="true" signature="32835:32940" ph="UPDATE orden... " />
+                <marker date="1500159623716" expanded="true" signature="33430:33498" ph="INSERT INTO seguimiento... " />
+                <marker date="1500159623716" expanded="true" signature="33979:34046" ph="UPDATE segui... " />
+                <marker date="1500159623716" expanded="true" signature="35029:35080" ph="UPDATE segui... " />
+                <marker date="1500159623716" expanded="true" signature="36329:36392" ph="SELECT b1ha,... seguimiento" />
+                <marker date="1500159623716" expanded="true" signature="37028:37126" ph="INSERT INTO prelocation... " />
+                <marker date="1500159623716" expanded="true" signature="38006:38068" ph="UPDATE segui... " />
+                <marker date="1500159623716" expanded="true" signature="39348:39443" ph="INSERT INTO location... " />
+                <marker date="1500159623716" expanded="true" signature="46326:46434" ph="UPDATE segui... " />
+                <marker date="1500159623716" expanded="true" signature="47036:47148" ph="INSERT INTO service_resume... " />
+                <marker date="1500159623716" expanded="true" signature="47672:47761" ph="INSERT INTO survey... " />
+                <marker date="1500159623716" expanded="true" signature="48283:48346" ph="UPDATE surve... " />
               </folding>
             </state>
           </provider>
@@ -113,7 +123,6 @@
     </navigator>
     <panes>
       <pane id="Scratches" />
-      <pane id="ProjectPane" />
       <pane id="Scope">
         <subPane subId="Project Files">
           <PATH>
@@ -178,11 +187,13 @@
           </PATH>
         </subPane>
       </pane>
+      <pane id="ProjectPane" />
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../transejecutivos" />
+    <property name="settings.editor.selected.configurable" value="reference.settingsdialog.IDE.editor.colors" />
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -208,23 +219,35 @@
       <updated>1500004675928</updated>
       <workItem from="1500004682952" duration="3231000" />
       <workItem from="1500159568647" duration="585000" />
+      <workItem from="1500250837992" duration="313000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="3816000" />
+    <option name="totallyTimeSpent" value="4129000" />
+  </component>
+  <component name="TodoView">
+    <todo-panel id="selected-file">
+      <is-autoscroll-to-source value="true" />
+    </todo-panel>
+    <todo-panel id="all">
+      <are-packages-shown value="true" />
+      <is-autoscroll-to-source value="true" />
+    </todo-panel>
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1066" extended-state="6" />
+    <editor active="true" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25266525" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2553305" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3290461" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3290461" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
@@ -232,7 +255,6 @@
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
@@ -252,38 +274,87 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <marker date="1500007630161" expanded="true" signature="786:977" ph="SELECT idAnd... android_app_version" />
-            <marker date="1500007630161" expanded="true" signature="2194:2264" ph="SELECT clave... admin" />
-            <marker date="1500007630161" expanded="true" signature="3264:3331" ph="SELECT id fr... admin" />
-            <marker date="1500007630161" expanded="true" signature="3706:3831" ph="SELECT id, u... admin" />
-            <marker date="1500007630161" expanded="true" signature="4720:4919" ph="SELECT id, u... admin" />
-            <marker date="1500007630161" expanded="true" signature="6891:7698" ph="SELECT o.id,... orden" />
-            <marker date="1500007630161" expanded="true" signature="8909:8959" ph="SELECT placa... conductor" />
-            <marker date="1500007630161" expanded="true" signature="9154:10929" ph="SELECT o.id orden" />
-            <marker date="1500007630161" expanded="true" signature="18024:19599" ph="SELECT o.id orden" />
-            <marker date="1500007630161" expanded="true" signature="23485:23536" ph="UPDATE orden... " />
-            <marker date="1500007630161" expanded="true" signature="25665:25709" ph="DELETE FROM " />
-            <marker date="1500007630161" expanded="true" signature="26025:26084" ph="SELECT refer... orden" />
-            <marker date="1500007630161" expanded="true" signature="26872:26913" ph="SELECT refer... orden" />
-            <marker date="1500007630161" expanded="true" signature="27232:27279" ph="SELECT id FR... seguimiento" />
-            <marker date="1500007630161" expanded="true" signature="27635:27682" ph="SELECT id FR... seguimiento" />
-            <marker date="1500007630161" expanded="true" signature="28103:28154" ph="UPDATE orden... " />
-            <marker date="1500007630161" expanded="true" signature="28403:28447" ph="SELECT placa... conductor" />
-            <marker date="1500007630161" expanded="true" signature="29631:29757" ph="UPDATE segui... " />
-            <marker date="1500007630161" expanded="true" signature="29937:30060" ph="INSERT INTO seguimiento... " />
-            <marker date="1500007630161" expanded="true" signature="31001:31114" ph="UPDATE segui... " />
-            <marker date="1500007630161" expanded="true" signature="32686:32791" ph="UPDATE orden... " />
-            <marker date="1500007630161" expanded="true" signature="33281:33349" ph="INSERT INTO seguimiento... " />
-            <marker date="1500007630161" expanded="true" signature="33830:33897" ph="UPDATE segui... " />
-            <marker date="1500007630161" expanded="true" signature="34880:34931" ph="UPDATE segui... " />
-            <marker date="1500007630161" expanded="true" signature="36180:36243" ph="SELECT b1ha,... seguimiento" />
-            <marker date="1500007630161" expanded="true" signature="36879:36977" ph="INSERT INTO prelocation... " />
-            <marker date="1500007630161" expanded="true" signature="37857:37919" ph="UPDATE segui... " />
-            <marker date="1500007630161" expanded="true" signature="39199:39294" ph="INSERT INTO location... " />
-            <marker date="1500007630161" expanded="true" signature="46177:46285" ph="UPDATE segui... " />
-            <marker date="1500007630161" expanded="true" signature="46887:46999" ph="INSERT INTO service_resume... " />
-            <marker date="1500007630161" expanded="true" signature="47523:47612" ph="INSERT INTO survey... " />
-            <marker date="1500007630161" expanded="true" signature="48134:48197" ph="UPDATE surve... " />
+            <marker date="1500159623716" expanded="true" signature="786:977" ph="SELECT idAnd... android_app_version" />
+            <marker date="1500159623716" expanded="true" signature="2194:2264" ph="SELECT clave... admin" />
+            <marker date="1500159623716" expanded="true" signature="3264:3331" ph="SELECT id fr... admin" />
+            <marker date="1500159623716" expanded="true" signature="3706:3831" ph="SELECT id, u... admin" />
+            <marker date="1500159623716" expanded="true" signature="4720:4919" ph="SELECT id, u... admin" />
+            <marker date="1500159623716" expanded="true" signature="6891:7698" ph="SELECT o.id,... orden" />
+            <marker date="1500159623716" expanded="true" signature="8909:8959" ph="SELECT placa... conductor" />
+            <marker date="1500159623716" expanded="true" signature="9154:10929" ph="SELECT o.id orden" />
+            <marker date="1500159623716" expanded="true" signature="18173:19748" ph="SELECT o.id orden" />
+            <marker date="1500159623716" expanded="true" signature="23634:23685" ph="UPDATE orden... " />
+            <marker date="1500159623716" expanded="true" signature="25814:25858" ph="DELETE FROM " />
+            <marker date="1500159623716" expanded="true" signature="26174:26233" ph="SELECT refer... orden" />
+            <marker date="1500159623716" expanded="true" signature="27021:27062" ph="SELECT refer... orden" />
+            <marker date="1500159623716" expanded="true" signature="27381:27428" ph="SELECT id FR... seguimiento" />
+            <marker date="1500159623716" expanded="true" signature="27784:27831" ph="SELECT id FR... seguimiento" />
+            <marker date="1500159623716" expanded="true" signature="28252:28303" ph="UPDATE orden... " />
+            <marker date="1500159623716" expanded="true" signature="28552:28596" ph="SELECT placa... conductor" />
+            <marker date="1500159623716" expanded="true" signature="29780:29906" ph="UPDATE segui... " />
+            <marker date="1500159623716" expanded="true" signature="30086:30209" ph="INSERT INTO seguimiento... " />
+            <marker date="1500159623716" expanded="true" signature="31150:31263" ph="UPDATE segui... " />
+            <marker date="1500159623716" expanded="true" signature="32835:32940" ph="UPDATE orden... " />
+            <marker date="1500159623716" expanded="true" signature="33430:33498" ph="INSERT INTO seguimiento... " />
+            <marker date="1500159623716" expanded="true" signature="33979:34046" ph="UPDATE segui... " />
+            <marker date="1500159623716" expanded="true" signature="35029:35080" ph="UPDATE segui... " />
+            <marker date="1500159623716" expanded="true" signature="36329:36392" ph="SELECT b1ha,... seguimiento" />
+            <marker date="1500159623716" expanded="true" signature="37028:37126" ph="INSERT INTO prelocation... " />
+            <marker date="1500159623716" expanded="true" signature="38006:38068" ph="UPDATE segui... " />
+            <marker date="1500159623716" expanded="true" signature="39348:39443" ph="INSERT INTO location... " />
+            <marker date="1500159623716" expanded="true" signature="46326:46434" ph="UPDATE segui... " />
+            <marker date="1500159623716" expanded="true" signature="47036:47148" ph="INSERT INTO service_resume... " />
+            <marker date="1500159623716" expanded="true" signature="47672:47761" ph="INSERT INTO survey... " />
+            <marker date="1500159623716" expanded="true" signature="48283:48346" ph="UPDATE surve... " />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/api/v2/index.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/api/include/DbHandlerDriver.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <marker date="1500159623716" expanded="true" signature="786:977" ph="SELECT idAnd... android_app_version" />
+            <marker date="1500159623716" expanded="true" signature="2194:2264" ph="SELECT clave... admin" />
+            <marker date="1500159623716" expanded="true" signature="3264:3331" ph="SELECT id fr... admin" />
+            <marker date="1500159623716" expanded="true" signature="3706:3831" ph="SELECT id, u... admin" />
+            <marker date="1500159623716" expanded="true" signature="4720:4919" ph="SELECT id, u... admin" />
+            <marker date="1500159623716" expanded="true" signature="6891:7698" ph="SELECT o.id,... orden" />
+            <marker date="1500159623716" expanded="true" signature="8909:8959" ph="SELECT placa... conductor" />
+            <marker date="1500159623716" expanded="true" signature="9154:10929" ph="SELECT o.id orden" />
+            <marker date="1500159623716" expanded="true" signature="18173:19748" ph="SELECT o.id orden" />
+            <marker date="1500159623716" expanded="true" signature="23634:23685" ph="UPDATE orden... " />
+            <marker date="1500159623716" expanded="true" signature="25814:25858" ph="DELETE FROM " />
+            <marker date="1500159623716" expanded="true" signature="26174:26233" ph="SELECT refer... orden" />
+            <marker date="1500159623716" expanded="true" signature="27021:27062" ph="SELECT refer... orden" />
+            <marker date="1500159623716" expanded="true" signature="27381:27428" ph="SELECT id FR... seguimiento" />
+            <marker date="1500159623716" expanded="true" signature="27784:27831" ph="SELECT id FR... seguimiento" />
+            <marker date="1500159623716" expanded="true" signature="28252:28303" ph="UPDATE orden... " />
+            <marker date="1500159623716" expanded="true" signature="28552:28596" ph="SELECT placa... conductor" />
+            <marker date="1500159623716" expanded="true" signature="29780:29906" ph="UPDATE segui... " />
+            <marker date="1500159623716" expanded="true" signature="30086:30209" ph="INSERT INTO seguimiento... " />
+            <marker date="1500159623716" expanded="true" signature="31150:31263" ph="UPDATE segui... " />
+            <marker date="1500159623716" expanded="true" signature="32835:32940" ph="UPDATE orden... " />
+            <marker date="1500159623716" expanded="true" signature="33430:33498" ph="INSERT INTO seguimiento... " />
+            <marker date="1500159623716" expanded="true" signature="33979:34046" ph="UPDATE segui... " />
+            <marker date="1500159623716" expanded="true" signature="35029:35080" ph="UPDATE segui... " />
+            <marker date="1500159623716" expanded="true" signature="36329:36392" ph="SELECT b1ha,... seguimiento" />
+            <marker date="1500159623716" expanded="true" signature="37028:37126" ph="INSERT INTO prelocation... " />
+            <marker date="1500159623716" expanded="true" signature="38006:38068" ph="UPDATE segui... " />
+            <marker date="1500159623716" expanded="true" signature="39348:39443" ph="INSERT INTO location... " />
+            <marker date="1500159623716" expanded="true" signature="46326:46434" ph="UPDATE segui... " />
+            <marker date="1500159623716" expanded="true" signature="47036:47148" ph="INSERT INTO service_resume... " />
+            <marker date="1500159623716" expanded="true" signature="47672:47761" ph="INSERT INTO survey... " />
+            <marker date="1500159623716" expanded="true" signature="48283:48346" ph="UPDATE surve... " />
           </folding>
         </state>
       </provider>
@@ -306,41 +377,41 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/api/include/DbHandlerDriver.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="182">
-          <caret line="344" column="21" lean-forward="false" selection-start-line="344" selection-start-column="21" selection-end-line="344" selection-end-column="21" />
+        <state relative-caret-position="1066">
+          <caret line="302" column="32" lean-forward="true" selection-start-line="302" selection-start-column="32" selection-end-line="302" selection-end-column="32" />
           <folding>
-            <marker date="1500007630161" expanded="true" signature="786:977" ph="SELECT idAnd... android_app_version" />
-            <marker date="1500007630161" expanded="true" signature="2194:2264" ph="SELECT clave... admin" />
-            <marker date="1500007630161" expanded="true" signature="3264:3331" ph="SELECT id fr... admin" />
-            <marker date="1500007630161" expanded="true" signature="3706:3831" ph="SELECT id, u... admin" />
-            <marker date="1500007630161" expanded="true" signature="4720:4919" ph="SELECT id, u... admin" />
-            <marker date="1500007630161" expanded="true" signature="6891:7698" ph="SELECT o.id,... orden" />
-            <marker date="1500007630161" expanded="true" signature="8909:8959" ph="SELECT placa... conductor" />
-            <marker date="1500007630161" expanded="true" signature="9154:10929" ph="SELECT o.id orden" />
-            <marker date="1500007630161" expanded="true" signature="18024:19599" ph="SELECT o.id orden" />
-            <marker date="1500007630161" expanded="true" signature="23485:23536" ph="UPDATE orden... " />
-            <marker date="1500007630161" expanded="true" signature="25665:25709" ph="DELETE FROM " />
-            <marker date="1500007630161" expanded="true" signature="26025:26084" ph="SELECT refer... orden" />
-            <marker date="1500007630161" expanded="true" signature="26872:26913" ph="SELECT refer... orden" />
-            <marker date="1500007630161" expanded="true" signature="27232:27279" ph="SELECT id FR... seguimiento" />
-            <marker date="1500007630161" expanded="true" signature="27635:27682" ph="SELECT id FR... seguimiento" />
-            <marker date="1500007630161" expanded="true" signature="28103:28154" ph="UPDATE orden... " />
-            <marker date="1500007630161" expanded="true" signature="28403:28447" ph="SELECT placa... conductor" />
-            <marker date="1500007630161" expanded="true" signature="29631:29757" ph="UPDATE segui... " />
-            <marker date="1500007630161" expanded="true" signature="29937:30060" ph="INSERT INTO seguimiento... " />
-            <marker date="1500007630161" expanded="true" signature="31001:31114" ph="UPDATE segui... " />
-            <marker date="1500007630161" expanded="true" signature="32686:32791" ph="UPDATE orden... " />
-            <marker date="1500007630161" expanded="true" signature="33281:33349" ph="INSERT INTO seguimiento... " />
-            <marker date="1500007630161" expanded="true" signature="33830:33897" ph="UPDATE segui... " />
-            <marker date="1500007630161" expanded="true" signature="34880:34931" ph="UPDATE segui... " />
-            <marker date="1500007630161" expanded="true" signature="36180:36243" ph="SELECT b1ha,... seguimiento" />
-            <marker date="1500007630161" expanded="true" signature="36879:36977" ph="INSERT INTO prelocation... " />
-            <marker date="1500007630161" expanded="true" signature="37857:37919" ph="UPDATE segui... " />
-            <marker date="1500007630161" expanded="true" signature="39199:39294" ph="INSERT INTO location... " />
-            <marker date="1500007630161" expanded="true" signature="46177:46285" ph="UPDATE segui... " />
-            <marker date="1500007630161" expanded="true" signature="46887:46999" ph="INSERT INTO service_resume... " />
-            <marker date="1500007630161" expanded="true" signature="47523:47612" ph="INSERT INTO survey... " />
-            <marker date="1500007630161" expanded="true" signature="48134:48197" ph="UPDATE surve... " />
+            <marker date="1500159623716" expanded="true" signature="786:977" ph="SELECT idAnd... android_app_version" />
+            <marker date="1500159623716" expanded="true" signature="2194:2264" ph="SELECT clave... admin" />
+            <marker date="1500159623716" expanded="true" signature="3264:3331" ph="SELECT id fr... admin" />
+            <marker date="1500159623716" expanded="true" signature="3706:3831" ph="SELECT id, u... admin" />
+            <marker date="1500159623716" expanded="true" signature="4720:4919" ph="SELECT id, u... admin" />
+            <marker date="1500159623716" expanded="true" signature="6891:7698" ph="SELECT o.id,... orden" />
+            <marker date="1500159623716" expanded="true" signature="8909:8959" ph="SELECT placa... conductor" />
+            <marker date="1500159623716" expanded="true" signature="9154:10929" ph="SELECT o.id orden" />
+            <marker date="1500159623716" expanded="true" signature="18173:19748" ph="SELECT o.id orden" />
+            <marker date="1500159623716" expanded="true" signature="23634:23685" ph="UPDATE orden... " />
+            <marker date="1500159623716" expanded="true" signature="25814:25858" ph="DELETE FROM " />
+            <marker date="1500159623716" expanded="true" signature="26174:26233" ph="SELECT refer... orden" />
+            <marker date="1500159623716" expanded="true" signature="27021:27062" ph="SELECT refer... orden" />
+            <marker date="1500159623716" expanded="true" signature="27381:27428" ph="SELECT id FR... seguimiento" />
+            <marker date="1500159623716" expanded="true" signature="27784:27831" ph="SELECT id FR... seguimiento" />
+            <marker date="1500159623716" expanded="true" signature="28252:28303" ph="UPDATE orden... " />
+            <marker date="1500159623716" expanded="true" signature="28552:28596" ph="SELECT placa... conductor" />
+            <marker date="1500159623716" expanded="true" signature="29780:29906" ph="UPDATE segui... " />
+            <marker date="1500159623716" expanded="true" signature="30086:30209" ph="INSERT INTO seguimiento... " />
+            <marker date="1500159623716" expanded="true" signature="31150:31263" ph="UPDATE segui... " />
+            <marker date="1500159623716" expanded="true" signature="32835:32940" ph="UPDATE orden... " />
+            <marker date="1500159623716" expanded="true" signature="33430:33498" ph="INSERT INTO seguimiento... " />
+            <marker date="1500159623716" expanded="true" signature="33979:34046" ph="UPDATE segui... " />
+            <marker date="1500159623716" expanded="true" signature="35029:35080" ph="UPDATE segui... " />
+            <marker date="1500159623716" expanded="true" signature="36329:36392" ph="SELECT b1ha,... seguimiento" />
+            <marker date="1500159623716" expanded="true" signature="37028:37126" ph="INSERT INTO prelocation... " />
+            <marker date="1500159623716" expanded="true" signature="38006:38068" ph="UPDATE segui... " />
+            <marker date="1500159623716" expanded="true" signature="39348:39443" ph="INSERT INTO location... " />
+            <marker date="1500159623716" expanded="true" signature="46326:46434" ph="UPDATE segui... " />
+            <marker date="1500159623716" expanded="true" signature="47036:47148" ph="INSERT INTO service_resume... " />
+            <marker date="1500159623716" expanded="true" signature="47672:47761" ph="INSERT INTO survey... " />
+            <marker date="1500159623716" expanded="true" signature="48283:48346" ph="UPDATE surve... " />
           </folding>
         </state>
       </provider>
