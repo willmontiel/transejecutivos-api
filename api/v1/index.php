@@ -451,11 +451,11 @@ $app->post('/service', 'authenticate', function() use ($app) {
 $app->post('/requestservice', 'authenticate', function() use ($app) {
     $log = new LoggerHandler();
     // check for required params
-    verifyRequiredParams(array('carType', 'passengers', 'date', 'time', 'startCity', 'startAddress', 'endCity', 'endAddress', 'aeroline', 'fly'));
+    verifyRequiredParams(array('carType', 'passengers', 'date', 'time', 'startCity', 'startAddress', 'endCity', 'endAddress'));
     verifyNotRequiredParams(array('observations'));
     // reading post params
     $data = new stdClass();
-    $data->carType = $app->request()->post('car_type');
+    $data->carType = $app->request()->post('carType');
     $data->passengers = $app->request()->post('passengers');
     $data->date = $app->request()->post('date');
     $data->time = $app->request()->post('time');
@@ -467,15 +467,15 @@ $app->post('/requestservice', 'authenticate', function() use ($app) {
     $data->fly = $app->request()->post('fly');
     $data->observations = $app->request()->post('observations');
 
+    $log->writeArray($data);
+
     $response = array();
     
     try {
         global $user;
         $db = new DbHandler();
 
-        $result = $db->requestService($user, $data);
-
-        if ($result) {
+        if ($db->requestService($user, $data)) {
             $response["message"] = "Service requested successfully";
             $response["error"] = false;
         } else {

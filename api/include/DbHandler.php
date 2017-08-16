@@ -1,6 +1,7 @@
 <?php
 
 require_once 'LoggerHandler.php';
+require_once 'ReferenceCreator.php';
 
 /**
  * Class to handle all db operations
@@ -557,7 +558,30 @@ class DbHandler {
      * Create service/order
      */
     public function requestService($user, $data) {
+        $log = new LoggerHandler();
+        $refc = new ReferenceCreator();
+        $ref = $refc->getReference();
 
+        $date = date("m/d/Y");
+        $time = date("H:i:s");
+        $serviceType = "Pasajero (s)";
+        $hour = explode(":", $data->time);
+
+        $stmt = $this->conn->prepare("INSERT INTO orden 
+                                                  (referencia, elaboradopor, fecha_e, hora_e, empresa, fecha_s, hora_s1, hora_s2, tipo_s, vehiculo_s, cant_pax, persona_origen, ciudad_inicio, dir_origen, ciudad_destino, dir_destino, aerolinea, vuelo, obaservaciones) 
+                                                  VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+
+
+        $stmt->bind_param("sssssssssssssssssss", $ref, $user['code'], $date, $time, $user["company"], $data->date, $hour[0], $hour[1], $serviceType, $data->carType, $data->passengers, $user['codigo'], $data->startCity, $data->startAddress, $data->endCity, $data->endAddress, $data->aeroline, $data->fly, $data->observations);
+
+        if ($stmt->execute()) {
+            $stmt->close();
+            return true;
+        }
+
+        $log->writeString("Error " . $stmt->error);
+        $stmt->close();
+        return false;
     }
 
 
