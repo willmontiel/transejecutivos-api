@@ -68,12 +68,12 @@ class DbHandler {
      * @param String $username User username
      */
     public function getUserByUsername($username) {
-        $stmt = $this->conn->prepare("SELECT id, usuario, nombre, apellido, correo1, correo2, telefono1, telefono2, empresa, api_key, device_token, nivel_clte, codigo, first_time, notifications, update_order FROM admin WHERE usuario = ? AND estado = ?");
+        $stmt = $this->conn->prepare("SELECT id, usuario, nombre, apellido, correo1, correo2, telefono1, telefono2, empresa, api_key, device_token, nivel_clte, codigo, first_time, notifications, request_service, update_order FROM admin WHERE usuario = ? AND estado = ?");
 
         $status = "activo";
         $stmt->bind_param("ss", $username, $status);
         if ($stmt->execute()) {
-            $stmt->bind_result($id, $username, $name, $lastname, $email1, $email2, $phone1, $phone2, $company, $api_key, $device_token, $type, $code, $first_time, $notifications, $update_order);
+            $stmt->bind_result($id, $username, $name, $lastname, $email1, $email2, $phone1, $phone2, $company, $api_key, $device_token, $type, $code, $first_time, $notifications, $request_service, $update_order);
             $stmt->fetch();
             $user = array();
             $user["id"] = $id;
@@ -91,6 +91,7 @@ class DbHandler {
             $user["first_time"] = $first_time;
             $user["notifications"] = $notifications;
             $user["code"] = $code;
+            $user["request_service"] = $request_service;
             $user["update_order"] = $update_order;
             $stmt->close();
             return $user;
@@ -550,6 +551,101 @@ class DbHandler {
         }
 
         return $pax;
+    }
+
+    /**
+     * Create service/order
+     */
+    public function requestService($user, $data) {
+
+    }
+
+
+    /**
+     * List all car types.
+     */
+    public function getCarTypes() {
+        $stmt = $this->conn->prepare("SELECT id, nombre FROM tipo_vehiculo");
+
+        $data = array(
+            'data' => array(),
+        );
+
+        if ($stmt->execute()) {
+            
+            $stmt->bind_result($id, $name);
+
+            while ($stmt->fetch()) {
+                $carType = array(
+                    "id" => $id,
+                    "name" => $name
+                );
+
+                $data['data'][] = $carType;
+            }
+
+            $stmt->close();
+        } 
+
+        return $data;
+    }
+
+    /**
+     * List all aerolines.
+     */
+    public function getAerolines() {
+        $stmt = $this->conn->prepare("SELECT id, nombre, abreviacion FROM aerolinea");
+
+        $data = array(
+            'data' => array(),
+        );
+
+        if ($stmt->execute()) {
+            
+            $stmt->bind_result($id, $name, $abb);
+
+            while ($stmt->fetch()) {
+                $aeroline = array(
+                    "id" => $id,
+                    "name" => $name . " ({$abb})"
+                );
+
+                $data['data'][] = $aeroline;
+            }
+
+            $stmt->close();
+        } 
+
+        return $data;
+    }
+
+    /**
+     * List all cities.
+     */
+    public function getCities() {
+        $stmt = $this->conn->prepare("SELECT id, nombre, departamento FROM ciudad");
+
+        $data = array(
+            'data' => array(),
+        );
+
+        if ($stmt->execute()) {
+            
+            $stmt->bind_result($id, $name, $state);
+
+            while ($stmt->fetch()) {
+                $city = array(
+                    "id" => $id,
+                    "name" => $name . " ({$state})"
+                );
+
+                $data['data'][] = $city;
+            }
+
+            $stmt->close();
+        } 
+
+        return $data;
     }
 
     /**

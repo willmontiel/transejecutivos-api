@@ -330,6 +330,89 @@ $app->get('/servicesgrouped', 'authenticate', function() {
 
 
 /**
+ * Listing all car types
+ * method GET
+ * url /getcartypes
+ */
+$app->get('/getcartypes', 'authenticate', function() {
+    //$log = new LoggerHandler();
+    $response = array();
+    
+    try {
+        global $user;
+        $db = new DbHandler();
+        $response = $db->getCarTypes();
+        $response["error"] = false;
+
+        echoRespnse(200, $response);
+    } 
+    catch (Exception $ex) {
+        $log = new LoggerHandler();
+        $log->writeString("Exception while getting car types: " . $ex->getMessage());
+        $log->writeString($ex->getTraceAsString());
+        $response["error"] = true;
+        $response["message"] = "An error occurred, contact the administrator";
+        echoRespnse(500, $response);
+    }
+});
+
+/**
+ * Listing all aerolines
+ * method GET
+ * url /getaerolines
+ */
+$app->get('/getaerolines', 'authenticate', function() {
+    //$log = new LoggerHandler();
+    $response = array();
+
+    try {
+        global $user;
+        $db = new DbHandler();
+        $response = $db->getAerolines();
+        $response["error"] = false;
+
+        echoRespnse(200, $response);
+    }
+    catch (Exception $ex) {
+        $log = new LoggerHandler();
+        $log->writeString("Exception while getting car types: " . $ex->getMessage());
+        $log->writeString($ex->getTraceAsString());
+        $response["error"] = true;
+        $response["message"] = "An error occurred, contact the administrator";
+        echoRespnse(500, $response);
+    }
+});
+
+
+/**
+ * Listing all cities
+ * method GET
+ * url /getcities
+ */
+$app->get('/getcities', 'authenticate', function() {
+    //$log = new LoggerHandler();
+    $response = array();
+
+    try {
+        global $user;
+        $db = new DbHandler();
+        $response = $db->getCities();
+        $response["error"] = false;
+
+        echoRespnse(200, $response);
+    }
+    catch (Exception $ex) {
+        $log = new LoggerHandler();
+        $log->writeString("Exception while getting car types: " . $ex->getMessage());
+        $log->writeString($ex->getTraceAsString());
+        $response["error"] = true;
+        $response["message"] = "An error occurred, contact the administrator";
+        echoRespnse(500, $response);
+    }
+});
+
+
+/**
  * Listing all user services by date
  * method POST
  * url /service         
@@ -354,6 +437,59 @@ $app->post('/service', 'authenticate', function() use ($app) {
         $log = new LoggerHandler();
         $log->writeString("Exception while getting data for service: " . $ex->getMessage());
         $log->writeString($ex->getTraceAsString());
+        $response["error"] = true;
+        $response["message"] = "An error occurred, contact the administrator";
+        echoRespnse(500, $response);
+    }
+});
+
+/**
+ * Request a service
+ * method POST
+ * url /requestservice         
+ */
+$app->post('/requestservice', 'authenticate', function() use ($app) {
+    $log = new LoggerHandler();
+    // check for required params
+    verifyRequiredParams(array('carType', 'passengers', 'date', 'time', 'startCity', 'startAddress', 'endCity', 'endAddress', 'aeroline', 'fly'));
+    verifyNotRequiredParams(array('observations'));
+    // reading post params
+    $data = new stdClass();
+    $data->carType = $app->request()->post('car_type');
+    $data->passengers = $app->request()->post('passengers');
+    $data->date = $app->request()->post('date');
+    $data->time = $app->request()->post('time');
+    $data->startCity = $app->request()->post('startCity');
+    $data->startAddress = $app->request()->post('startAddress');
+    $data->endCity = $app->request()->post('endCity');
+    $data->endAddress = $app->request()->post('endAddress');
+    $data->aeroline = $app->request()->post('aeroline');
+    $data->fly = $app->request()->post('fly');
+    $data->observations = $app->request()->post('observations');
+
+    $response = array();
+    
+    try {
+        global $user;
+        $db = new DbHandler();
+
+        $result = $db->requestService($user, $data);
+
+        if ($result) {
+            $response["message"] = "Service requested successfully";
+            $response["error"] = false;
+        } else {
+            $response["error"] = true;
+            $response["message"] = "Error while requesting service. Please try again!";
+        }
+
+        echoRespnse(200, $response);
+    }
+    catch (Exception $ex) {
+        $log = new LoggerHandler();
+        $log->writeString("Exception while requesting service: " . $ex->getMessage());
+        $log->writeString($ex->getTraceAsString());
+
         $response["error"] = true;
         $response["message"] = "An error occurred, contact the administrator";
         echoRespnse(500, $response);
