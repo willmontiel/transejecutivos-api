@@ -387,6 +387,9 @@ class DbHandlerDriver {
                 $service["start_time"] = $hora1;
                 $service["end_time"] = $hora2;
                 $service["start_date"] = $fecha_s . " " . $hora_s1 . ":" . $hora_s2;
+                $service["service_start_date"] = $fecha_s;
+                $service["start_date_nice"] = $this->getDateNice($fecha_s);
+                $service["service_start_time"] = $hora_s1 . ":" . $hora_s2;
                 $service["fly"] = $vuelo;
                 $service["aeroline"] = $aerolinea;
                 $service["pax_cant"] = (is_numeric($cant_pax) ? $cant_pax : 1);
@@ -405,7 +408,8 @@ class DbHandlerDriver {
                 $service["email"] = trim($email1) . ", " . trim($email2);
                 $service["email1"] = trim($email1);
                 $service["email2"] = trim($email2);
-                $service["company"] = trim($company) . ", " . trim($ordencliente);
+                $service["company"] = trim($company);
+                $service["event"] = trim($ordencliente);
                 $service["license_plate"] = trim($ls);
                 $service["trace_id"] = (empty($trace_id) ? 0 : $trace_id);
                 
@@ -490,11 +494,10 @@ class DbHandlerDriver {
     public function getServicesGrouped($code) {
         $sql = $this->getServicesSQL(true);
 
-//        $log = new LoggerHandler();
-//        $log->writeString($sql);
+        //$log = new LoggerHandler();
+        //$log->writeString($sql);
         $stmt = $this->conn->prepare($sql);
 
-        //$currentDate =  date('m/d/Y', strtotime(date('Y-m-d'). ' - 8 days'));
         $currentDate = date('m/d/Y');
         $nextdate = date('m/d/Y', strtotime(date('Y-m-d') . ' + 30 days'));
 
@@ -503,7 +506,6 @@ class DbHandlerDriver {
 
         $services = $this->modelGroupedDataServices($stmt);
 
-        //$services = $stmt->get_result();
         $stmt->close();
         return $services;
     }
@@ -591,6 +593,9 @@ class DbHandlerDriver {
             $service["ref"] = $referencia;
             $service["date"] = $fecha_e . " " . $hora_e;
             $service["start_date"] = $fecha_s . " " . $hora_s1 . ":" . $hora_s2;
+            $service["service_start_date"] = $fecha_s;
+            $service["start_date_nice"] = $this->getDateNice($fecha_s);
+            $service["service_start_time"] = $hora_s1 . ":" . $hora_s2;
             $service["fly"] = $vuelo;
             $service["aeroline"] = $aerolinea;
             $service["pax_cant"] = (is_numeric($cant_pax) ? $cant_pax : 1);
@@ -601,13 +606,14 @@ class DbHandlerDriver {
             $service["status"] = $orden_estado;
             $service["cd"] = $cd;
             $service["old"] = $old;
+            $service["company"] = trim($company);
+            $service["event"] = trim($orden_cliente);
             $service["passenger_id"] = $passenger_id;
             $service["passenger_code"] = $passenger_code;
             $service["passenger_name"] = $name;
             $service["passenger_lastname"] = $lastName;
             $service["phone"] = trim($phone1) . ", " . trim($phone2);
             $service["email"] = trim($email1) . ", " . trim($email2);
-            $service["company"] = trim($company)  . " - " . trim($orden_cliente);
             $service["trace_id"] = 0;
             $service["b1ha"] = null;
             $service["bls"] = null;
@@ -637,6 +643,40 @@ class DbHandlerDriver {
         );
 
         return $data;
+    }
+
+    function getDateNice($date) {
+        $array = explode("/", $date);
+
+        return $this->getMonth($array[0]) . " " . $array[1] . "/" . $array[2];
+    }
+
+    function getMonth($month) {
+        if ($month == "01") {
+            return "Ene";
+        } else if ($month == "02") {
+            return "Feb";
+        } else if ($month == "03") {
+            return "Mar";
+        } else if ($month == "04") {
+            return "Abr";
+        } else if ($month == "05") {
+            return "May";
+        } else if ($month == "06") {
+            return "Jun";
+        } else if ($month == "07") {
+            return "Jul";
+        } else if ($month == "08") {
+            return "Ago";
+        } else if ($month == "09") {
+            return "Sep";
+        } else if ($month == "10") {
+            return "Oct";
+        } else if ($month == "11") {
+            return "Nov";
+        } else if ($month == "12") {
+            return "Dic";
+        }
     }
 
     /**
