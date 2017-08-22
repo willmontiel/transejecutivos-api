@@ -260,11 +260,6 @@ $app->get('/resetservice/:id', 'authenticate', function($id) {
         $response["error"] = true;
         $response["message"] = "No se pudo eliminar el seguimiento";
         global $user;
-        
-        if (!$user['update']) {
-            echoRespnse(200, array("error" => true, "message" => "No tienes permiso para eliminar el segumiento"));
-        }
-        
         $db = new DbHandlerDriver();
         if ($db->deleteTrace($user, $id)) {
           $response["message"] = "Se eliminó el seguimiento exitosamente";
@@ -350,7 +345,7 @@ $app->post('/searchservice', 'authenticate', function() use($app) {
     }
     catch (Exception $ex) {
         $log = new LoggerHandler();
-        $log->writeString("Exception while searching service: " . $ex->getMessage());
+        $log->writeString("Exception while searchung service: " . $ex->getMessage());
         $log->writeArray($ex->getTraceAsString());
         $response["error"] = true;
         $response["message"] = "Ocurrió un error mientras se buscaba el seguimiento";
@@ -651,6 +646,40 @@ $app->post('/setprelocation/:id', 'authenticate', function($id) use($app) {
     }
 });
 
+/**
+ * Change time service
+ * method PUT
+ * params idOrden
+ * url - /changetime/:id
+ */
+$app->put('/changetime/:id', 'authenticate', function($id) use($app) {
+    global $user;
+
+    verifyRequiredParams(array('start_time'));
+    $time = $app->request->put('start_time');
+
+    try {
+        $db = new DbHandlerDriver();
+        $response = array();
+        $result = $db->changeServiceTime($user, $id, $time);
+        if ($result) {
+            $response["error"] = false;
+            $response["message"] = "The time service was updated successfully";
+        } else {
+            $response["error"] = true;
+            $response["message"] = "Error while updating time service, please try again!";
+        }
+        echoRespnse(200, $response);
+    }
+    catch (Exception $ex) {
+        $log = new LoggerHandler();
+        $log->writeString("Exception while updating time service: " . $ex->getMessage());
+        $log->writeString($ex->getTraceAsString());
+        $response["error"] = true;
+        $response["message"] = "An error occurred, contact the administrator";
+        echoRespnse(500, $response);
+    }
+});
 /**
  * Verifying required params posted or not
  */

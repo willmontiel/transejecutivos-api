@@ -536,6 +536,7 @@ class DbHandlerDriver {
                         o.obaservaciones,
                         o.estado AS orden_estado,
                         o.CD,
+                        o.observaciones_cond,
                         p.id AS passenger_id,
                         p.codigo AS passenger_code,
                         p.nombre,
@@ -566,7 +567,7 @@ class DbHandlerDriver {
             'services' => array(),
         );
 
-        $stmt->bind_result($orden_id, $orden_cliente, $referencia, $fecha_e, $hora_e, $fecha_s, $hora_s1, $hora_s2, $hora_s3, $vuelo, $aerolinea, $cant_pax, $pax2, $pax3, $pax4, $pax5, $ciudad_inicio, $dir_origen, $ciudad_destino, $dir_destino, $observaciones, $orden_estado, $cd, $passenger_id, $passenger_code, $name, $lastName, $phone1, $phone2, $email1, $email2, $company, $s);
+        $stmt->bind_result($orden_id, $orden_cliente, $referencia, $fecha_e, $hora_e, $fecha_s, $hora_s1, $hora_s2, $hora_s3, $vuelo, $aerolinea, $cant_pax, $pax2, $pax3, $pax4, $pax5, $ciudad_inicio, $dir_origen, $ciudad_destino, $dir_destino, $observaciones, $orden_estado, $cd, $obsc, $passenger_id, $passenger_code, $name, $lastName, $phone1, $phone2, $email1, $email2, $company, $s);
 
         while ($stmt->fetch()) {
             $date = trim($fecha_s);
@@ -605,6 +606,7 @@ class DbHandlerDriver {
             $service["observations"] = trim($observaciones);
             $service["status"] = $orden_estado;
             $service["cd"] = $cd;
+            $service["driver_observations"] = $obsc;
             $service["old"] = $old;
             $service["company"] = trim($company);
             $service["event"] = trim($orden_cliente);
@@ -623,12 +625,22 @@ class DbHandlerDriver {
             $service["start_time"] = null;
             $service["b1haStatus"] = null;
 
+            /*
             if (in_array($date, $dates)) {
                 $key = array_search($date, $dates);
                 $data['services'][$key][] = $service;
             } else {
                 $newKey = count($dates);
                 $dates[$newKey] = $date;
+                $data['services'][$newKey][] = $service;
+            }
+            */
+            if (in_array($service["start_date_nice"], $dates)) {
+                $key = array_search($service["start_date_nice"], $dates);
+                $data['services'][$key][] = $service;
+            } else {
+                $newKey = count($dates);
+                $dates[$newKey] = $service["start_date_nice"];
                 $data['services'][$newKey][] = $service;
             }
         }
@@ -678,6 +690,24 @@ class DbHandlerDriver {
             return "Dic";
         }
     }
+
+    public function changeServiceTime($user, $idOrden, $time) {
+        $time = explode(":", $time);
+        $service = $this->getService($idOrden, $user['code']);
+        if (isset($service["service_id"]) && !$service["b1ha"]) {
+            $log = $service["driver_observations"] . " ** El conductor " . $user['name'] . " " . $user['lastname'] . " cambia la hora del servicio de " . $service["start_time"] . " a {$time}";
+            $stmt = $this->conn->prepare("UPDATE orden SET hora_s1 = ?, hora_s2 = ?, observaciones_cond = ? WHERE id = ?");
+            $stmt->bind_param("sssi", $time[0], $time[1], $log, $idOrden);
+            $stmt->execute();
+            $num_affected_rows = $stmt->affected_rows;
+            $stmt->close();
+            return $num_affected_rows > 0;
+        }
+
+        return 0;
+    }
+
+
 
     /**
      * 
