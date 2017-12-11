@@ -312,12 +312,12 @@ class DbHandler {
                             s.bls,
                             s.pab,
                             s.st
-            FROM pasajeros AS a
-                    LEFT JOIN orden AS o ON (o.persona_origen = a.codigo)
+            FROM orden AS o
+                    LEFT JOIN pasajeros AS a ON (o.persona_origen = a.codigo)
                     LEFT JOIN conductor AS c ON (c.codigo = o.conductor) 
                     LEFT JOIN seguimiento as s ON (s.referencia = o.referencia)
             WHERE {$date} 
-            AND a.empresa = ? 
+            AND o.empresa = ? 
             AND o.estado != 'cancelar'
             ORDER BY STR_TO_DATE(o.fecha_s, '%m/%d/%Y') ASC";
         return $sql;
