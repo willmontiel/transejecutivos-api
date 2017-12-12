@@ -576,6 +576,7 @@ class DbHandler {
 
         if ($stmt->execute()) {
             $stmt->close();
+            file_get_contents("http://www.transportesejecutivos.com/admin/correos/crear_orden_admin.php?codigo={$ref}&proceso=5&app=1");
             return true;
         }
 
